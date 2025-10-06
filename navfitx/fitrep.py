@@ -1,55 +1,34 @@
 from abc import ABC
 from dataclasses import dataclass
-from enum import Enum
 
 from reportlab.lib.pagesizes import LETTER
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
 
+from navfitx.constants import MARGIN_BOTTOM, MARGIN_SIDE, MARGIN_TOP
+
 eighth = inch / 8
 ninth = inch / 9
 
-MARGIN_SIDE = inch * 4 / 9
 
-
-class RowHeight(Enum):
-    HEIGHT_ROW_1: float = inch * 1 / 3
-    """For blocks 1-4"""
-
-    HEIGHT_ROW_2: float = HEIGHT_ROW_1
-    """For blocks 5-9"""
-
-    HEIGHT_ROW_3: float = HEIGHT_ROW_1
-    """For blocks 10-15"""
-
-    HEIGHT_ROW_4: float = HEIGHT_ROW_1
-    """For blocks 22-27"""
-
-    HEIGHT_ROW_5: float = HEIGHT_ROW_1
-    """For block 28"""
-
-    HEIGHT_ROW_6: float = HEIGHT_ROW_1
-    """For block 29"""
-
-    HEIGHT_ROW_7: float = HEIGHT_ROW_1
-    """For block 30-32"""
-
-    HEIGHT_ROW_8: float = HEIGHT_ROW_1
-    """For the text that explains Performance Traits."""
-
-    HEIGHT_ROW_9: float = HEIGHT_ROW_1
-    """For the heading row of the Performance Traits table."""
-
-    HEIGHT_ROW_10: float = 84
-    """For block 33"""
+ROW_HEIGHT: list[float] = [
+    inch * 1 / 3,  # blocks 1-4
+    inch * 1 / 3,  # blocks 5-9
+    inch * 1 / 3,  # blocks 10-15
+    inch * 1 / 3,  # blocks 22-27
+    inch * 1 / 3,  # block 28
+    inch * 1 / 3,  # block 29
+    inch * 1 / 3,  # block 30-32
+    inch * 1 / 3,  # for the text that explains Performance Traits
+    inch * 1 / 3,  # for the heading row of the Performance Traits table."""
+    84,  # block 33
+]
 
 
 @dataclass
 class Row(ABC):
-    x: float
     y: float
-    width: float
-    height: RowHeight
+    # height: RowHeight
 
 
 class Row1(Row):
@@ -59,8 +38,16 @@ class Row1(Row):
     blk3_x: float
     blk4_x: float
 
-    def draw_labels(self):
-        pass
+
+@dataclass
+class Fitrep:
+    c: canvas.Canvas
+
+    def draw_fitrep(self):
+        # draw the outline of the fitrep
+        self.c.setLineWidth(0.5)
+        self.c.setFont("Times-Roman", 12)
+        self.c.rect(MARGIN_SIDE, MARGIN_BOTTOM, LETTER[0] - 2 * MARGIN_SIDE, LETTER[1] - MARGIN_TOP - MARGIN_BOTTOM)
 
 
 def draw_blk_label(c: canvas.Canvas, x: float, y: float, label: str):
@@ -109,7 +96,6 @@ def draw_layout(c: canvas.Canvas):
 
     # block 4
     left_edge = left_edge + inch * (1 + 3 / 9)
-    print(left_edge)
     draw_blk_vertical_line(c, left_edge, height - inch / 2 - blk_height, blk_height)
     draw_blk_label(c, left_edge, height - inch / 2 - blk_height, "4.  SSN")
 

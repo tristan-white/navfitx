@@ -3,6 +3,8 @@ from enum import Enum
 from reportlab.lib.units import inch
 
 MARGIN_SIDE = inch * 4 / 9
+MARGIN_TOP = inch / 2
+MARGIN_BOTTOM = inch / 2
 
 
 class RowHeights(Enum):
