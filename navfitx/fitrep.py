@@ -1,217 +1,220 @@
-from abc import ABC
 from dataclasses import dataclass
 
+from constants import MARGIN_SIDE, MARGIN_TOP, MARGIN_BOTTOM
 from reportlab.lib.pagesizes import LETTER
 from reportlab.lib.units import inch
-from reportlab.pdfgen import canvas
+from reportlab.pdfgen.canvas import Canvas
 
-from navfitx.constants import MARGIN_BOTTOM, MARGIN_SIDE, MARGIN_TOP
+@dataclass
+class Box:
+    """A box on the fitrep form."""
 
-eighth = inch / 8
-ninth = inch / 9
+    bl: tuple[float, float]
+    tr: tuple[float, float]
+    br: tuple[float, float] = (0.0, 0.0)
+    tl: tuple[float, float] = (0.0, 0.0)
+    width: float = 0
+    height: float = 0
+
+    def __post_init__(self):
+        self.width = self.tr[0] - self.bl[0]    
+        self.height = self.tr[1] - self.bl[1]
+        self.br = (self.tr[0], self.bl[1])
+        self.tl = (self.bl[0], self.tr[1])
+
+    def draw_left_border(self, canvas: Canvas):
+        canvas.line(self.bl[0], self.bl[1], self.tl[0], self.tl[1])
+    
+    def draw_top_border(self, canvas: Canvas):
+        canvas.line(self.bl[0], self.tl[1], self.tr[0], self.tr[1])
+
+    def draw_right_border(self, canvas: Canvas):
+        canvas.line(self.tr[0], self.tr[1], self.br[0], self.br[1])
+
+    def draw_bottom_border(self, canvas: Canvas):
+        canvas.line(self.bl[0], self.bl[1], self.br[0], self.br[1])
+
+    def draw_debug(self, canvas: Canvas, string: str):
+        canvas.drawString(self.bl[0] + 2, self.bl[1] + 2, string)
 
 
-ROW_HEIGHT: list[float] = [
-    inch * 1 / 3,  # blocks 1-4
-    inch * 1 / 3,  # blocks 5-9
-    inch * 1 / 3,  # blocks 10-15
-    inch * 1 / 3,  # blocks 22-27
-    inch * 1 / 3,  # block 28
-    inch * 1 / 3,  # block 29
-    inch * 1 / 3,  # block 30-32
-    inch * 1 / 3,  # for the text that explains Performance Traits
-    inch * 1 / 3,  # for the heading row of the Performance Traits table."""
-    84,  # block 33
+def make_box_to_right(box: Box, width: float) -> Box:
+    """
+    Returns a new box of width `width` whose left border overlaps the right border of `box`.
+
+    Args:
+        box (Box): The box to the left.
+        width (float): The width of the new box.
+    """
+    return Box(bl=box.br, tr=(box.tr[0] + width, box.tr[1]))
+
+def make_box_below(box: Box, width: float, height: float) -> Box:
+    """
+    Returns a new box of width `width` and height `height` whose top border overlaps the bottom border of `box`.
+
+    Args:
+        box (Box): The box above.
+        height (float): The height of the new box.
+        width (float): The width of the new box.
+    """
+    return Box(bl=(box.bl[0], box.bl[1] - height), tr=(box.bl[0] + width, box.br[1]))
+
+def draw_label_0(canvas: Canvas, box: Box, text: str, size: int = 8):
+    canvas.setFont("Times-Roman", size)
+    canvas.drawString(box.tl[0] + 3, box.tl[1] - box.height / 3, text, wordSpace=1.0)
+
+# Row 0
+box_0 = Box(
+    bl=(MARGIN_SIDE, LETTER[1] - MARGIN_TOP - inch / 3),
+    tr=(LETTER[0] / 2, LETTER[1] - MARGIN_TOP),
+)
+box_1 = make_box_to_right(box_0, 66)
+box_2 = make_box_to_right(box_1, 97)
+box_3 = make_box_to_right(box_2, LETTER[0] - MARGIN_SIDE - box_2.br[0])
+
+# Row 1
+box_4 = make_box_below(box_0, 152, inch / 3)
+box_5 = make_box_to_right(box_4, 50)
+box_6 = make_box_to_right(box_5, 194)
+box_7 = make_box_to_right(box_6, 76)
+box_8 = make_box_to_right(box_7, LETTER[0] - MARGIN_SIDE - box_7.br[0])
+
+# Row 2
+box_9 = make_box_below(box_4, 370 - MARGIN_SIDE - 2, inch / 3)
+box_10 = make_box_to_right(box_9, LETTER[0] - 2 * MARGIN_SIDE - box_9.width)
+
+# Row 3
+box_11 = make_box_below(box_9, 112 - MARGIN_SIDE, inch / 3)
+box_12 = make_box_to_right(box_11, box_9.width - box_11.width)
+box_13 = make_box_to_right(box_12, 98)
+box_14 = make_box_to_right(box_13, box_10.width - box_13.width)
+
+# Row 4
+box_15 = make_box_below(box_11, box_4.width - 1, box_11.height)
+box_16 = make_box_to_right(box_15, 48)
+box_17 = make_box_to_right(box_16, box_16.width + 2)
+box_18 = make_box_to_right(box_17, 412 - box_17.br[0])
+box_19 = make_box_to_right(box_18, box_14.bl[0] - box_18.br[0])
+box_20 = make_box_to_right(box_19, LETTER[0] - MARGIN_SIDE - box_19.br[0])
+
+# Row 5
+box_21 = Box(bl=(MARGIN_SIDE, box_15.bl[1] - 50), tr=box_20.br)
+
+# Row 6
+box_22 = make_box_below(box_21, box_21.width, 60)
+
+# Row 7
+box_23 = make_box_below(box_22, 181, box_0.height)
+box_24 = make_box_to_right(box_23, 75)
+box_25 = make_box_to_right(box_24, 140)
+box_26 = Box(bl=box_25.br, tr=box_22.br)
+
+# Row 8
+box_27 = make_box_below(box_23, box_21.width, inch / 4)
+
+# Row 9
+box_28 = make_box_below(box_27, inch, 30)
+box_29 = make_box_to_right(box_28, 130)
+box_30 = make_box_to_right(box_29, 36)
+box_31 = make_box_to_right(box_30, 138)
+box_32 = make_box_to_right(box_31, 36)
+box_33 = Box(bl=box_32.br, tr=box_27.br)
+
+# row 10
+box_34 = make_box_below(box_28, box_28.width, 85)
+box_35 = make_box_below(box_29, box_29.width, box_34.height)
+box_36 = make_box_below(box_30, box_30.width, box_34.height)
+box_37 = make_box_below(box_31, box_31.width, box_34.height)
+box_38 = make_box_below(box_32, box_32.width, box_34.height)
+box_39 = make_box_below(box_33, box_33.width, box_34.height)
+
+# row 11
+box_40 = make_box_below(box_34, box_34.width, 84)
+box_41 = make_box_below(box_35, box_35.width, box_40.height)
+box_42 = make_box_below(box_36, box_36.width, box_40.height)
+box_43 = make_box_below(box_37, box_37.width, box_40.height)
+box_44 = make_box_below(box_38, box_38.width, box_40.height)
+box_45 = make_box_below(box_39, box_39.width, box_40.height)
+
+# row 12
+box_46 = make_box_below(box_40, box_40.width, 84)
+box_47 = make_box_below(box_41, box_41.width, box_46.height)
+box_48 = make_box_below(box_42, box_42.width, box_46.height)
+box_49 = make_box_below(box_43, box_43.width, box_46.height)
+box_50 = make_box_below(box_44, box_44.width, box_46.height)
+box_51 = make_box_below(box_45, box_45.width, box_46.height)
+
+# row 13
+box_52 = make_box_below(box_46, box_46.width, 84)
+box_53 = make_box_below(box_47, box_47.width, box_52.height)
+box_54 = make_box_below(box_48, box_48.width, box_52.height)
+box_55 = make_box_below(box_49, box_49.width, box_52.height)
+box_56 = make_box_below(box_50, box_50.width, box_52.height)
+box_57 = make_box_below(box_51, box_51.width, box_52.height)
+
+# row 14
+box_58 = Box(bl=(MARGIN_SIDE, MARGIN_BOTTOM), tr=box_52.br)
+box_59 = make_box_below(box_53, box_53.width, box_58.height)
+box_60 = make_box_below(box_54, box_54.width, box_58.height)
+box_61 = make_box_below(box_55, box_55.width, box_58.height)
+box_62 = make_box_below(box_56, box_56.width, box_58.height)
+box_63 = make_box_below(box_57, box_57.width, box_58.height)
+
+# class Layout():
+#     """A collection of all the boxes on the fitrep form."""
+
+boxes = [
+    box_0, box_1, box_2, box_3,
+    box_4, box_5, box_6, box_7, box_8,
+    box_9, box_10,
+    box_11, box_12, box_13, box_14,
+    box_15, box_16, box_17, box_18, box_19, box_20,
+    box_21,
+    box_22,
+    box_23, box_24, box_25, box_26,
+    box_27,
+    box_28, box_29, box_30, box_31, box_32, box_33,
+    box_34, box_35, box_36, box_37, box_38, box_39,
+    box_40, box_41, box_42, box_43, box_44, box_45,
+    box_46, box_47, box_48, box_49, box_50, box_51,
+    box_52, box_53, box_54, box_55, box_56, box_57,
+    box_58, box_59, box_60, box_61, box_62, box_63,
 ]
 
 
-@dataclass
-class Row(ABC):
-    y: float
-    # height: RowHeight
-
-
-class Row1(Row):
-    """For blocks 1-4"""
-
-    blk2_x: float
-    blk3_x: float
-    blk4_x: float
-
-
-@dataclass
-class Fitrep:
-    c: canvas.Canvas
-
-    def draw_fitrep(self):
-        # draw the outline of the fitrep
-        self.c.setLineWidth(0.5)
-        self.c.setFont("Times-Roman", 12)
-        self.c.rect(MARGIN_SIDE, MARGIN_BOTTOM, LETTER[0] - 2 * MARGIN_SIDE, LETTER[1] - MARGIN_TOP - MARGIN_BOTTOM)
-
-
-def draw_blk_label(c: canvas.Canvas, x: float, y: float, label: str):
-    """
-    Draws the first block of the form, which contains the name, rank, and date.
-
-    Args:
-        c (canvas.Canvas): The canvas to draw on.
-        x (float): The x-coordinate of the bottom-left corner of the block.
-        y (float): The y-coordinate of the bottom-left corner of the block.
-    """
-    c.setFontSize(8)
-    c.drawString(x + 4, y + ninth * 2, label)
-
-
-def draw_blk_vertical_line(c: canvas.Canvas, blk_bl_x: float, blk_bl_y: float, height: float):
-    """
-    Draws a vertical line in a block.
-    """
-    c.line(blk_bl_x, blk_bl_y, blk_bl_x, blk_bl_y + height)
-
-
-def draw_layout(c: canvas.Canvas):
-    c.setLineWidth(0.5)
-    c.setFont("Times-Roman", 12)
-    # draw a border around the page
-    width = 612
-    height = 792
-    blk_width = width - 2 * (4 * ninth)
-    blk_height = ninth * 3
-    c.rect(4 * ninth, inch / 2, blk_width, height - inch)
-
-    # block 1
-    c.line(4 * ninth, height - inch / 2 - blk_height, blk_width + 4 * ninth, height - inch / 2 - blk_height)
-    draw_blk_label(c, 4 * ninth, height - inch / 2 - blk_height, "1.  Name (Last, First  MI  Suffix)")
-
-    # block 2
-    left_edge = width / 2
-    draw_blk_vertical_line(c, left_edge, height - inch / 2 - blk_height, blk_height)
-    draw_blk_label(c, left_edge, height - inch / 2 - blk_height, "2.  Grade/Rate")
-
-    # block 3
-    left_edge = width / 2 + 65 / 72 * inch
-    draw_blk_vertical_line(c, left_edge, height - inch / 2 - blk_height, blk_height)
-    draw_blk_label(c, left_edge, height - inch / 2 - blk_height, "3.  Desig")
-
-    # block 4
-    left_edge = left_edge + inch * (1 + 3 / 9)
-    draw_blk_vertical_line(c, left_edge, height - inch / 2 - blk_height, blk_height)
-    draw_blk_label(c, left_edge, height - inch / 2 - blk_height, "4.  SSN")
-
-    # block 5
-    c.line(4 * ninth, height - inch / 2 - blk_height * 2, blk_width + 4 * ninth, height - inch / 2 - blk_height * 2)
-    draw_blk_label(c, 4 * ninth, height - inch / 2 - blk_height * 2, "5.   ACT      TAR     INACT   AT/ADSW/265")
-
-    # block 6
-    left_edge = 4 * ninth + 152
-    draw_blk_vertical_line(c, left_edge, height - inch / 2 - blk_height * 2, blk_height)
-    draw_blk_label(c, left_edge, height - inch / 2 - blk_height * 2, "6.  UIC")
-
-    # block 7
-    left_edge = 235
-    draw_blk_vertical_line(c, left_edge, height - inch / 2 - blk_height * 2, blk_height)
-    draw_blk_label(c, left_edge, height - inch / 2 - blk_height * 2, "7.  Ship/Station")
-
-    # block 8
-    left_edge = 428
-    draw_blk_vertical_line(c, left_edge, height - inch / 2 - blk_height * 2, blk_height)
-    draw_blk_label(c, left_edge, height - inch / 2 - blk_height * 2, "8.  Promotion Status")
-
-    # block 9
-    left_edge = 503
-    draw_blk_vertical_line(c, left_edge, height - inch / 2 - blk_height * 2, blk_height)
-    draw_blk_label(c, left_edge, height - inch / 2 - blk_height * 2, "9.  Date Reported")
-
-    # block 10
-    left_edge = 4 * ninth
-    draw_blk_label(c, left_edge, height - inch / 2 - blk_height * 3, "Occasion for Report")
-
-    # block 14-15
-    left_edge = width / 2 + 65 / 72 * inch - 2
-    draw_blk_vertical_line(c, left_edge, height - inch / 2 - blk_height * 3, blk_height)
-    draw_blk_label(c, left_edge, height - inch / 2 - blk_height * 3, "Period of Report")
-
-    # block 16
-    left_edge = 4 * ninth
-    draw_blk_label(c, left_edge, height - inch / 2 - blk_height * 4, "16.")
-
-    # block 17-19
-    left_edge = 113
-    draw_blk_vertical_line(c, left_edge, height - inch / 2 - blk_height * 4, blk_height)
-    draw_blk_label(c, left_edge, height - inch / 2 - blk_height * 4, "Type of Report")
-
-    # block 20
-    left_edge = width / 2 + 65 / 72 * inch - 2
-    draw_blk_vertical_line(c, left_edge, height - inch / 2 - blk_height * 4, blk_height)
-    draw_blk_label(c, left_edge, height - inch / 2 - blk_height * 4, "20.  Physical Readiness")
-
-    # block 21
-    left_edge = 468
-    draw_blk_vertical_line(c, left_edge, height - inch / 2 - blk_height * 4, blk_height)
-    draw_blk_label(c, left_edge, height - inch / 2 - blk_height * 4, "21.  Billet Subcategory (if any)")
-
-    # block 22
-    left_edge = 4 * ninth
-    draw_blk_label(c, left_edge, height - inch / 2 - blk_height * 5, "22.  Promoting Senior (Last, FI MI)")
-
-    # block 23
-    left_edge = 4 * ninth + 152  # same as block 6
-    draw_blk_vertical_line(c, left_edge, height - inch / 2 - blk_height * 5, blk_height)
-    draw_blk_label(c, left_edge, height - inch / 2 - blk_height * 5, "23.  Grade")
-
-    # block 24
-    left_edge = 230
-    draw_blk_vertical_line(c, left_edge, height - inch / 2 - blk_height * 5, blk_height)
-    draw_blk_label(c, left_edge, height - inch / 2 - blk_height * 5, "24.  Desig")
-
-    # block 25
-    left_edge = 280
-    draw_blk_vertical_line(c, left_edge, height - inch / 2 - blk_height * 5, blk_height)
-    draw_blk_label(c, left_edge, height - inch / 2 - blk_height * 5, "25.  Title")
-
-    # block 26
-    left_edge = 413
-    draw_blk_vertical_line(c, left_edge, height - inch / 2 - blk_height * 5, blk_height)
-    draw_blk_label(c, left_edge, height - inch / 2 - blk_height * 5, "26.  UIC")
-
-    # block 27
-    left_edge = 468
-    draw_blk_vertical_line(c, left_edge, height - inch / 2 - blk_height * 5, blk_height)
-    draw_blk_label(c, left_edge, height - inch / 2 - blk_height * 5, "27.  SSN")
-
-    # block 28
-    left_edge = 4 * ninth
-    draw_blk_label(c, left_edge, height - inch / 2 - blk_height * 6, "28. Command employment and command achievements.")
-
-    c.line(4 * ninth, height - inch / 2 - blk_height * 7, blk_width + 4 * ninth, height - inch / 2 - blk_height * 7)
-
-    # block 29
-    blk_29_bl_y = height - 267
-    left_edge = 4 * ninth
-    draw_blk_label(
-        c,
-        left_edge,
-        blk_29_bl_y,
-        "29. Primary/Collateral/Watchstanding duties. (Enter primary duty abbreviation in box.)",
-    )
-    # c.rect(left_edge + 4, blk_29_bl_y, 153-37, 10)
-
-    c.line(4 * ninth, height - inch / 2 - blk_height * 9, blk_width + 4 * ninth, height - inch / 2 - blk_height * 9)
-
-    # block 30
-    c.line(4 * ninth, height - inch / 2 - blk_height * 3, blk_width + 4 * ninth, height - inch / 2 - blk_height * 3)
-    c.line(4 * ninth, height - inch / 2 - blk_height * 4, blk_width + 4 * ninth, height - inch / 2 - blk_height * 4)
-    c.line(4 * ninth, height - inch / 2 - blk_height * 5, blk_width + 4 * ninth, height - inch / 2 - blk_height * 5)
-
-    c.drawString(464, height - inch / 2 + 4, "RCS BUPERS 1610-1")
-    c.setFontSize(14.5)
-    c.drawString(34, height - inch / 2 + 4, "FITNESS REPORT & COUNSELING RECORD     (E7 - O6)")
 
 
 if __name__ == "__main__":
-    c = canvas.Canvas("hello.pdf", pagesize=LETTER)
-    draw_layout(c)
+    c = Canvas("layout.pdf", pagesize=LETTER)
+    c.setLineWidth(0.5)
+    
+    for i, box in enumerate(boxes):
+        box.draw_left_border(c)
+        box.draw_right_border(c)
+        box.draw_top_border(c)
+        # box.draw_debug(c, str(i))
+    
+    # draw bottom border on box 58-63
+    for box in [box_58, box_59, box_60, box_61, box_62, box_63]:
+        box.draw_bottom_border(c)
+    
+
+    draw_label_0(c, box_0, "1.  Name (Last, First  MI  Suffix)")
+    draw_label_0(c, box_1, "2.  Grade/Rate")
+    draw_label_0(c, box_2, "3.  Desig")
+    draw_label_0(c, box_3, "4.  SSN")
+    draw_label_0(c, box_4, "5.")
+    draw_label_0(c, box_5, "6.  UIC")
+    draw_label_0(c, box_6, "7.  Ship/Station")
+    draw_label_0(c, box_7, "8.  Promotion Status")
+    draw_label_0(c, box_8, "9.  Date Reported")
+    draw_label_0(c, box_9, "Occasion for Report", size=7)
+
+    draw_label_0(c, box_13, "20.  Physical Readiness")
+    draw_label_0(c, box_14, "21.  Billet Subcategory")
+
+    draw_label_0(c, box_22, "")
+
 
     c.showPage()
     c.save()

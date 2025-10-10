@@ -9,14 +9,9 @@ from reportlab.pdfgen import canvas
 from navfitx.constants import MARGIN_BOTTOM, MARGIN_SIDE, MARGIN_TOP
 
 
-@dataclass
-class Coord:
-    x: float = 0
-    y: float = 0
-
 
 @dataclass
-class Box(Coord):
+class Block():
     """
     A block
     """
@@ -27,7 +22,7 @@ class Box(Coord):
     y: float = 0
 
 
-class Name(Box):
+class Name():
     """
     Enter the member's last name, first name, middle initial, and suffix (if any)
     separated by spaces. Place a comma after the last name. Omit spaces and punctuation within a
@@ -41,12 +36,8 @@ class Name(Box):
 
     name: str = ""
 
-    def __post_init__(self):
-        self.x = MARGIN_SIDE
-        self.y = LETTER[1] - MARGIN_TOP - inch / 8
 
-
-class GradeRate(Box):
+class GradeRate():
     """
     The grade or rate the Service member is actually wearing on the ending
     date of the report.
@@ -67,7 +58,7 @@ class GradeRate(Box):
         self.y = Name().y
 
 
-class DesigSelf(Box):
+class DesigSelf():
     """
     Officer designator or enlisted warfare qualification designation
 
@@ -90,7 +81,7 @@ class DesigSelf(Box):
         self.y = grade_rate.y
 
 
-class SSN(Box):
+class SSN():
     """
     Service member's full SSN with hyphens after the third and fifth digits.
     It should be used for all reports that are mailed (e.g., 000-00-0000).
@@ -107,7 +98,7 @@ class SSN(Box):
         self.y = desig_self.y
 
 
-class Group(Box):
+class Group():
     """
     This field is used for summary group comparison. For enlisted, group all
     ACT and Training and Administration of Reserves (TAR) together and group inactive duty
@@ -140,7 +131,7 @@ class Group(Box):
         self.y = LETTER[1] - MARGIN_TOP - inch * (2 / 9)
 
 
-class UIC(Box):
+class UIC():
     """
     the UIC of the Service member's ship or station. Normally a UIC is a
     breakout for enlisted personnel; however, if reporting seniors have more than one UIC with
@@ -164,7 +155,7 @@ class UIC(Box):
         self.y = group.y
 
 
-class ShipStation(Box):
+class ShipStation():
     """
     Abbreviated name of the activity to which the member is assigned, for the duty reported on. Do not spell
     out letters and numbers (e.g., use A instead of ALFA, 1 instead of ONE etc.).
@@ -181,7 +172,7 @@ class ShipStation(Box):
         self.y = uic.y
 
 
-class PromotionStatus(Box):
+class PromotionStatus():
     """
     member's promotion status on the ending date of the report period
     """
@@ -197,20 +188,15 @@ class PromotionStatus(Box):
         self.y = ship_station.y
 
 
-class DateReported(Box):
+class DateReported():
     nums: tuple[int] = 9
     label: str = "Date Reported"
-    anchor: Coord = field(default_factory=PromotionStatus)
 
     date: datetime.date | None = None
 
-    def __post_init__(self):
-        promotion_status = PromotionStatus()
-        self.x = 503  # TODO: make this relative?
-        self.y = promotion_status.y
 
 
-class OccasionForReport(Box):
+class OccasionForReport():
     """
     Select all applicable options or place an “X” in each block that
     applies. See chapter 3 for reporting occasions.
@@ -221,19 +207,11 @@ class OccasionForReport(Box):
 
     nums: tuple[int] = (10, 11, 12, 13)
     label: str = "Occasion for Report"
-    anchor: Coord = field(default_factory=Group)
 
     occasion: str = ""
 
-    def __post_init__(self):
-        self.x = MARGIN_SIDE
 
-        group = Group()
-        row_height = Name().y - group.y
-        self.y = group.y - row_height
-
-
-class PeriodOfReport(Box):
+class PeriodOfReport():
     """
     YYMMMDD format
 
@@ -244,32 +222,20 @@ class PeriodOfReport(Box):
 
     nums: tuple[int] = (14, 15)
     label: str = "Period of Report"
-    anchor: Coord = field(default_factory=OccasionForReport)
 
     start: datetime.date | None = None
     end: datetime.date | None = None
 
-    def __post_init__(self):
-        self.x = LETTER[0] / 2 + inch * (65 / 72) - 2
-
-        occasion = OccasionForReport()
-        self.y = occasion.y
 
 
-class NotObserved(Box):
+class NotObserved():
     nums: tuple[int] = 16
     label: str = "Not Observed Report (NOB)"
     nob: bool = False
 
-    def __post_init__(self):
-        self.x = MARGIN_SIDE
-
-        period = PeriodOfReport()
-        row_height = Group().y - OccasionForReport().y
-        self.y = period.y - row_height
 
 
-class TypeOfReport(Box):
+class TypeOfReport():
     """
     Select the option or place an “X” in the block that applies. If this is a
     Concurrent/Regular report, place an “X” in blocks 17 and 18.
@@ -280,94 +246,72 @@ class TypeOfReport(Box):
 
     tor: str = ""
 
-    def __post_init__(self):
-        self.x = 113
-
-        not_observed = NotObserved()
-        self.y = not_observed.y
 
 
-class PhysicalReadiness(Box):
+class PhysicalReadiness():
     nums: tuple[int] = 20
     label: str = "Physical Readiness"
 
     pfa_code: str = ""
 
-    def __post_init__(self):
-        self.x = LETTER[0] / 2 + 63
-
-        type_of_report = TypeOfReport()
-        self.y = type_of_report.y
 
 
-class BilletSubcategory(Box):
+class BilletSubcategory():
     nums: tuple[int] = 21
     label: str = "Billet Subcategory"
 
     code: str = ""
 
-    def __post_init__(self):
-        self.x = 468
-        self.y = PhysicalReadiness().y
 
-
-class ReportingSeniorName(Box):
+class ReportingSeniorName():
     nums: tuple[int] = 22
     label: str = "Reporting Senior Name"
 
     name: str = ""
 
-    def __post_init__(self):
-        self.x = MARGIN_SIDE
-        self.y = NotObserved().y - (OccasionForReport().y - NotObserved().y)
-
-
-class ReportingSeniorGrade(Box):
+class ReportingSeniorGrade():
     nums: tuple[int] = 23
     label: str = "Reporing Senior Grade"
 
     grade: str = ""
 
-    def __post_init__(self):
-        self.x = MARGIN_SIDE + 152  # same as block 6
-        self.y = ReportingSeniorName().y
 
 
-class ReportingSeniorDesig(Box):
+class ReportingSeniorDesig():
     nums: tuple[int] = 24
     label: str = "Reporting Senior Designator"
 
     desig: str = ""
 
 
-class ReportingSeniorTitle(Box):
+class ReportingSeniorTitle():
     nums: tuple[int] = 25
     label: str = "Reporting Senior Title"
 
     title: str = ""
 
 
-class ReportingSeniorUIC(Box):
+class ReportingSeniorUIC():
     nums: tuple[int] = 26
     label: str = "Reporting Senior UIC"
 
     uic: str = ""
 
 
-class ReportingSeniorSSN(Box):
+class ReportingSeniorSSN():
     nums: tuple[int] = 27
     label: str = "Reporting Senior SSN"
 
     ssn: str = ""
 
 
-class EmploymentAndAchievements(Box):
+class EmploymentAndAchievements():
     label: str = "Command Employment and Commmand Achievements"
 
     text: str = ""
 
 
-class DutiesAndPFA(Box):
+class DutiesAndPFA():
     """
     Contains primary, collateral, and watchstanding duties.
 
@@ -387,7 +331,7 @@ class DutiesAndPFA(Box):
     text: str = ""
 
 
-class DateCounseled(Block):
+class DateCounseled():
     label: str = "Date Counseled"
 
     date: datetime.date | None = None
