@@ -355,6 +355,31 @@ class Layout:
         box_58_txt = "37.\nMISSION\nACCOMPLISHMENT\nAND INITIATIVE:\nTaking initiative,\nplanning/prioritizing,\nachieving mission\n"
         self.draw_left_col_pt(box_58, box_58_txt)
 
+        box_35_text = """
+        -Lacks basic professional knowledge to
+        perform effectively
+        -Cannot apply basic skills
+        -Fails to develop professionally or
+        achieve timely qualifications
+        """
+
+        box_37_text = """
+        -Has thorough professional knowledge
+        -Competently performs both routine
+        and new tasks
+        -Steadily improves skills, achieves timely
+        qualifications
+        """
+
+        box_39_text = """
+        -Recognized expert, sought after to solve
+        difficult problems
+        -Exceptionally skilled, develops and
+        executes innovative ideas
+        -Achieves early/highly advanced
+        qualifications
+        """
+
         draw_b23_text(c)
         draw_b27_text(c)
 
