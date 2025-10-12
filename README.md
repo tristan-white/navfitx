@@ -1,57 +1,68 @@
-# navfitx
+# NAVFITX
 
 NAVFITX is an next-gen NAVFIT application built to supercede NAVFIT98A.
 
-## What is NAVFIT98A?
+## Background
 
-NAVFIT98A is Windows platform desktop application written in Visual Basic in 1998. It's purpose is to generate PDF performance evaluation reports. Every service member in the Navy gets a performance eval annually.
+- Every year, every service member in the Navy creates a performance evalution report.
+- Each report is a single, two-sided document. The only method to submit a report was, and still is, to physically mail it to NAVPERSCOM.[^2]
+- NAVFIT98A was released in 1998. It was/is a Windows GUI application written in Visual Basic that allows users to electronically create an edit reports.
+- Many years passed, and NAVFIT98A did not receive any major update. After [two decades](https://blog.usni.org/posts/2018/10/11/happy-anniversary-navfit98) of use, there were widespread calls for modernization.
+- In 2022, the Navy released eNavFit, which was "designed to be a bridge to future performance evaluation modernization".[^3]
+- When Navy ships and stations tried to use eNavFit, they encountered so many bugs and issues that in November 2023, the Navy released [NAVADMIN 279/23](https://navadmin-viewer.fly.dev/NAVADMIN/279/23), which stated that NAVFIT98A would continue to be available through the end of 2025 while problems with eNavFit were fixed.
+- In January 2025, [NAVADMIN 012/25](https://www.mynavyhr.navy.mil/Portals/55/Messages/NAVADMIN/NAV2025/NAV25012.pdf?ver=XNxecwkcKmyF0dFjhYHpzA%3d%3d) was released, stating that eNavFit would officially be scrapped and no longer available for use starting 1 May 2025. Furthermore, it anounced a "modernized and more capable NAVFIT98A" update to be released that month, providing service members with a more "user-friendly" experience, along with "updated business rules that will significantly reduce the number of rejected reports received by Navy Personnel Command".[^4]
 
-A brief history:
+## Current State of NAVFIT98A
 
-- 1998 – Birth of NAVFIT98
-    - NAVFIT98 was originally developed in **1998** to automate the performance evaluation process for sailors.
-    - It "replaced"[^1] paper-based forms with a Windows-based software for generating FitReps and Evals
-    - Early versions were rudimentary, but it **standardized the Navy’s evaluation process** for officers and enlisted personnel.
-- Early 2000s – Adoption and Core Features
-    - NAVFIT98 became the **default evaluation tool** for the Navy, widely deployed across shore commands and ships.
-- 2005–2010 – Integration & Upscaling
-    - It was distribution-standard for the NMCI environment, designated as a **NMCI Core Application (CA)**.
-    - Despite its age, it continued with relatively few feature additions, maintaining its basic design and reliance on Microsoft Access databases.
-- 2010s – Persistent Use and Frustration
-    - Despite the rise of electronic solutions and cloud-based software, NAVFIT98 continued unchanged, becoming a symbol of “legacy IT” in the Navy.
-    - Personnel often complained about its clunky interface, single-workstation constraints, and manual distribution process, even years after better technologies existed.
-- 2018 – [20 Years of NAVFIT98!](https://blog.usni.org/posts/2018/10/11/happy-anniversary-navfit98)
-    - Despite widespread calls for modernization, NAVFIT98 remained central to naval personnel management.
-- 2022 – Introduction of eNavFit
-    - To modernize the evaluation process, the Navy introduced **eNavFit** as a web-based interface bridging NAVFIT98A and future talent management systems.
-    - Benefits were supposed to include:
-        - Web-based routing and submission.
-        - Real-time validation and error reduction.
-        - Digital signatures and improved PII protections.
-- 2023 – eNavFit Issues
-    - After its introduction, eNavFit had enough widespread issues that Bureau of Naval Personnel issued **NAVADMIN 279/23**, authorizing continued use of NAVFIT98A through **31 December 2025**, citing ongoing development and enhancement needs for eNavFit.[^7]
-- 2025 – eNavFit Scrapped, NAVFIT98A "Modernized"
-    - [NAVADMIN 012/25](https://www.mynavyhr.navy.mil/Portals/55/Messages/NAVADMIN/NAV2025/NAV25012.pdf?ver=XNxecwkcKmyF0dFjhYHpzA%3d%3d) anounced that it was officially scrapping eNavFit, and that "effective 1 May 2025, eNavFit will no longer be available for Fleet use"
-    - On **July 30, 2025**, the Navy released **NAVFIT98A v2.2.0.33 (v33)**
-    - New *CHIEFEVAL* evaluation format for chief petty officers aligned with guiding principles from the Master Chief Petty Officer of the Navy.
+When [NAVADMIN 012/25](https://www.mynavyhr.navy.mil/Portals/55/Messages/NAVADMIN/NAV2025/NAV25012.pdf?ver=XNxecwkcKmyF0dFjhYHpzA%3d%3d) was released in Jan 2025, the new version 32 update had not yet been released. As of this writing (Oct 2025), NAVFIT98A is now on version 33, and the Navy has not anounced any plans to move away from NAVFIT98A going forward.
 
+Did version 32 fix the problems with NAVFIT98A? Did it make it more modern and user-friendly?
 
-The nickname “NAVFIT” has become part of Navy lore — a constant, seemingly immortal application stationed alongside sailors for decades. Despite ongoing efforts to modernize personnel systems, NAVFIT98A’s persistence underlines one of the Navy’s most enduring mantras: “If it ain’t broken, don’t fix it.”
+**Does NAVFIT98A meet the needs of the Navy?**
 
-[^1]: [Performance Evaluation Reports Frequently Asked Questions August 2025](https://www.mn3p.navy.mil/documents/d/performance/navfit98a-v2-2-0-33-frequently-asked-question?download=true) states "Presently, there is no electronic system to submit performance evaluation reports".
+<figure style="width: 700px; text-align: center;">
+  <picture>
+    <img src="./docs/img/navfit98a_v33.png" alt="NAVFIT98A v33" style="width: 100%;">
+  </picture>
+  <figcaption>NAVFIT98A Version 33 - Up-to-date as of this writing in October 2025</figcaption>
+</figure>
 
-[^]: https://seastoriesandotherlies.org/2020/08/11/eval-writing-part-ii-navfits-revenge/?utm_source=chatgpt.com "Eval Writing Part II: NAVFIT's Revenge"
-[^2]: https://cdn.cocodoc.com/cocodoc-form/subsite/navy-eval-form.pdf?utm_source=chatgpt.com "Navy Personnel Command"
+## Room for Improvement
 
-[^7]: ["NAVFIT98A Use Permitted Until End of 2025"](https://mccareer.org/2023/12/02/navfit98a-use-permitted-until-end-of-2025/)
-[^8]: https://www.dvidshub.net/news/544261/new-chief-petty-officer-performance-evaluation-launches-with-continued-navfit-modernization?utm_source=chatgpt.com "New Chief Petty Officer Performance Evaluation Launches ..."
+The Navy itself recognized that there was a real need for a better platform to facilitate the creation, revision, validation, and submission of performance evaluations:
+
+- NAVFIT98A is very buggy. It's prone to crashing, or throwing errors with unhelpful error messages that do not make it clear what went wrong.
+- bad output formats
+- NAVFIT98A isn't simple to install. It requires a Microsoft Ac
+
+It tried to address these issues with eNavFit, but failed.
+
+It's hard to argue that the current NAVFIT98A v33 has effectively been "modernized"; its software is so antiquated that its intallation triggers Microsoft Defender Antivirus alerts.
+
+That being said, it does offer minor improvements:
+- It did provide a validation feature. Users can click a button which produces an ASCII report detailing problems the program has found with information entered into a performance evaluation. Though primitive, this validation is mostly functional.
+- Supposedly, the 64-bit version of the app has a more seamless install on more modern Windows operating systems (I have not tested this).
+
+<!-- ## The Way Forward -->
+
+<!-- These  mailed to the Performance Evaluation Branch, which receives 500k-600k 
+- NAVFIT98A is Windows platform desktop application written in Visual Basic in 1998.
+- It's purpose is to generate PDF performance evaluation reports. Every service member in the Navy gets a performance eval annually. -->
 
 
 
-# Helpful Links
+<!-- [^]: https://seastoriesandotherlies.org/2020/08/11/eval-writing-part-ii-navfits-revenge/?utm_source=chatgpt.com "Eval Writing Part II: NAVFIT's Revenge" -->
+
+## Helpful Links
+
+(The Navy likes to change links on their web pages often - please let me know if one is broken.)
 
 [NAVFIT98A v30 User Guide Manual](https://www.mynavyhr.navy.mil/Portals/55/Career/PerformanceEvaluation/NAVFIT98A%20Version%2030%20user%20guide.pdf?ver=rBFhxjABpJhUybBeMo6AMA%3d%3d)
 [BUPERSINT 1610.10H](https://www.mynavyhr.navy.mil/Portals/55/Reference/Instructions/BUPERS/BUPERSINST%201610.10.pdf?ver=DZVcHnNH8gLkDjKjDFyaKA%3d%3d)
 [Performance Evaluation Links](https://www.mn3p.navy.mil/web/performance/overview)
 
 
+[^1]: Even in 2025, evaluation reports are still submitted on physical paper via snailmail to Navy Personnel Command; [Performance Evaluation Reports Frequently Asked Questions August 2025](https://www.mn3p.navy.mil/documents/d/performance/navfit98a-v2-2-0-33-frequently-asked-question?download=true) states: "Presently, there is no electronic system to submit performance evaluation reports. Per BUPERSINST 1610.10H, chapter 1, paragraph 1-5, All reports must be mailed within 15 days of the ending date (block 15) for active-duty members and within 30 days for INACT members."
+[^2]: [BUPERSINT 1610.10H](https://www.mynavyhr.navy.mil/Portals/55/Reference/Instructions/BUPERS/BUPERSINST%201610.10.pdf?ver=DZVcHnNH8gLkDjKjDFyaKA%3d%3d)
+[^3]: [NAVADMIN 279/23](https://navadmin-viewer.fly.dev/NAVADMIN/279/23) - Permitted NAVFIT98A to be used through the end of 2025 due to issues with eNavFit.
+[^4]: [NAVADMIN 012/25](https://www.mynavyhr.navy.mil/Portals/55/Messages/NAVADMIN/NAV2025/NAV25012.pdf?ver=XNxecwkcKmyF0dFjhYHpzA%3d%3d) - Announced eNavFit would be scrapped, and NAVFIT98A version 32 release.
