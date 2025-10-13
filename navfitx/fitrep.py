@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+from collections.abc import Callable
+from dataclasses import dataclass, field
 
 from constants import MARGIN_BOTTOM, MARGIN_LEFT, MARGIN_RIGHT, MARGIN_SIDES, MARGIN_TOP
 from reportlab.lib.pagesizes import LETTER
@@ -6,8 +7,33 @@ from reportlab.pdfgen.canvas import Canvas
 
 
 @dataclass
+class Component:
+    """
+    An element that can be drawn into a box.
+
+    Attributes:
+        x (float): The x offset (positive moves right) from the top-left corner of the box.
+        y (float): The y offset (positive moves down) the top-left corner of the box.
+    """
+
+    def draw(self, canvas: Canvas, box: "Box"):
+        raise NotImplementedError("Subclasses must implement draw method")
+
+
+@dataclass
 class Box:
-    """A box on the fitrep form."""
+    """
+    A visual box on an evaluation PDF.
+
+    Attributes:
+        bl (tuple[float, float]): The bottom-left corner of the box (x, y).
+        tr (tuple[float, float]): The top-right corner of the box (x
+        br (tuple[float, float]): The bottom-right corner of the box (x, y).
+        tl (tuple[float, float]): The top-left corner of the box (x,
+        width (float): The width of the box.
+        height (float): The height of the box.
+        components (list[Component]): A list of components to draw inside the box.
+    """
 
     bl: tuple[float, float]
     tr: tuple[float, float]
@@ -15,6 +41,8 @@ class Box:
     tl: tuple[float, float] = (0.0, 0.0)
     width: float = 0
     height: float = 0
+    components: list[Component] = field(default_factory=list)
+    draw_fn: Callable[[Canvas, "Box"], None] | None = None
 
     def __post_init__(self):
         self.width = self.tr[0] - self.bl[0]
@@ -36,6 +64,54 @@ class Box:
 
     def draw_debug(self, canvas: Canvas, string: str):
         canvas.drawString(self.bl[0] + 2, self.bl[1] + 2, string)
+
+    def draw_label_standard(self, canvas: Canvas, text: str, x_off: float = 3, y_off: float = 10.5, size: float = 7.9):
+        canvas.setFont("Times-Roman", size)
+        canvas.drawString(self.tl[0] + x_off, self.tl[1] - y_off, text, wordSpace=0.6)
+
+    def draw_centered_multiline(self, canvas: Canvas, txt: str, x_off: float, y_off: float, size=6.5, leading=7.9):
+        canvas.setFont("Times-Roman", size=size, leading=leading)
+
+        t = canvas.beginText(self.tl[0] + x_off, self.tl[1] - y_off)
+        for line in txt.splitlines():
+            t.textLine(line.strip())
+        canvas.drawText(t)
+
+    def draw_multiline(self, canvas: Canvas, txt: str, x_off: float = 2, y_off: float = 9, size=6.5, leading=7.9):
+        """
+        Draws text in box in the left column of the Performance Traits table.
+        """
+        t = canvas.beginText(self.tl[0] + x_off, self.tl[1] - y_off)
+        t.setFont("Times-Roman", size=size, leading=leading)
+        for line in txt.splitlines():
+            t.textLine(line.strip())
+        canvas.drawText(t)
+
+    def draw_bullets(
+        self, canvas: Canvas, txt: str, x_off: float = 2, y_off: float = 9, size: float = 6.5, leading: float = 7.9
+    ):
+        t = c.beginText(self.tl[0] + x_off, self.tl[1] - y_off)
+        t.setFont("Times-Roman", size=size, leading=leading)
+        for line in txt.splitlines():
+            line = line.strip()
+            if line:
+                if line[0] != "-":
+                    line = "  " + line
+                t.textLine(line)
+            else:
+                t.textLine("")
+        c.drawText(t)
+
+    def draw_checkbox_br(self, canvas: Canvas):
+        canvas.rect(self.br[0] - 16, self.br[1] + 4, 14, 12)
+
+    def draw(self, canvas: Canvas):
+        self.draw_left_border(canvas)
+        self.draw_right_border(canvas)
+        self.draw_top_border(canvas)
+        self.draw_bottom_border(canvas)
+        for comp in self.components:
+            comp.draw(canvas, self)
 
 
 def make_box_to_right(box: Box, width: float) -> Box:
@@ -115,9 +191,9 @@ box_27 = make_box_below(tiny_space, box_21.width, 23)
 
 # Row 9
 box_28 = make_box_below(box_27, 73, 24)
-box_29 = make_box_to_right(box_28, 130)
+box_29 = make_box_to_right(box_28, 129)
 box_30 = make_box_to_right(box_29, 36)
-box_31 = make_box_to_right(box_30, 138)
+box_31 = make_box_to_right(box_30, 137)
 box_32 = make_box_to_right(box_31, 36)
 box_33 = Box(bl=box_32.br, tr=box_27.br)
 
@@ -233,55 +309,10 @@ boxes = [
 ]
 
 
-def draw_b23_text(c: Canvas):
-    text = """
-    For Mid-term Counseling Use. (When completing FITREP,
-    enter 30 and 31 from counseling worksheet, sign 32.)
-    """
-    t = c.beginText(box_23.tl[0] + 3, box_23.tl[1] + 1)
-    c.setFont("Times-Roman", size=7.36, leading=8)
-    for line in text.splitlines():
-        t.textLine(line.strip())
-    c.drawText(t)
-
-
-def draw_b27_text(c: Canvas):
-    text = """
-    PERFORMANCE TRAITS: 1.0 - Below standards/not progressing or UNSAT in any one standard; 2.0 - Does not yet meet all 3.0 standards; 3.0 - Meets all 3.0
-    standards; 4.0 - Exceeds most 3.0 standards; 5.0 - Meets overall criteria and most of the specific standards for 5.0. Standards are not all inclusive.
-    """
-    t = c.beginText(box_27.tl[0] + 2, box_27.tl[1] - 2)
-    t.setFont("Times-Roman", size=8.15, leading=8)
-    for line in text.splitlines():
-        t.textLine(line.strip())
-    c.drawText(t)
-
-
 class Layout:
     def __init__(self, canvas: Canvas):
         self.canvas = canvas
         self.canvas.setLineWidth(0.6)
-
-    def draw_label_standard(self, box: Box, text: str, x_off: float = 3, y_off: float = 10.5, size: float = 7.9):
-        self.canvas.setFont("Times-Roman", size)
-        self.canvas.drawString(box.tl[0] + x_off, box.tl[1] - y_off, text, wordSpace=0.6)
-
-    def draw_checkbox_br(self, box: Box):
-        self.canvas.rect(box.br[0] - 16, box.br[1] + 4, 14, 12)
-
-    # def draw_pt_row_header(self, box: Box, blk_num: int, text: str):
-    #     header, desc = text.split(":")
-    #     string = f"{blk_num}.\n"
-
-    def draw_left_col_pt(self, box: Box, txt: str):
-        """
-        Draws text in box in the left column of the Performance Traits table.
-        """
-        t = c.beginText(box.tl[0] + 2, box.tl[1] - 9)
-        t.setFont("Times-Roman", size=6.5, leading=7.9)
-        for line in txt.splitlines():
-            t.textLine(line.strip())
-        c.drawText(t)
 
     def draw(self):
         # use the instance canvas
@@ -302,86 +333,259 @@ class Layout:
             MARGIN_LEFT + 12, LETTER[1] - MARGIN_TOP + 5, "FITNESS REPORT & COUNSELING RECORD (W2-O6)"
         )
 
+        self.canvas.setFont("Times-Roman", 8)
+        self.canvas.drawString(MARGIN_LEFT + 4, MARGIN_BOTTOM - 10, "NAVPERS 1610/2 (REV 05-2025)")
+        self.canvas.drawString(245, MARGIN_BOTTOM - 10, "CUI When Filled In - Previous Editions are Obsolete")
+
+        c = self.canvas
         # use the instance method to draw labels
-        self.draw_label_standard(box_0, "1. Name (Last, First MI Suffix)")
-        self.draw_label_standard(box_1, "2. Rank")
-        self.draw_label_standard(box_2, "3. Desig")
-        self.draw_label_standard(box_3, "4. SSN")
-        self.draw_label_standard(box_4, "5.")
-        self.draw_label_standard(box_5, "6. UIC")
-        self.draw_label_standard(box_6, "7. Ship/Station")
-        self.draw_label_standard(box_7, "8. Promotion Status")
-        self.draw_label_standard(box_8, "9. Date Reported")
+        box_0.draw_label_standard(c, "1. Name (Last, First MI Suffix)")
+        box_1.draw_label_standard(c, "2. Rank")
+        box_2.draw_label_standard(c, "3. Desig")
+        box_3.draw_label_standard(c, "4. SSN")
+        box_4.draw_label_standard(c, "5.")
+        box_5.draw_label_standard(c, "6. UIC")
+        box_6.draw_label_standard(c, "7. Ship/Station")
+        box_7.draw_label_standard(c, "8. Promotion Status")
+        box_8.draw_label_standard(c, "9. Date Reported")
 
-        self.draw_label_standard(box_9, "Occasion for Report", y_off=9)
+        box_9.draw_label_standard(c, "Occasion for Report", y_off=9)
 
-        self.draw_label_standard(box_10, "Period of Report", y_off=9)
+        box_10.draw_label_standard(c, "Period of Report", y_off=9)
 
-        self.draw_label_standard(box_11, "16. Not Observed")
-        self.draw_checkbox_br(box_11)
+        box_11.draw_label_standard(c, "16. Not Observed")
+        box_11.draw_checkbox_br(c)
 
-        self.draw_label_standard(box_12, "Type of Report")
-        self.draw_label_standard(box_13, "20. Physical Readiness")
-        self.draw_label_standard(box_14, "21. Billet Subcategory (if any)")
-        self.draw_label_standard(box_15, "22. Reporting Senior (Last, FI  MI)")
-        self.draw_label_standard(box_16, "23. Grade")
-        self.draw_label_standard(box_17, "24. Desig")
-        self.draw_label_standard(box_18, "25. Title")
-        self.draw_label_standard(box_19, "26. UIC")
-        self.draw_label_standard(box_20, "27. SSN")
-        self.draw_label_standard(box_21, "28. Command Employment and Command Achievements", y_off=9)
+        box_12.draw_label_standard(c, "Type of Report")
+        box_13.draw_label_standard(c, "20. Physical Readiness")
+        box_14.draw_label_standard(c, "21. Billet Subcategory (if any)")
+        box_15.draw_label_standard(c, "22. Reporting Senior (Last, FI  MI)")
+        box_16.draw_label_standard(c, "23. Grade")
+        box_17.draw_label_standard(c, "24. Desig")
+        box_18.draw_label_standard(c, "25. Title")
+        box_19.draw_label_standard(c, "26. UIC")
+        box_20.draw_label_standard(c, "27. SSN")
+        box_21.draw_label_standard(c, "28. Command Employment and Command Achievements", y_off=9)
 
-        self.draw_label_standard(
-            box_22, "29. Primary/Collateral/Watchstanding duties (Enter primary duty abbreviation in box)", y_off=9
+        box_22.draw_label_standard(
+            c, "29. Primary/Collateral/Watchstanding duties (Enter primary duty abbreviation in box)", y_off=9
         )
         self.canvas.rect(box_22.tl[0] + 8, box_22.tl[1] - 23, 115, 12)
 
-        self.draw_label_standard(box_24, "30. Date Counseled", size=7, y_off=7, x_off=2)
-        self.draw_label_standard(box_25, "31. Counselor", size=7, y_off=7, x_off=2)
-        self.draw_label_standard(box_26, "32. Signature of Individual Counseled", size=7, y_off=7, x_off=2)
-
-        box_34_txt = "33.\nPROFESSIONAL\nEXPERTISE:\nProfessional knowledge\nproficiency, and\nqualifications"
-        self.draw_left_col_pt(box_34, box_34_txt)
+        box_24.draw_label_standard(c, "30. Date Counseled", size=7, y_off=7, x_off=2)
+        box_25.draw_label_standard(c, "31. Counselor", size=7, y_off=7, x_off=2)
+        box_26.draw_label_standard(c, "32. Signature of Individual Counseled", size=7, y_off=7, x_off=2)
 
         box_40_txt = "34.\nCOMMAND OR\nORGANIZATIONAL\nCLIMATE:\n\nContributions to growth\nand development,\nhuman worth,\ncommunity"
-        self.draw_left_col_pt(box_40, box_40_txt)
+        box_40.draw_multiline(c, box_40_txt)
 
         box_46_txt = "35.\nMILITARY BEARING/\nCHARACTER:\nAppearance, conduct,\nphysical fitness,\nadherance to Navy Core\nValues"
-        self.draw_left_col_pt(box_46, box_46_txt)
+        box_46.draw_multiline(c, box_46_txt)
 
         box_52_txt = "36.\nTEAMWORK:\nContributions toward\nteam building and\nteam results"
-        self.draw_left_col_pt(box_52, box_52_txt)
+        box_52.draw_multiline(c, box_52_txt)
 
         box_58_txt = "37.\nMISSION\nACCOMPLISHMENT\nAND INITIATIVE:\nTaking initiative,\nplanning/prioritizing,\nachieving mission\n"
-        self.draw_left_col_pt(box_58, box_58_txt)
+        box_58.draw_multiline(c, box_58_txt)
 
-        box_35_text = """
-        -Lacks basic professional knowledge to
+        box_23_text = """
+        For Mid-term Counseling Use. (When completing FITREP,
+        enter 30 and 31 from counseling worksheet, sign 32.)
+        """
+        box_23.draw_multiline(c, box_23_text, x_off=3, y_off=-1, size=7.36)
+
+        box_27_text = """
+        PERFORMANCE TRAITS: 1.0 - Below standards/not progressing or UNSAT in any one standard; 2.0 - Does not yet meet all 3.0 standards; 3.0 - Meets all 3.0
+        standards; 4.0 - Exceeds most 3.0 standards; 5.0 - Meets overall criteria and most of the specific standards for 5.0. Standards are not all inclusive.
+        """
+        box_27.draw_multiline(c, box_27_text, x_off=2, y_off=2, size=8.15)
+
+        box_29_text = """
+        1.0*
+        Below Standards
+        """
+        box_29.draw_centered_multiline(c, box_29_text)
+
+        box_30_text = """
+        2.0
+        Pro-
+        gressing 
+        """
+        box_30.draw_multiline(c, box_30_text)
+
+        # box_31_text = """
+        # 3.0
+        # Meets Standards
+        # """
+
+        # box_32_text = """
+        # 4.0
+        # Above
+        # Standards
+        # """
+
+        # box_33_text = """
+        # 5.0
+        # Greatly Exceeds Standards
+        # """
+
+        box_34_txt = "33.\nPROFESSIONAL\nEXPERTISE:\nProfessional knowledge\nproficiency, and\nqualifications"
+        box_34.draw_multiline(c, box_34_txt)
+
+        box_35_text = """-Lacks basic professional knowledge to
         perform effectively
         -Cannot apply basic skills
         -Fails to develop professionally or
         achieve timely qualifications
         """
+        box_35.draw_bullets(c, box_35_text)
 
-        box_37_text = """
-        -Has thorough professional knowledge
-        -Competently performs both routine
-        and new tasks
-        -Steadily improves skills, achieves timely
+        box_36_text = """
+        -
+
+        -
+
+        -
+        """
+        box_36.draw_multiline(c, box_36_text)
+
+        box_37_text = """- Has thorough professional knowledge
+        - Competently performs both routine and
+        new tasks
+        - Steadily improves skills, achieves timely
         qualifications
         """
+        box_37.draw_bullets(c, box_37_text)
 
-        box_39_text = """
-        -Recognized expert, sought after to solve
+        box_38_text = "-\n\n-\n\n-"
+        box_38.draw_multiline(c, box_38_text)
+
+        box_39_text = """- Recognized expert, sought after to solve
         difficult problems
-        -Exceptionally skilled, develops and
+        - Exceptionally skilled, develops and
         executes innovative ideas
-        -Achieves early/highly advanced
+        - Achieves early/highly advanced
         qualifications
         """
+        box_39.draw_bullets(c, box_39_text)
 
-        draw_b23_text(c)
-        draw_b27_text(c)
+        box_41_text = """- Actions counter to Navy's retention goals
+
+        - Uninvolved with mentoring or professional
+        development of subordinates
+        - Demonstrates behavior that stifles command
+        or work center success
+        - Actions counter to good order and
+        discipline and negatively affect command/
+        organizational climate
+        """
+        box_41.draw_bullets(c, box_41_text)
+
+        box_42_text = "-\n\n-\n\n\n-\n\n\n-"
+        box_42.draw_multiline(c, box_42_text)
+        box_44.draw_multiline(c, box_42_text)
+
+        box_43_text = """- Positive leadership supports Navy's increased
+        retention goals. Active in decreasing attrition
+        - Actions adequately encourage/support
+        subordinates' personal/professional growth
+        - Fosters an atmosphere conducive to personal
+        and team success
+        - Appreciates contributions of Navy personnel
+        - Positive influence on command climate
+        - Actions contribute to good order and discipline
+        and positively improves command/
+        organizational climate
+        """
+        box_43.draw_bullets(c, box_43_text, size=6.3, leading=7.1)
+
+        box_45_text = """- Measurably contributes to Navy's increased
+        retention and reduced attrition objectives
+        - Proactive leader/exemplary mentor. Involved
+        in subordinates' personal development leading
+        to professional growth/sustained commitment
+        - Initiates support programs for military,
+        civilian, and families to achieve exceptional
+        command and organizational climate
+        """
+        box_45.draw_bullets(c, box_45_text, size=6.3, leading=7.1)
+
+        box_47_text = """- Consistent unsatisfactory appearance
+        - Unsatisfactory demeanor, or conduct
+        - Unable to meet one or more physical
+        readiness standards
+        - Fails to live up to one or more Navy
+        Core Values: HONOR, COURAGE,
+        COMMITMENT
+        """
+        box_47.draw_bullets(c, box_47_text, size=6.3, leading=7.1)
+
+        box_49_text = """- Excellent personal appearance
+        - Excellent demeanor or conduct
+        - Complies with physical readiness
+        program
+        - Always lives up to Navy Core Values:
+        HONOR, COURAGE, COMMITMENT
+        """
+        box_49.draw_bullets(c, box_49_text, size=6.3, leading=7.1)
+
+        box_51_text = """- Exemplary personal appearance
+        - Exemplary Navy representative
+        - A leader in physical readiness
+        - Exemplifies Navy Core Values:
+        HONOR, COURAGE, COMMITMENT
+        """
+        box_51.draw_bullets(c, box_51_text, size=6.3, leading=7.1)
+
+        box_53_text = """- Creates conflict, unwilling to work
+        with others, puts self above team
+        - Fails to understand team goals or
+        teamwork techniques
+        - Does not take direction well
+        """
+        box_53.draw_bullets(c, box_53_text, size=6.3, leading=7.0)
+
+        box_55_text = """- Reinforces others' efforts, meets personal
+        commitments to team
+        - Understands team goals, employs good
+        teamwork techniques
+        - Accepts and offers team direction
+        """
+        box_55.draw_bullets(c, box_55_text, size=6.3, leading=7.1)
+
+        box_57_text = """- Team builder, inspires cooperation and
+        progress
+        - Talented mentor; focuses goals and
+        techniques for team
+        - The best at accepting and offering team
+        direction
+        """
+        box_57.draw_bullets(c, box_57_text, size=6.3, leading=7.1)
+
+        box_59_text = """- Lacks initiative
+        - Unable to plan or prioritize
+        - Does not maintain readiness
+        - Fails to get the job done
+        """
+        box_59.draw_bullets(c, box_59_text, size=6.3, leading=7.1)
+
+        box_61_text = """- Takes initiative to meet goals
+        - Plans/prioritizes effectively
+        - Maintains high state of readiness
+        - Always gets the job done
+        """
+        box_61.draw_bullets(c, box_61_text, size=6.3, leading=7.1)
+
+        box_63_text = """- Develops innovative ways to accomplish
+        mission
+        - Plans/prioritizes with exceptional skill
+        and foresight
+        - Maintains superior readiness, even with
+        limited resources
+        - Gets jobs done earlier and far better than
+        expected
+        """
+        box_63.draw_bullets(c, box_63_text, size=6.3, leading=7.1)
 
         # draw a check box in the bottom right corner of box 34-63
         for box in [
@@ -416,7 +620,7 @@ class Layout:
             box_62,
             box_63,
         ]:
-            self.draw_checkbox_br(box)
+            box.draw_checkbox_br(c)
 
 
 if __name__ == "__main__":

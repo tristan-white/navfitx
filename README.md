@@ -24,24 +24,29 @@ Did version 32 fix the problems with NAVFIT98A? Did it make it more modern and u
   <picture>
     <img src="./docs/img/navfit98a_v33.png" alt="NAVFIT98A v33" style="width: 100%;">
   </picture>
-  <figcaption>NAVFIT98A Version 33 - Up-to-date as of this writing in October 2025</figcaption>
+  <figcaption>NAVFIT98A Version 33; up-to-date as of this writing in October 2025</figcaption>
 </figure>
-
-## Room for Improvement
-
-The Navy itself recognized that there was a real need for a better platform to facilitate the creation, revision, validation, and submission of performance evaluations:
-
-- NAVFIT98A is very buggy. It's prone to crashing, or throwing errors with unhelpful error messages that do not make it clear what went wrong.
-- bad output formats
-- NAVFIT98A isn't simple to install. It requires a Microsoft Ac
-
-It tried to address these issues with eNavFit, but failed.
 
 It's hard to argue that the current NAVFIT98A v33 has effectively been "modernized"; its software is so antiquated that its intallation triggers Microsoft Defender Antivirus alerts.
 
-That being said, it does offer minor improvements:
+The need for a platform that can easily facilitate the creation, revision, validation, and submission of performance evaluations is a real one. The Navy recognized this fact when it attempted to roll out eNavFit.
+
+eNavFit came and went, and now we're back to NAVFIT98A. The most recent update did offer minor improvements:
+
 - It did provide a validation feature. Users can click a button which produces an ASCII report detailing problems the program has found with information entered into a performance evaluation. Though primitive, this validation is mostly functional.
 - Supposedly, the 64-bit version of the app has a more seamless install on more modern Windows operating systems (I have not tested this).
+
+But the same problems remain:
+
+- It's very buggy. It's prone to crashing, or throwing errors with unhelpful error messages that do not make it clear what went wrong.
+- bad output formats
+- poor user guide / installation instructions
+- What you see is not what you get
+- It isn't simple to install. 
+- validation could be improved even more
+- not backward compatible; not all .accdb files created by NAVFIT98A can be opened by all other versions.
+- not extensible
+
 
 <!-- ## The Way Forward -->
 
@@ -49,17 +54,15 @@ That being said, it does offer minor improvements:
 - NAVFIT98A is Windows platform desktop application written in Visual Basic in 1998.
 - It's purpose is to generate PDF performance evaluation reports. Every service member in the Navy gets a performance eval annually. -->
 
-
-
 <!-- [^]: https://seastoriesandotherlies.org/2020/08/11/eval-writing-part-ii-navfits-revenge/?utm_source=chatgpt.com "Eval Writing Part II: NAVFIT's Revenge" -->
 
 ## Helpful Links
 
 (The Navy likes to change links on their web pages often - please let me know if one is broken.)
 
-[NAVFIT98A v30 User Guide Manual](https://www.mynavyhr.navy.mil/Portals/55/Career/PerformanceEvaluation/NAVFIT98A%20Version%2030%20user%20guide.pdf?ver=rBFhxjABpJhUybBeMo6AMA%3d%3d)
-[BUPERSINT 1610.10H](https://www.mynavyhr.navy.mil/Portals/55/Reference/Instructions/BUPERS/BUPERSINST%201610.10.pdf?ver=DZVcHnNH8gLkDjKjDFyaKA%3d%3d)
-[Performance Evaluation Links](https://www.mn3p.navy.mil/web/performance/overview)
+- [NAVFIT98A v30 User Guide Manual](https://www.mynavyhr.navy.mil/Portals/55/Career/PerformanceEvaluation/NAVFIT98A%20Version%2030%20user%20guide.pdf?ver=rBFhxjABpJhUybBeMo6AMA%3d%3d)
+
+- [Performance Evaluation Links](https://www.mn3p.navy.mil/web/performance/overview)
 
 
 [^1]: Even in 2025, evaluation reports are still submitted on physical paper via snailmail to Navy Personnel Command; [Performance Evaluation Reports Frequently Asked Questions August 2025](https://www.mn3p.navy.mil/documents/d/performance/navfit98a-v2-2-0-33-frequently-asked-question?download=true) states: "Presently, there is no electronic system to submit performance evaluation reports. Per BUPERSINST 1610.10H, chapter 1, paragraph 1-5, All reports must be mailed within 15 days of the ending date (block 15) for active-duty members and within 30 days for INACT members."
