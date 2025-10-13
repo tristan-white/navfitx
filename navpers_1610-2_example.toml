@@ -1,0 +1,130 @@
+[report]
+# Date service member reported to command.
+# Format: YYYY-MM-DD
+date_reported = "2022-09-09"
+
+# If this is a wholly Not Observed report, change to true.
+not_observed_report = false
+
+counselor_name = "DOE, J"
+date_counseled = "2024-08-14"
+
+[report.type]
+regular = true
+concurrent = false
+ops_cdr = false
+
+[report.occasion]
+# Change to true each reporting occasion that applies.
+# See BUPERSINST 1610.10H chapter 3 for reporting occasions.
+periodic = true
+detachment_of_individual = false
+detachment_of_reporting_senior = false
+special = false
+
+[report.period]
+from = "2024-05-27"
+to = "2025-02-28"
+
+[member]
+# Enter the member's last name, first name, middle initial, and suffix (if any)
+# separated by spaces. Place a comma after the last name. Omit spaces and punctuation within a
+# name (e.g., Denney, John A; STJohn, Melvin J II; Walters, J Arthur; Obrien, Mary S; Martin,
+# Paul T JR; SmithJones, Ann.). The full middle name is acceptable but not required. NMN may
+# be used if member does not have a middle name.
+name = "DOE, JOHN A"
+
+# Enter the grade or rate the Service member is actually wearing on the ending date of the report.
+# Enlisted: Use standard rate abbreviations (e.g., SA, ADAN, CS2, BM1, LNC, EMCS, PSCM, etc.).
+# Officers: Use standard grade abbreviations (e.g., CAPT, CDR, LCDR, LT, LTJG, ENS, CWO5, CWO4, CWO3, CWO2, WO1 etc.).
+# Note 1: This field is used for summary group comparison.
+# Note 2: The CHIEFEVAL identifies this block as “Rating.” Standard abbreviations remain as the required information
+# and the rate/rating the member is currently wearing should be entered here.
+grade_or_rate = "LTJG"
+
+# Enter officer designator or enlisted warfare qualification designation.
+# Enlisted: Enter up to two enlisted warfare/qualification designators. If two designators are
+# entered, separate with a slash. Do not leave spaces (e.g., AW, AW/PJ, SS/DV etc.) (if none,
+# leave blank).
+# Officers: Enter the four-digit officer designator as of the ending date of report. Do not use an
+# alpha character for a numerical character.
+designator = "1840"
+
+# Service member's full SSN with hyphens after the third and fifth digits, e.g. 123-45-6789
+ssn = "000-00-0000"
+
+
+# Enter the UIC of the Service member's ship or station. Normally a UIC is a
+# breakout for enlisted personnel; however, if reporting seniors have more than one UIC with
+# enlisted personnel attached, but desires to group all enlisted personnel together, they may do so.
+# If using UIC as a summary group comparison, block 6 should match the primary UIC of the
+# reporting senior in block 26. For activities which no UIC is assigned, enter five zeros. The first
+# four characters of a UIC must be numbers.
+# Reserve Members: For Regular reports on INACT duty reservists, enter the Service member’s
+# assigned unit mobilization unit identification code (UMUIC), and not the member’s Navy
+# Reserve activity (NRA) UIC. Use training unit identification code (TRUIC) if member is in-
+# assignment processing (IAP) (refer to chapter 9).
+# Note: This field is used for summary group comparison.
+uic = ""
+
+activity = ""
+
+promotion_status = ""
+
+# Can be eitehr 'P', 'B', 'F', 'M', 'W', or 'N
+physical_readiness = ""
+
+billet_subcategory = ""
+
+[report.summary_group]
+ACT = true
+FTS = false
+INACT = false
+AT_or_ACDU_or_ADSW = false
+
+[reporting_senior]
+name = "DOE, J"
+grade = "CAPT"
+designator = "1810"
+title = "CO"
+uic = 12345
+ssn = "000-00-0000"
+
+
+[performance_traits]
+# professional_expertise = 0
+# climate = 0
+# bearing_and_character = 0
+# teamwork = 0
+# mission = 0
+
+[career_recommendations]
+# Enter one or two career recommendations. The second recommendation is not required. 
+# Each entry may have a maximum of 20 characters and spaces. If necessary, use two lines for the entry.
+# Do not leave blank. If no recommendation is appropriate, enter “NA” or “NONE” in the first block.
+recommendation_1 = "EXAMPLE RECOMMENDATION"
+recommendation_2 = ""
+
+[comments_on_performance]
+# Max length is 18 lines, 91 characters per line
+###########################################################################################
+comments_on_performance = """
+**#1 MP AND #2 OF 4 LT'S. SEASONED TACTICAL LEADER WITH PERFORMANCE WELL BEYOND PEERS!**
+**NEW REPORTING SENIOR DUE TO NIOC MISAWA DISESTABLISHMENT AND UIC ALIGNMENT TO NIOC YOKO**
+- DYNAMIC FLEET LEADER! Expertly led a combined National/Fleet Dept including eight DET
+Officers, 13 CPOs and 49 Sailors. Deftly managed collaborative efforts of five commands in
+transition of three-decade old airborne cryptologic DIRSUP mission to NIOCs Hawaii and
+Whidbey Island. Admin'd $1.1M budget supporting two forward deployed aircrews conduction
+240 annual missions. Oversaw reduction of 62% of personnel & 10K sq. ft. while maintaining
+three mission sets. RESULT: Rock-solid leadership key to 2 SOYs & 3 CPO selects in DEPT!
+- THEATER-WIDE ISR IMPACT! Deployed 56 days & accrued 225 flt hrs leading nine-Sailor CDSE
+aircrews during 26 missions onboard C7F AOR VQ-1 EP-3Es. Released 477 time-sensitive
+reports and generated 104 post-mission products satisfying fleet and national requirements.
+Hand-selected to lead multi-command crew for 10 special projects missions ISO emergent
+theater tasking. RESULT: Team lauded for superb collection & reporting on 4 unique events!
+- MASTERFUL PEER TRAINER! Most experienced & best SPECEVAL in PACOM AOR! Established NIOC
+Hawaii's SPECEVAL cadre from the ground up as the primary trainer for six officers; chaired
+three oral boards and conducted four check rides. RESULT: Six officer SPECEVAL quals and
+seamless & smooth transition of complex airborne cryptologic DIRSUP mission to NIOC Hawaii!
+**SELECT TO LCDR AS SOON AS POSSIBLE AND TRACK TOWARDS OIC/XO!**
+"""

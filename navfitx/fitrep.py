@@ -5,19 +5,7 @@ from constants import MARGIN_BOTTOM, MARGIN_LEFT, MARGIN_RIGHT, MARGIN_SIDES, MA
 from reportlab.lib.pagesizes import LETTER
 from reportlab.pdfgen.canvas import Canvas
 
-
-@dataclass
-class Component:
-    """
-    An element that can be drawn into a box.
-
-    Attributes:
-        x (float): The x offset (positive moves right) from the top-left corner of the box.
-        y (float): The y offset (positive moves down) the top-left corner of the box.
-    """
-
-    def draw(self, canvas: Canvas, box: "Box"):
-        raise NotImplementedError("Subclasses must implement draw method")
+from .components import Component
 
 
 @dataclass
@@ -69,13 +57,12 @@ class Box:
         canvas.setFont("Times-Roman", size)
         canvas.drawString(self.tl[0] + x_off, self.tl[1] - y_off, text, wordSpace=0.6)
 
-    def draw_centered_multiline(self, canvas: Canvas, txt: str, x_off: float, y_off: float, size=6.5, leading=7.9):
-        canvas.setFont("Times-Roman", size=size, leading=leading)
-
-        t = canvas.beginText(self.tl[0] + x_off, self.tl[1] - y_off)
+    def draw_centered_multiline(self, canvas: Canvas, txt: str, x: float, y: float, size=6.6, leading=7.7):
+        canvas.setFont("Times-Roman", size=size)
+        line_num = 0
         for line in txt.splitlines():
-            t.textLine(line.strip())
-        canvas.drawText(t)
+            canvas.drawCentredString(x=x, y=y - line_num * leading, text=line.strip())
+            line_num += 1
 
     def draw_multiline(self, canvas: Canvas, txt: str, x_off: float = 2, y_off: float = 9, size=6.5, leading=7.9):
         """
@@ -404,30 +391,34 @@ class Layout:
         1.0*
         Below Standards
         """
-        box_29.draw_centered_multiline(c, box_29_text)
+        box_29.draw_centered_multiline(c, box_29_text, x=152, y=490)
 
         box_30_text = """
         2.0
         Pro-
         gressing 
         """
-        box_30.draw_multiline(c, box_30_text)
+        # box_30.draw_multiline(c, box_30_text)
+        box_30.draw_centered_multiline(c, box_30_text, x=box_30.bl[0] + box_30.width / 2, y=493)
 
-        # box_31_text = """
-        # 3.0
-        # Meets Standards
-        # """
+        box_31_text = """
+        3.0
+        Meets Standards
+        """
+        box_31.draw_centered_multiline(c, box_31_text, x=box_31.bl[0] + box_31.width / 2, y=490)
 
-        # box_32_text = """
-        # 4.0
-        # Above
-        # Standards
-        # """
+        box_32_text = """
+        4.0
+        Above
+        Standards
+        """
+        box_32.draw_centered_multiline(c, box_32_text, x=box_32.bl[0] + box_32.width / 2, y=493)
 
-        # box_33_text = """
-        # 5.0
-        # Greatly Exceeds Standards
-        # """
+        box_33_text = """
+        5.0
+        Greatly Exceeds Standards
+        """
+        box_33.draw_centered_multiline(c, box_33_text, x=box_33.bl[0] + box_33.width / 2, y=490)
 
         box_34_txt = "33.\nPROFESSIONAL\nEXPERTISE:\nProfessional knowledge\nproficiency, and\nqualifications"
         box_34.draw_multiline(c, box_34_txt)
@@ -440,15 +431,6 @@ class Layout:
         """
         box_35.draw_bullets(c, box_35_text)
 
-        box_36_text = """
-        -
-
-        -
-
-        -
-        """
-        box_36.draw_multiline(c, box_36_text)
-
         box_37_text = """- Has thorough professional knowledge
         - Competently performs both routine and
         new tasks
@@ -457,8 +439,9 @@ class Layout:
         """
         box_37.draw_bullets(c, box_37_text)
 
-        box_38_text = "-\n\n-\n\n-"
-        box_38.draw_multiline(c, box_38_text)
+        box_36_text = "-\n\n-\n\n-"
+        box_36.draw_multiline(c, box_36_text)
+        box_38.draw_multiline(c, box_36_text)
 
         box_39_text = """- Recognized expert, sought after to solve
         difficult problems
@@ -520,6 +503,10 @@ class Layout:
         """
         box_47.draw_bullets(c, box_47_text, size=6.3, leading=7.1)
 
+        box_48_text = "-\n-\n-\n\n-"
+        box_48.draw_multiline(c, box_48_text)
+        box_50.draw_multiline(c, box_48_text)
+
         box_49_text = """- Excellent personal appearance
         - Excellent demeanor or conduct
         - Complies with physical readiness
@@ -545,6 +532,10 @@ class Layout:
         """
         box_53.draw_bullets(c, box_53_text, size=6.3, leading=7.0)
 
+        box_54_text = "-\n\n-\n\n-"
+        box_54.draw_multiline(c, box_54_text)
+        box_56.draw_multiline(c, box_54_text)
+
         box_55_text = """- Reinforces others' efforts, meets personal
         commitments to team
         - Understands team goals, employs good
@@ -568,6 +559,10 @@ class Layout:
         - Fails to get the job done
         """
         box_59.draw_bullets(c, box_59_text, size=6.3, leading=7.1)
+
+        box_60_text = "-\n\n-\n\n-\n\n-"
+        box_60.draw_multiline(c, box_60_text)
+        box_62.draw_multiline(c, box_60_text)
 
         box_61_text = """- Takes initiative to meet goals
         - Plans/prioritizes effectively
