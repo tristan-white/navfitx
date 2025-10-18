@@ -1,6 +1,6 @@
 # NAVFITX
 
-NAVFITX is a next-gen, drop-in replacement for NAVFIT98A.
+NAVFITX is a drop-in replacement for NAVFIT98A.
 
 ## Background
 
@@ -14,14 +14,10 @@ NAVFITX is a next-gen, drop-in replacement for NAVFIT98A.
 
 ## Current State of NAVFIT98A
 
-<figure style="width: 700px; text-align: center;">
-  <picture>
-    <img src="./docs/img/navfit98a_v33.png" alt="NAVFIT98A v33" style="width: 100%;">
-  </picture>
-  <figcaption>NAVFIT98A Version 33; up-to-date as of this writing in October 2025</figcaption>
-</figure>
+![NAVFIT98A v33](./docs/img/navfit98a_v33.png)
+*NAVFIT98A Version 33, up-to-date as of this writing in October 2025.*
 
-When [NAVADMIN 012/25](https://www.mynavyhr.navy.mil/Portals/55/Messages/NAVADMIN/NAV2025/NAV25012.pdf?ver=XNxecwkcKmyF0dFjhYHpzA%3d%3d) was released in Jan 2025, the new version 32 update had not yet been released. As of this writing (Oct 2025), NAVFIT98A is now on version 33, and the Navy has not anounced any plans to move away from NAVFIT98A going forward.
+When [NAVADMIN 012/25](https://www.mynavyhr.navy.mil/Portals/55/Messages/NAVADMIN/NAV2025/NAV25012.pdf?ver=XNxecwkcKmyF0dFjhYHpzA%3d%3d) was released in Jan 2025, the new version 32 update had not yet been released. As of this writing (Oct 2025), NAVFIT98A is now on version 33, and no plans have been anounced to move away from NAVFIT98A going forward.
 
 The need for a platform that can easily facilitate the creation, revision, validation, and submission of performance evaluations is a real one. The Navy recognized this fact when it attempted to roll out eNavFit. The most recent update offers nomianl improvements, but many of the same issues remain:
 
