@@ -1,6 +1,6 @@
 import typer
 
-from navfitx.fitrep import app as fitrep_app
+from navfitx.fitrep_layout import app as fitrep_app
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
 

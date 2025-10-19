@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "pandas>=2.3.3",
+    "pydantic>=2.12.3",
     "pyodbc>=5.2.0",
     "pyside6>=6.9.3",
     "reportlab>=4.4.4",

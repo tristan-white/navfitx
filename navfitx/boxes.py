@@ -50,45 +50,6 @@ class Box:
     def draw_bottom_border(self, canvas: Canvas):
         canvas.line(self.bl[0], self.bl[1], self.br[0], self.br[1])
 
-    def draw_debug(self, canvas: Canvas, string: str):
-        canvas.drawString(self.bl[0] + 2, self.bl[1] + 2, string)
-
-    def draw_label_standard(self, canvas: Canvas, text: str, x_off: float = 3, y_off: float = 10.5, size: float = 7.9):
-        canvas.setFont("Times-Roman", size)
-        canvas.drawString(self.tl[0] + x_off, self.tl[1] - y_off, text, wordSpace=0.6)
-
-    def draw_centered_multiline(self, canvas: Canvas, txt: str, x: float, y: float, size=6.6, leading=7.7):
-        canvas.setFont("Times-Roman", size=size)
-        line_num = 0
-        for line in txt.splitlines():
-            canvas.drawCentredString(x=x, y=y - line_num * leading, text=line.strip())
-            line_num += 1
-
-    def draw_multiline(self, canvas: Canvas, txt: str, x_off: float = 2, y_off: float = 9, size=6.5, leading=7.9):
-        """
-        Draws text in box in the left column of the Performance Traits table.
-        """
-        t = canvas.beginText(self.tl[0] + x_off, self.tl[1] - y_off)
-        t.setFont("Times-Roman", size=size, leading=leading)
-        for line in txt.splitlines():
-            t.textLine(line.strip())
-        canvas.drawText(t)
-
-    def draw_bullets(
-        self, canvas: Canvas, txt: str, x_off: float = 2, y_off: float = 9, size: float = 6.5, leading: float = 7.9
-    ):
-        t = canvas.beginText(self.tl[0] + x_off, self.tl[1] - y_off)
-        t.setFont("Times-Roman", size=size, leading=leading)
-        for line in txt.splitlines():
-            line = line.strip()
-            if line:
-                if line[0] != "-":
-                    line = "  " + line
-                t.textLine(line)
-            else:
-                t.textLine("")
-        canvas.drawText(t)
-
     def draw(self, canvas: Canvas):
         self.draw_left_border(canvas)
         self.draw_right_border(canvas)
