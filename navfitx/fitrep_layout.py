@@ -1,4 +1,5 @@
 import webbrowser
+from datetime import date
 
 import typer
 from reportlab.lib.pagesizes import LETTER
@@ -6,6 +7,7 @@ from reportlab.pdfgen.canvas import Canvas
 
 from navfitx.boxes import Box, Bullets, Checkbox, Multiline, MultilineCentered, String
 from navfitx.constants import MARGIN_BOTTOM, MARGIN_LEFT, MARGIN_RIGHT, MARGIN_SIDES, MARGIN_TOP
+from navfitx.fitrep import Fitrep, OccasionForReport, PerformanceTrait, PromotionStatus, SummaryGroup
 
 
 def make_box_to_right(box: Box, width: float) -> Box:
@@ -31,42 +33,209 @@ def make_box_below(box: Box, width: float, height: float) -> Box:
     return Box(id=box.id + 1, bl=(box.bl[0], box.bl[1] - height), tr=(box.bl[0] + width, box.br[1]))
 
 
+def update_name(fitrep: Fitrep, comp: String) -> None:
+    comp.text = fitrep.name
+
+
+def update_rank(fitrep: Fitrep, comp: String):
+    comp.text = fitrep.rank
+
+
+def update_desig(fitrep: Fitrep, comp: String):
+    comp.text = fitrep.desig
+
+
+def update_ssn(fitrep: Fitrep, comp: String):
+    comp.text = fitrep.ssn
+
+
+def update_group_act(fitrep: Fitrep, comp: Checkbox):
+    comp.checked = fitrep.group == SummaryGroup.ACT
+
+
+def update_group_tar(fitrep: Fitrep, comp: Checkbox):
+    comp.checked = fitrep.group == SummaryGroup.TAR
+
+
+def update_group_inact(fitrep: Fitrep, comp: Checkbox):
+    comp.checked = fitrep.group == SummaryGroup.INACT
+
+
+def update_group_at_adsw_265(fitrep: Fitrep, comp: Checkbox):
+    comp.checked = fitrep.group == SummaryGroup.AT_ADOS
+
+
+def update_uic(fitrep: Fitrep, comp: String):
+    comp.text = fitrep.uic
+
+
+def update_station(fitrep: Fitrep, comp: String):
+    comp.text = fitrep.station
+
+
+def update_promotion_status(fitrep: Fitrep, comp: String):
+    if fitrep.promotion_status:
+        comp.text = fitrep.promotion_status.value
+
+
+def update_date_reported(fitrep: Fitrep, comp: String):
+    if fitrep.date_reported:
+        comp.text = fitrep.date_reported.strftime("%y%b%d").upper()
+
+
+def update_occasion_periodic(fitrep: Fitrep, comp: Checkbox):
+    comp.checked = OccasionForReport.PERIODIC in fitrep.occasion_for_report
+
+
+def update_occasion_detachment_individual(fitrep: Fitrep, comp: Checkbox):
+    comp.checked = OccasionForReport.INDIVIDUAL_DETACH in fitrep.occasion_for_report
+
+
+def update_occasion_detachment_reporting_senior(fitrep: Fitrep, comp: Checkbox):
+    comp.checked = OccasionForReport.SENIOR_DETACH in fitrep.occasion_for_report
+
+
+def update_occasion_special(fitrep: Fitrep, comp: Checkbox):
+    comp.checked = OccasionForReport.SPECIAL in fitrep.occasion_for_report
+
+
+def update_period_start(fitrep: Fitrep, comp: String):
+    if fitrep.period_start:
+        comp.text = fitrep.period_start.strftime("%y%b%d").upper()
+
+
+def update_period_end(fitrep: Fitrep, comp: String):
+    if fitrep.period_end:
+        comp.text = fitrep.period_end.strftime("%y%b%d").upper()
+
+
+def update_senior_name(fitrep: Fitrep, comp: String):
+    comp.text = fitrep.senior_name
+
+
+def update_senior_grade(fitrep: Fitrep, comp: String):
+    comp.text = fitrep.senior_grade
+
+
+def update_senior_desig(fitrep: Fitrep, comp: String):
+    comp.text = fitrep.senior_desig
+
+
+def update_senior_uic(fitrep: Fitrep, comp: String):
+    comp.text = fitrep.senior_uic
+
+
+def update_senior_ssn(fitrep: Fitrep, comp: String):
+    comp.text = fitrep.senior_ssn
+
+
+def update_job(fitrep: Fitrep, comp: String):
+    comp.text = fitrep.job
+
+
+def update_duties_abbreviation(fitrep: Fitrep, comp: String):
+    comp.text = fitrep.duties_abbreviation
+
+
+def update_duties_description(fitrep: Fitrep, comp: String):
+    comp.text = fitrep.duties_description
+
+
+def update_date_counseled(fitrep: Fitrep, comp: String):
+    if fitrep.date_counseled:
+        comp.text = fitrep.date_counseled.strftime("%y%b%d").upper()
+    else:
+        comp.text = ""
+
+
+def update_counselor(fitrep: Fitrep, comp: String):
+    comp.text = fitrep.counselor
+
+
+def update_pe_0(fitrep: Fitrep, comp: Checkbox):
+    comp.checked = fitrep.pro_expertise == PerformanceTrait.NOB
+
+
+def update_pe_1(fitrep: Fitrep, comp: Checkbox):
+    comp.checked = fitrep.pro_expertise == PerformanceTrait.BELOW_STANDARDS
+
+
+def update_pe_2(fitrep: Fitrep, comp: Checkbox):
+    comp.checked = fitrep.pro_expertise == PerformanceTrait.PROGRESSING
+
+
+def update_pe_3(fitrep: Fitrep, comp: Checkbox):
+    comp.checked = fitrep.pro_expertise == PerformanceTrait.MEETS_STANDARDS
+
+
+def update_pe_4(fitrep: Fitrep, comp: Checkbox):
+    comp.checked = fitrep.pro_expertise == PerformanceTrait.ABOVE
+
+
+def update_pe_5(fitrep: Fitrep, comp: Checkbox):
+    comp.checked = fitrep.pro_expertise == PerformanceTrait.GREATLY_EXCEEDS
+
+
 # Row 0
 box_0 = Box(
     id=0,
-    bl=(MARGIN_LEFT, LETTER[1] - MARGIN_TOP - 24),
+    bl=(MARGIN_LEFT, LETTER[1] - MARGIN_TOP - 23),
     tr=(289, LETTER[1] - MARGIN_TOP),
-    comps=[String(text="1. Name (Last, First MI Suffix)")],
+    comps=[
+        String(text="1. Name (Last, First MI Suffix)"),
+        String(text="", update_fn=update_name, fontname="Courier", y=20, x=6, size=12),
+    ],
 )
 
 box_1 = make_box_to_right(box_0, 66)
 box_1.comps.append(String(text="2. Rank"))
+box_1.comps.append(String(text="", update_fn=update_rank, fontname="Courier", y=21, x=6, size=12))
 
 box_2 = make_box_to_right(box_1, 101)
 box_2.comps.append(String(text="3. Desig"))
+box_2.comps.append(String(text="", update_fn=update_desig, fontname="Courier", y=21, x=6, size=12))
 
 box_3 = make_box_to_right(box_2, LETTER[0] - MARGIN_RIGHT - box_2.br[0])
 box_3.comps.append(String(text="4. SSN"))
+box_3.comps.append(String(text="", update_fn=update_ssn, fontname="Courier", y=21, x=6, size=12))
 
 # Row 1
 box_4 = make_box_below(box_0, 149, box_0.height)
-box_4.comps.append(String(text="5. Grade"))
+box_4.comps.append(String(text="5.   ACT    TAR      INACT   AT/ADSW/265", size=7, y=8))
+box_4.comps.append(Checkbox(y=2, x=-134, update_fn=update_group_act))
+box_4.comps.append(Checkbox(y=2, x=-109, update_fn=update_group_tar))
+box_4.comps.append(Checkbox(y=2, x=-79, update_fn=update_group_inact))
+box_4.comps.append(Checkbox(y=2, x=-46, update_fn=update_group_at_adsw_265))
 
 box_5 = make_box_to_right(box_4, 51)
 box_5.comps.append(String(text="6. UIC"))
+box_5.comps.append(String(update_fn=update_uic, fontname="Courier", y=21, x=6, size=12))
 
 box_6 = make_box_to_right(box_5, 196)
 box_6.comps.append(String(text="7. Ship/Station"))
+box_6.comps.append(String(update_fn=update_station, fontname="Courier", y=21, x=6, size=12))
 
 box_7 = make_box_to_right(box_6, 79)
 box_7.comps.append(String(text="8. Promotion Status"))
+box_7.comps.append(String(update_fn=update_promotion_status, fontname="Courier", y=21, x=6, size=12))
 
 box_8 = make_box_to_right(box_7, LETTER[0] - MARGIN_RIGHT - box_7.br[0])
 box_8.comps.append(String(text="9. Date Reported"))
+box_8.comps.append(String(update_fn=update_date_reported, fontname="Courier", y=21, x=6, size=12))
 
 # Row 2
-box_9 = make_box_below(box_4, 340, box_0.height)
+box_9 = make_box_below(box_4, 340, box_0.height + 2)
 box_9.comps.append(String(text="Occasion for Report", y=9))
+box_9.comps.append(Multiline(text="\n10. Periodic", no_strip=True, leading=8, y=14, x=3, size=8))
+box_9.comps.append(Checkbox(y=3, x=-285, update_fn=update_occasion_periodic))
+box_9.comps.append(Multiline(text="      Detachment\n11. of Individual", no_strip=True, leading=8, y=14, x=79, size=8))
+box_9.comps.append(Checkbox(y=3, x=-205, update_fn=update_occasion_detachment_individual))
+box_9.comps.append(
+    Multiline(text="      Detachment of\n12. Reporting Senior", no_strip=True, leading=8, y=14, x=160, size=8)
+)
+box_9.comps.append(Checkbox(y=3, x=-110, update_fn=update_occasion_detachment_reporting_senior))
+box_9.comps.append(Multiline(text="\n13. Special", no_strip=True, leading=8, y=14, x=270, size=8))
+box_9.comps.append(Checkbox(y=3, x=-30, update_fn=update_occasion_special))
 
 box_10 = make_box_to_right(box_9, LETTER[0] - MARGIN_SIDES - box_9.width)
 box_10.comps.append(String(text="Period of Report", y=9))
@@ -185,15 +354,13 @@ box_33_text = """
 5.0
 Greatly Exceeds Standards
 """
-# box_33.draw_centered_multiline(c, box_33_text, x=box_33.bl[0] + box_33.width / 2, y=490)
 box_33.comps.append(MultilineCentered(text=box_33_text, x=box_33.bl[0] + box_33.width / 2, y=490))
 
 # row 10
 box_34 = make_box_below(box_28, box_28.width, 85)
 box_34_txt = "33.\nPROFESSIONAL\nEXPERTISE:\nProfessional knowledge\nproficiency, and\nqualifications"
 box_34.comps.append(Multiline(text=box_34_txt))
-box_34.comps.append(Checkbox())
-# box_34.draw_multiline(c, box_34_txt)
+box_34.comps.append(Checkbox(update_fn=update_pe_0))
 
 box_35 = make_box_below(box_29, box_29.width, box_34.height)
 box_35_text = """-Lacks basic professional knowledge to
@@ -202,15 +369,13 @@ perform effectively
 -Fails to develop professionally or
 achieve timely qualifications
 """
-# box_35.draw_bullets(c, box_35_text)
 box_35.comps.append(Bullets(text=box_35_text))
-box_35.comps.append(Checkbox())
+box_35.comps.append(Checkbox(update_fn=update_pe_1))
 
 box_36 = make_box_below(box_30, box_30.width, box_34.height)
 box_36_text = "-\n\n-\n\n-"
-# box_36.draw_multiline(c, box_36_text)
 box_36.comps.append(Multiline(text=box_36_text))
-box_36.comps.append(Checkbox())
+box_36.comps.append(Checkbox(update_fn=update_pe_2))
 
 box_37 = make_box_below(box_31, box_31.width, box_34.height)
 box_37_text = """- Has thorough professional knowledge
@@ -219,14 +384,12 @@ new tasks
 - Steadily improves skills, achieves timely
 qualifications
 """
-# box_37.draw_bullets(c, box_37_text)
 box_37.comps.append(Bullets(text=box_37_text))
-box_37.comps.append(Checkbox())
+box_37.comps.append(Checkbox(update_fn=update_pe_3))
 
 box_38 = make_box_below(box_32, box_32.width, box_34.height)
-# box_38.draw_multiline(c, box_36_text)
 box_38.comps.append(Multiline(text=box_36_text))
-box_38.comps.append(Checkbox())
+box_38.comps.append(Checkbox(update_fn=update_pe_4))
 
 box_39 = make_box_below(box_33, box_33.width, box_34.height)
 box_39_text = """- Recognized expert, sought after to solve
@@ -236,9 +399,8 @@ executes innovative ideas
 - Achieves early/highly advanced
 qualifications
 """
-# box_39.draw_bullets(c, box_39_text)
 box_39.comps.append(Bullets(text=box_39_text))
-box_39.comps.append(Checkbox())
+box_39.comps.append(Checkbox(update_fn=update_pe_5))
 
 # row 11
 box_40 = make_box_below(box_34, box_34.width, 83)
@@ -538,16 +700,31 @@ boxes = [
 ]
 
 
-class Eval:
-    def __init__(self, canvas: Canvas):
-        self.canvas = canvas
+class Layout:
+    def __init__(self):
+        self.canvas = Canvas("layout.pdf", pagesize=LETTER)
         self.canvas.setLineWidth(0.6)
+        self.fitrep = Fitrep(
+            name="WHITE, TRISTAN K",
+            rank="LTJG",
+            desig="1840",
+            ssn="000-00-0000",
+            group=SummaryGroup.ACT,
+            uic="12345",
+            station="MYSHIP",
+            promotion_status=PromotionStatus.REGULAR,
+            date_reported=date(2025, 1, 15),
+            pro_expertise=PerformanceTrait.MEETS_STANDARDS,
+            period_start=date.today(),
+            period_end=date.today(),
+        )
 
     def draw(self):
-        c = self.canvas
-
         for box in boxes:
-            box.draw(c)
+            for comp in box.comps:
+                if comp.update_fn:
+                    comp.update_fn(self.fitrep, comp)
+            box.draw(self.canvas)
 
         self.canvas.setFont("Times-Roman", 12)
         self.canvas.drawString(
@@ -558,8 +735,6 @@ class Eval:
         self.canvas.drawString(MARGIN_LEFT + 4, MARGIN_BOTTOM - 10, "NAVPERS 1610/2 (REV 05-2025)")
         self.canvas.drawString(245, MARGIN_BOTTOM - 10, "CUI When Filled In - Previous Editions are Obsolete")
 
-        c = self.canvas
-
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
 
@@ -567,8 +742,7 @@ app = typer.Typer(no_args_is_help=True, add_completion=False)
 @app.command()
 def test():
     """test"""
-    c = Canvas("layout.pdf", pagesize=LETTER)
-    layout = Eval(canvas=c)
+    layout = Layout()
     layout.draw()
     layout.canvas.showPage()
     layout.canvas.save()

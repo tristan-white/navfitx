@@ -98,9 +98,9 @@ class PromotionRecommendation(Enum):
     EARLY_PROMOTE = auto()
 
 
-class Eval(BaseModel):
+class Fitrep(BaseModel):
     name: str = ""
-    grade_or_rate: str = ""
+    rank: str = ""
     desig: str = ""
     ssn: str = ""
     group: SummaryGroup | None = None

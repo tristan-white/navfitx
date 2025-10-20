@@ -4,8 +4,11 @@ Boxes and components for drawing on a PDF canvas.
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from typing import Callable
 
 from reportlab.pdfgen.canvas import Canvas
+
+from navfitx.fitrep import Fitrep
 
 
 @dataclass
@@ -71,6 +74,7 @@ class Component(ABC):
 
     x: float
     y: float
+    update_fn: Callable[[Fitrep, "Component"], None] | None = None
 
     @abstractmethod
     def draw(self, canvas: Canvas, box: Box) -> None:
@@ -109,6 +113,7 @@ class Multiline(Component):
     text: str = ""
     size: float = 6.5
     leading: float = 7.9
+    no_strip: bool = False
 
     def draw(self, canvas: Canvas, box: Box):
         """
@@ -117,7 +122,11 @@ class Multiline(Component):
         t = canvas.beginText(box.tl[0] + self.x, box.tl[1] - self.y)
         t.setFont("Times-Roman", size=self.size, leading=self.leading)
         for line in self.text.splitlines():
-            t.textLine(line.strip())
+            if self.no_strip:
+                t.textLine(line)
+                print("test test test ")
+            else:
+                t.textLine(line.strip())
         canvas.drawText(t)
 
 
@@ -182,11 +191,11 @@ class Checkbox(Component):
     height: float = 12
 
     def draw(self, canvas: Canvas, box: Box):
-        canvas.rect(self.x, self.y, self.width, self.height)
+        # canvas.rect(self.x, self.y, self.width, self.height)
         canvas.rect(box.br[0] + self.x, box.br[1] + self.y, self.width, self.height)
         if self.checked:
-            canvas.setFont("Times-Roman", 8)
-            canvas.drawString(self.x, self.y, "X")
+            canvas.setFont("Courier", 12)
+            canvas.drawCentredString(box.br[0] + self.x + self.width / 2, box.br[1] + self.y + 2, "X")
 
 
 def make_br_checkbox(box: Box) -> Checkbox:
