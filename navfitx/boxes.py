@@ -124,7 +124,6 @@ class Multiline(Component):
         for line in self.text.splitlines():
             if self.no_strip:
                 t.textLine(line)
-                print("test test test ")
             else:
                 t.textLine(line.strip())
         canvas.drawText(t)

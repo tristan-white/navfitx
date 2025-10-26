@@ -200,7 +200,7 @@ box_3.comps.append(String(text="4. SSN"))
 box_3.comps.append(String(text="", update_fn=update_ssn, fontname="Courier", y=21, x=6, size=12))
 
 # Row 1
-box_4 = make_box_below(box_0, 149, box_0.height)
+box_4 = make_box_below(box_0, 149, box_0.height - 1)
 box_4.comps.append(String(text="5.   ACT    TAR      INACT   AT/ADSW/265", size=7, y=8))
 box_4.comps.append(Checkbox(y=2, x=-134, update_fn=update_group_act))
 box_4.comps.append(Checkbox(y=2, x=-109, update_fn=update_group_tar))
@@ -239,6 +239,8 @@ box_9.comps.append(Checkbox(y=3, x=-30, update_fn=update_occasion_special))
 
 box_10 = make_box_to_right(box_9, LETTER[0] - MARGIN_SIDES - box_9.width)
 box_10.comps.append(String(text="Period of Report", y=9))
+box_10.comps.append(String(text="14. From:"))
+box_10.comps.append(String(text="15. To:"))
 
 # Row 3
 box_11 = make_box_below(box_9, 75, box_0.height)
@@ -714,9 +716,15 @@ class Layout:
             station="MYSHIP",
             promotion_status=PromotionStatus.REGULAR,
             date_reported=date(2025, 1, 15),
-            pro_expertise=PerformanceTrait.MEETS_STANDARDS,
+
+            occasion_for_report={OccasionForReport.PERIODIC, OccasionForReport.INDIVIDUAL_DETACH},
             period_start=date.today(),
+
             period_end=date.today(),
+            not_observed=True,
+
+
+            pro_expertise=PerformanceTrait.MEETS_STANDARDS,
         )
 
     def draw(self):
