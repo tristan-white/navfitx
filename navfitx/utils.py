@@ -1,8 +1,7 @@
 import pyodbc
-import typer
 
 # Define the connection string
-conn_str = r'DRIVER={MDBTools};DBQ=/home/user/Downloads/mydb.accdb;'
+conn_str = r"DRIVER={MDBTools};DBQ=/home/user/Downloads/mydb.accdb;"
 
 # Establish the connection
 conn = pyodbc.connect(conn_str)

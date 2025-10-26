@@ -716,14 +716,10 @@ class Layout:
             station="MYSHIP",
             promotion_status=PromotionStatus.REGULAR,
             date_reported=date(2025, 1, 15),
-
             occasion_for_report={OccasionForReport.PERIODIC, OccasionForReport.INDIVIDUAL_DETACH},
             period_start=date.today(),
-
             period_end=date.today(),
             not_observed=True,
-
-
             pro_expertise=PerformanceTrait.MEETS_STANDARDS,
         )
 
