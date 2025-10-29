@@ -37,8 +37,8 @@ def update_name(fitrep: Fitrep, comp: String) -> None:
     comp.text = fitrep.name
 
 
-def update_rank(fitrep: Fitrep, comp: String):
-    comp.text = fitrep.rank
+def update_rate(fitrep: Fitrep, comp: String):
+    comp.text = fitrep.rate
 
 
 def update_desig(fitrep: Fitrep, comp: String):
@@ -189,7 +189,7 @@ box_0 = Box(
 
 box_1 = make_box_to_right(box_0, 66)
 box_1.comps.append(String(text="2. Rank"))
-box_1.comps.append(String(text="", update_fn=update_rank, fontname="Courier", y=21, x=6, size=12))
+box_1.comps.append(String(text="", update_fn=update_rate, fontname="Courier", y=21, x=6, size=12))
 
 box_2 = make_box_to_right(box_1, 101)
 box_2.comps.append(String(text="3. Desig"))
@@ -708,7 +708,7 @@ class Layout:
         self.canvas.setLineWidth(0.6)
         self.fitrep = Fitrep(
             name="WHITE, TRISTAN K",
-            rank="LTJG",
+            rate="LTJG",
             desig="1840",
             ssn="000-00-0000",
             group=SummaryGroup.ACT,

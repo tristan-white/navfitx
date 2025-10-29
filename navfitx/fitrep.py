@@ -1,7 +1,8 @@
 from datetime import date
 from enum import Enum, StrEnum, auto
 
-from pydantic import BaseModel, Field
+# from pydantic import BaseModel, Field
+from sqlmodel import Field, SQLModel
 
 
 class SummaryGroup(Enum):
@@ -98,9 +99,9 @@ class PromotionRecommendation(Enum):
     EARLY_PROMOTE = auto()
 
 
-class Fitrep(BaseModel):
+class Fitrep(SQLModel):
     name: str = ""
-    rank: str = ""
+    rate: str = ""
     desig: str = ""
     ssn: str = ""
     group: SummaryGroup | None = None

@@ -10,6 +10,8 @@ dependencies = [
     "pyodbc>=5.2.0",
     "pyside6>=6.9.3",
     "reportlab>=4.4.4",
+    "sqlalchemy>=2.0.44",
+    "sqlmodel>=0.0.27",
     "typer>=0.19.2",
 ]
 
