@@ -1,34 +1,287 @@
-import pandas as pd
-import pyodbc
-from sqlmodel import Field, Session, SQLModel, create_engine
+from datetime import date
+from enum import Enum, StrEnum, auto
+
+# from pydantic import BaseModel, Field
+from sqlmodel import Field, SQLModel
 
 
-# --- 1. Define your SQLModel table ---
-class Customer(SQLModel, table=True):
-    id: int = Field(primary_key=True)
-    name: str
-    email: str | None = None
+class Report(SQLModel, table=True):
+    """
+    A model for the Reports table in NAVFIT98A Access database.
+    """
+
+    report_id: int = Field(primary_key=True)
+    parent: str
+    report_type: str
+    full_name: str
+    first_name: str
+    mi: str
+    last_name: str
+    suffix: str
+    rate: str
+    desig: str
+    ssn: str
+    active: bool
+    tar: bool
+    inactive: bool
+    atadsw: bool
+    uic: str
+    ship_station: str
+    promotion_status: str
+    date_reported: date
+    periodic: bool
+    det_ind: bool
+    frocking: bool
+    special: bool
+    from_date: date
+    to_date: date
+    nob: bool
+    regular: bool
+    concurrent: bool
+    ops_cdr: bool
+    physical_readiness: str
+    physical_readiness2: str
+    physical_readiness_dt: date
+    billet_subcat: str
+    rs_last_name: str
+    rs_fi: str
+    rs_mi: str
+    reporting_senior: str
+    rs_grade: str
+    rs_desig: str
+    rs_title: str
+    rs_uic: str
+    rs_ssn: str
+    achievements: str
+    primary_duty: str
+    duties: str
+    date_counseled: date
+    counselor: str
+    counselor_ln: str
+    counselor_fi: str
+    counselor_mi: str
+    prof: int
+    prof_dn1: str
+    prof_dn2: str
+    prof_dn3: str
+    qual: int
+    qual_dn1: str
+    qual_dn2: str
+    qual_dn3: str
+    eo: int
+    eo_dn1: str
+    eo_dn2: str
+    eo_dn3: str
+    mil: int
+    mil_dn1: str
+    mil_dn2: str
+    mil_dn3: str
+    pa: int
+    pa_dn1: str
+    pa_dn2: str
+    pa_dn3: str
+    team: int
+    team_dn1: str
+    team_dn2: str
+    team_dn3: str
+    lead: int
+    lead_dn1: str
+    lead_dn2: str
+    lead_dn3: str
+    mis: int
+    mis_dn1: str
+    mis_dn2: str
+    mis_dn3: str
+    tac: int
+    tac_dn1: str
+    tac_dn2: str
+    tac_dn3: str
+    recommend_1: str
+    recommend_2: str
+    rater: str
+    rater_date: date
+    comments_pitch: str
+    comments: str
+    qualifications: str
+    promotion_recom: int
+    summary_rank: int
+    summary_sp: str
+    summary_prog: str
+    summary_prom: str
+    summary_mp: str
+    summary_ep: str
+    retention_yes: bool
+    retention_no: bool
+    rsca: int
+    rs_address: str
+    rs_address1: str
+    rs_address2: str
+    rs_city: str
+    rs_state: str
+    rs_zip_cd: str
+    rs_phone: str
+    rs_dsn: str
+    senior_rater: str
+    senior_rater_date: date
+    statement_yes: bool
+    statement_no: bool
+    rs_info: str
+    rrs_fi: str
+    rrs_mi: str
+    rrs_last_name: str
+    rrs_grade: str
+    rrs_command: str
+    rrs_uic: str
+    user_comments: str
+    psswrd: str
+    standards: str
+    is_validated: str
 
 
-# --- 2. Connect to your Access database ---
-access_db_path = r"./export_folder.accdb"
-conn_str = (
-    r"Driver={MDBTools};"
-    rf"DBQ={access_db_path};"
-)
-access_conn = pyodbc.connect(conn_str)
+class SummaryGroup(Enum):
+    ACT = auto()
+    TAR = auto()
+    INACT = auto()
+    AT_ADOS = auto()
 
-# --- 3. Read table data into a pandas DataFrame ---
-table_name = "Folders"
-df = pd.read_sql(f"SELECT * FROM {table_name}", access_conn)
 
-# --- 4. Create your SQLModel database ---
-engine = create_engine("sqlite:///customers.db")
-SQLModel.metadata.create_all(engine)
+class PromotionStatus(StrEnum):
+    REGULAR = "REGULAR"
+    FROCKED = "FROCKED"
+    SELECTED = "SELECTED"
+    SPOT = "SPOT"
 
-# --- 5. Insert data into SQLModel ---
-with Session(engine) as session:
-    for _, row in df.iterrows():
-        customer = Customer(id=row["ID"], name=row["Name"], email=row.get("Email"))
-        session.add(customer)
-    session.commit()
+
+class OccasionForReport(Enum):
+    PERIODIC = auto()
+    INDIVIDUAL_DETACH = auto()
+    SENIOR_DETACH = auto()
+    SPECIAL = auto()
+
+
+class TypeOfReport(Enum):
+    REGULAR = auto()
+    CONCURRENT = auto()
+    OpsCdr = auto()
+
+
+class PhysicalReadiness(StrEnum):
+    PASS = "P"
+    BCA_PASS = "B"
+    FAIL = "F"
+    MED_WAIVED = "M"
+    WAIVED = "W"
+    NO_PFA = "N"
+
+
+class BilletSubcategory(StrEnum):
+    NA = "NA"
+    BASIC = "BASIC"
+    APPROVED = "APPROVED"
+    INDIV_AUGMENT = "INDIV AUG"
+    CO_AFLOAT = "CO AFLOAT"
+    CO_ASHORE = "CO ASHORE"
+    OIC = "OIC"
+    SEA_COMP = "SEA COMP"
+    CRF = "CRF"
+    CANVASSER = "CANVASSER"
+    RESIDENT = "RESIDENT"
+    INTERN = "INTERN"
+    INSTRUCTOR = "INSTRUCTOR"
+    STUDENT = "STUDENT"
+    RESAC1 = "RESAC1"
+    RESAC6 = "RESAC6"
+    SCREENED = "SCREENED"
+    SPECIAL01 = "SPECIAL01"
+    SPECIAL02 = "SPECIAL02"
+    SPECIAL03 = "SPECIAL03"
+    SPECIAL04 = "SPECIAL04"
+    SPECIAL05 = "SPECIAL05"
+    SPECIAL06 = "SPECIAL06"
+    SPECIAL07 = "SPECIAL07"
+    SPECIAL08 = "SPECIAL08"
+    SPECIAL09 = "SPECIAL09"
+    SPECIAL10 = "SPECIAL10"
+    SPECIAL11 = "SPECIAL11"
+    SPECIAL12 = "SPECIAL12"
+    SPECIAL13 = "SPECIAL13"
+    SPECIAL14 = "SPECIAL14"
+    SPECIAL15 = "SPECIAL15"
+    SPECIAL16 = "SPECIAL16"
+    SPECIAL17 = "SPECIAL17"
+    SPECIAL18 = "SPECIAL18"
+    SPECIAL19 = "SPECIAL19"
+    SPECIAL20 = "SPECIAL20"
+
+
+class PromotionRecommendation(Enum):
+    NOB = auto()
+    SIGNIFICANT_PROBLEMS = auto()
+    PROGRESSING = auto()
+    PROMOTABLE = auto()
+    MUST_PROMOTE = auto()
+    EARLY_PROMOTE = auto()
+
+
+class Fitrep(SQLModel):
+    name: str = ""
+    rate: str = ""
+    desig: str = ""
+    ssn: str = ""
+    group: SummaryGroup | None = None
+    uic: str = ""
+    station: str = ""
+    promotion_status: PromotionStatus | None = None
+    date_reported: date | None = None
+    occasion_for_report: set[OccasionForReport] = Field(default_factory=set)
+    period_start: date | None = None
+    period_end: date | None = None
+    not_observed: bool = False
+    type_of_report: set[TypeOfReport] = Field(default_factory=set)
+    physical_readiness: PhysicalReadiness | None = None
+    billet_subcategory: BilletSubcategory | None = None
+    senior_name: str = ""
+    senior_grade: str = ""
+    senior_desig: str = ""
+    senior_title: str = ""
+    senior_uic: str = ""
+    senior_ssn: str = ""
+    job: str = ""
+    duties_abbreviation: str = ""
+    duties_description: str = ""
+    date_counseled: date | None = None
+    counselor: str = ""
+    pro_expertise: int | None = None
+    cmd_climate: int | None = None
+    bearing_and_character: int | None = None
+    teamwork: int | None = None
+    accomp_and_initiative: int | None = None
+    leadership: int | None = None
+    tactical_performance: int | None = None
+    career_rec_1: str = ""
+    career_rec_2: str = ""
+    comments: str = ""
+    indiv_promo_rec: PromotionRecommendation | None = None
+    summary_promo_rec: list[int] = Field(default_factory=list)
+    senior_address: str = ""
+
+    def member_trait_avg(self) -> str:
+        traits = [
+            self.pro_expertise,
+            self.cmd_climate,
+            self.bearing_and_character,
+            self.teamwork,
+            self.accomp_and_initiative,
+            self.leadership,
+            self.tactical_performance,
+        ]
+        observed = 0
+        total = 0
+        for trait in traits:
+            if trait:
+                observed += 1
+                total += trait
+        if observed != 0:
+            avg = total / observed
+            return f"{avg:.2f}"
+        return "0.00"

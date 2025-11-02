@@ -1,13 +1,16 @@
 import webbrowser
+from dataclasses import dataclass
 from datetime import date
+from pathlib import Path
 
 import typer
 from reportlab.lib.pagesizes import LETTER
 from reportlab.pdfgen.canvas import Canvas
+from typing_extensions import Annotated
 
 from navfitx.boxes import Box, Bullets, Checkbox, Multiline, MultilineCentered, String
 from navfitx.constants import MARGIN_BOTTOM, MARGIN_LEFT, MARGIN_RIGHT, MARGIN_SIDES, MARGIN_TOP
-from navfitx.fitrep import Fitrep, OccasionForReport, PerformanceTrait, PromotionStatus, SummaryGroup
+from navfitx.models import Fitrep, OccasionForReport, PromotionStatus, SummaryGroup
 
 
 def make_box_to_right(box: Box, width: float) -> Box:
@@ -37,143 +40,143 @@ def update_name(fitrep: Fitrep, comp: String) -> None:
     comp.text = fitrep.name
 
 
-def update_rate(fitrep: Fitrep, comp: String):
+def update_rate(fitrep: Fitrep, comp: String) -> None:
     comp.text = fitrep.rate
 
 
-def update_desig(fitrep: Fitrep, comp: String):
+def update_desig(fitrep: Fitrep, comp: String) -> None:
     comp.text = fitrep.desig
 
 
-def update_ssn(fitrep: Fitrep, comp: String):
+def update_ssn(fitrep: Fitrep, comp: String) -> None:
     comp.text = fitrep.ssn
 
 
-def update_group_act(fitrep: Fitrep, comp: Checkbox):
+def update_group_act(fitrep: Fitrep, comp: Checkbox) -> None:
     comp.checked = fitrep.group == SummaryGroup.ACT
 
 
-def update_group_tar(fitrep: Fitrep, comp: Checkbox):
+def update_group_tar(fitrep: Fitrep, comp: Checkbox) -> None:
     comp.checked = fitrep.group == SummaryGroup.TAR
 
 
-def update_group_inact(fitrep: Fitrep, comp: Checkbox):
+def update_group_inact(fitrep: Fitrep, comp: Checkbox) -> None:
     comp.checked = fitrep.group == SummaryGroup.INACT
 
 
-def update_group_at_adsw_265(fitrep: Fitrep, comp: Checkbox):
+def update_group_at_adsw_265(fitrep: Fitrep, comp: Checkbox) -> None:
     comp.checked = fitrep.group == SummaryGroup.AT_ADOS
 
 
-def update_uic(fitrep: Fitrep, comp: String):
+def update_uic(fitrep: Fitrep, comp: String) -> None:
     comp.text = fitrep.uic
 
 
-def update_station(fitrep: Fitrep, comp: String):
+def update_station(fitrep: Fitrep, comp: String) -> None:
     comp.text = fitrep.station
 
 
-def update_promotion_status(fitrep: Fitrep, comp: String):
+def update_promotion_status(fitrep: Fitrep, comp: String) -> None:
     if fitrep.promotion_status:
         comp.text = fitrep.promotion_status.value
 
 
-def update_date_reported(fitrep: Fitrep, comp: String):
+def update_date_reported(fitrep: Fitrep, comp: String) -> None:
     if fitrep.date_reported:
         comp.text = fitrep.date_reported.strftime("%y%b%d").upper()
 
 
-def update_occasion_periodic(fitrep: Fitrep, comp: Checkbox):
+def update_occasion_periodic(fitrep: Fitrep, comp: Checkbox) -> None:
     comp.checked = OccasionForReport.PERIODIC in fitrep.occasion_for_report
 
 
-def update_occasion_detachment_individual(fitrep: Fitrep, comp: Checkbox):
+def update_occasion_detachment_individual(fitrep: Fitrep, comp: Checkbox) -> None:
     comp.checked = OccasionForReport.INDIVIDUAL_DETACH in fitrep.occasion_for_report
 
 
-def update_occasion_detachment_reporting_senior(fitrep: Fitrep, comp: Checkbox):
+def update_occasion_detachment_reporting_senior(fitrep: Fitrep, comp: Checkbox) -> None:
     comp.checked = OccasionForReport.SENIOR_DETACH in fitrep.occasion_for_report
 
 
-def update_occasion_special(fitrep: Fitrep, comp: Checkbox):
+def update_occasion_special(fitrep: Fitrep, comp: Checkbox) -> None:
     comp.checked = OccasionForReport.SPECIAL in fitrep.occasion_for_report
 
 
-def update_period_start(fitrep: Fitrep, comp: String):
+def update_period_start(fitrep: Fitrep, comp: String) -> None:
     if fitrep.period_start:
         comp.text = fitrep.period_start.strftime("%y%b%d").upper()
 
 
-def update_period_end(fitrep: Fitrep, comp: String):
+def update_period_end(fitrep: Fitrep, comp: String) -> None:
     if fitrep.period_end:
         comp.text = fitrep.period_end.strftime("%y%b%d").upper()
 
 
-def update_senior_name(fitrep: Fitrep, comp: String):
+def update_senior_name(fitrep: Fitrep, comp: String) -> None:
     comp.text = fitrep.senior_name
 
 
-def update_senior_grade(fitrep: Fitrep, comp: String):
+def update_senior_grade(fitrep: Fitrep, comp: String) -> None:
     comp.text = fitrep.senior_grade
 
 
-def update_senior_desig(fitrep: Fitrep, comp: String):
+def update_senior_desig(fitrep: Fitrep, comp: String) -> None:
     comp.text = fitrep.senior_desig
 
 
-def update_senior_uic(fitrep: Fitrep, comp: String):
+def update_senior_uic(fitrep: Fitrep, comp: String) -> None:
     comp.text = fitrep.senior_uic
 
 
-def update_senior_ssn(fitrep: Fitrep, comp: String):
+def update_senior_ssn(fitrep: Fitrep, comp: String) -> None:
     comp.text = fitrep.senior_ssn
 
 
-def update_job(fitrep: Fitrep, comp: String):
+def update_job(fitrep: Fitrep, comp: String) -> None:
     comp.text = fitrep.job
 
 
-def update_duties_abbreviation(fitrep: Fitrep, comp: String):
+def update_duties_abbreviation(fitrep: Fitrep, comp: String) -> None:
     comp.text = fitrep.duties_abbreviation
 
 
-def update_duties_description(fitrep: Fitrep, comp: String):
+def update_duties_description(fitrep: Fitrep, comp: String) -> None:
     comp.text = fitrep.duties_description
 
 
-def update_date_counseled(fitrep: Fitrep, comp: String):
+def update_date_counseled(fitrep: Fitrep, comp: String) -> None:
     if fitrep.date_counseled:
         comp.text = fitrep.date_counseled.strftime("%y%b%d").upper()
     else:
         comp.text = ""
 
 
-def update_counselor(fitrep: Fitrep, comp: String):
+def update_counselor(fitrep: Fitrep, comp: String) -> None:
     comp.text = fitrep.counselor
 
 
-def update_pe_0(fitrep: Fitrep, comp: Checkbox):
-    comp.checked = fitrep.pro_expertise == PerformanceTrait.NOB
+def update_pe_0(fitrep: Fitrep, comp: Checkbox) -> None:
+    comp.checked = fitrep.pro_expertise == 0
 
 
-def update_pe_1(fitrep: Fitrep, comp: Checkbox):
-    comp.checked = fitrep.pro_expertise == PerformanceTrait.BELOW_STANDARDS
+def update_pe_1(fitrep: Fitrep, comp: Checkbox) -> None:
+    comp.checked = fitrep.pro_expertise == 1
 
 
-def update_pe_2(fitrep: Fitrep, comp: Checkbox):
-    comp.checked = fitrep.pro_expertise == PerformanceTrait.PROGRESSING
+def update_pe_2(fitrep: Fitrep, comp: Checkbox) -> None:
+    comp.checked = fitrep.pro_expertise == 2
 
 
-def update_pe_3(fitrep: Fitrep, comp: Checkbox):
-    comp.checked = fitrep.pro_expertise == PerformanceTrait.MEETS_STANDARDS
+def update_pe_3(fitrep: Fitrep, comp: Checkbox) -> None:
+    comp.checked = fitrep.pro_expertise == 3
 
 
-def update_pe_4(fitrep: Fitrep, comp: Checkbox):
-    comp.checked = fitrep.pro_expertise == PerformanceTrait.ABOVE
+def update_pe_4(fitrep: Fitrep, comp: Checkbox) -> None:
+    comp.checked = fitrep.pro_expertise == 4
 
 
-def update_pe_5(fitrep: Fitrep, comp: Checkbox):
-    comp.checked = fitrep.pro_expertise == PerformanceTrait.GREATLY_EXCEEDS
+def update_pe_5(fitrep: Fitrep, comp: Checkbox) -> None:
+    comp.checked = fitrep.pro_expertise == 5
 
 
 # Row 0
@@ -240,7 +243,7 @@ box_9.comps.append(Checkbox(y=3, x=-30, update_fn=update_occasion_special))
 box_10 = make_box_to_right(box_9, LETTER[0] - MARGIN_SIDES - box_9.width)
 box_10.comps.append(String(text="Period of Report", y=9))
 box_10.comps.append(String(text="14. From:"))
-box_10.comps.append(String(text="15. To:"))
+# box_10.comps.append(String(text="15. To:"))
 
 # Row 3
 box_11 = make_box_below(box_9, 75, box_0.height)
@@ -702,32 +705,25 @@ boxes = [
 ]
 
 
+@dataclass
 class Layout:
-    def __init__(self):
-        self.canvas = Canvas("layout.pdf", pagesize=LETTER)
+    filename: str
+    boxes: list[Box]
+    report: Fitrep
+
+    def __post_init__(self):
+        self.canvas = Canvas(self.filename, pagesize=LETTER)
         self.canvas.setLineWidth(0.6)
-        self.fitrep = Fitrep(
-            name="WHITE, TRISTAN K",
-            rate="LTJG",
-            desig="1840",
-            ssn="000-00-0000",
-            group=SummaryGroup.ACT,
-            uic="12345",
-            station="MYSHIP",
-            promotion_status=PromotionStatus.REGULAR,
-            date_reported=date(2025, 1, 15),
-            occasion_for_report={OccasionForReport.PERIODIC, OccasionForReport.INDIVIDUAL_DETACH},
-            period_start=date.today(),
-            period_end=date.today(),
-            not_observed=True,
-            pro_expertise=PerformanceTrait.MEETS_STANDARDS,
-        )
+
+    # def __init__(self):
+    #     self.canvas = Canvas("layout.pdf", pagesize=LETTER)
+    #     self.canvas.setLineWidth(0.6)
 
     def draw(self):
         for box in boxes:
             for comp in box.comps:
                 if comp.update_fn:
-                    comp.update_fn(self.fitrep, comp)
+                    comp.update_fn(self.report, comp)
             box.draw(self.canvas)
 
         self.canvas.setFont("Times-Roman", 12)
@@ -744,20 +740,29 @@ app = typer.Typer(no_args_is_help=True, add_completion=False)
 
 
 @app.command()
-def test():
-    """test"""
-    layout = Layout()
+def test_make_fitrep(
+    output: Annotated[Path, typer.Option(help="Destination for output PDF file.")] = Path("fitrep.pdf").resolve(),
+):
+    """Test FITREP PDF generation capabiilty."""
+    fitrep = Fitrep(
+        name="WHITE, TRISTAN K",
+        rate="LTJG",
+        desig="1840",
+        ssn="000-00-0000",
+        group=SummaryGroup.ACT,
+        uic="12345",
+        station="MYSHIP",
+        promotion_status=PromotionStatus.REGULAR,
+        date_reported=date(2025, 1, 15),
+        occasion_for_report={OccasionForReport.PERIODIC, OccasionForReport.INDIVIDUAL_DETACH},
+        period_start=date.today(),
+        period_end=date.today(),
+        not_observed=True,
+        pro_expertise=3,
+    )
+
+    layout = Layout(output.name, boxes, fitrep)
     layout.draw()
     layout.canvas.showPage()
     layout.canvas.save()
-    webbrowser.open("layout.pdf")
-
-
-@app.command()
-def find_boxes():
-    """Find boxes"""
-
-    def all_subclasses(cls):
-        return set(cls.__subclasses__()).union(s for c in cls.__subclasses__() for s in all_subclasses(c))
-
-    print(all_subclasses(Box))
+    webbrowser.open(output.as_uri())

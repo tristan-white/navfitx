@@ -1,9 +1,12 @@
 import sys
 import webbrowser
 
+import typer
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QApplication, QMainWindow
+
+app = typer.Typer(no_args_is_help=True, add_completion=False)
 
 
 class MainWindow(QMainWindow):
@@ -98,15 +101,9 @@ class MyWidget(QtWidgets.QWidget):
     #     self.text.setText(random.choice(self.hello))
 
 
-if __name__ == "__main__":
-    # app = QtWidgets.QApplication([])
-
-    # widget = MyWidget()
-    # widget.resize(800, 600)
-    # widget.show()
-
-    # sys.exit(app.exec())
-
+@app.command(no_args_is_help=True)
+def gui():
+    """Launch the NAVFITX GUI application."""
     app = QApplication()
     window = MainWindow()
     window.resize(800, 600)

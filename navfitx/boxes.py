@@ -8,8 +8,6 @@ from typing import Callable
 
 from reportlab.pdfgen.canvas import Canvas
 
-from navfitx.fitrep import Fitrep
-
 
 @dataclass
 class Box:
@@ -74,7 +72,7 @@ class Component(ABC):
 
     x: float
     y: float
-    update_fn: Callable[[Fitrep, "Component"], None] | None = None
+    update_fn: Callable | None = None
 
     @abstractmethod
     def draw(self, canvas: Canvas, box: Box) -> None:
