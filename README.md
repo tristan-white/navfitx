@@ -2,6 +2,27 @@
 
 NAVFITX is a drop-in replacement for NAVFIT98A.
 
+> [!NOTE]
+> NAVFITX is still in production.
+
+| Feature | NAVFIT98A v33 | NAVFITX | 
+|---------|-----------|---------|
+| Runs on Windows 7 | :x: | :x: |
+| Cross-Platform (Windows/MacOS/Linux) | :x: | :white_check_mark: |
+| Imports Microsoft Access Databases (.accdb) | :white_check_mark: | :white_check_mark: |
+| Export Report as PDF | :white_check_mark: | :white_check_mark: |
+| Usable w/out Admin Privileges | :x: | :white_check_mark: |
+| Open Source | :x: | :white_check_mark: |
+
+## Installation
+
+NAVFITX uses [uv](https://docs.astral.sh/uv/) to manage dependencies.
+
+1. [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
+2. `git clone https://github.com/tristan-white/navfitx.git && cd navfitx`
+3. `uv sync`
+4. `uv run python -m navfitx`
+
 ## Background
 
 - Every year, every service member in the Navy creates a performance evalution report.
@@ -12,52 +33,34 @@ NAVFITX is a drop-in replacement for NAVFIT98A.
 - eNavFit encountered so many bugs and issues during its rollout that in November 2023, the Navy released [NAVADMIN 279/23](https://navadmin-viewer.fly.dev/NAVADMIN/279/23), stating that NAVFIT98A would continue to be available through the end of 2025 while problems with eNavFit were fixed.
 - In January 2025, [NAVADMIN 012/25](https://www.mynavyhr.navy.mil/Portals/55/Messages/NAVADMIN/NAV2025/NAV25012.pdf?ver=XNxecwkcKmyF0dFjhYHpzA%3d%3d) was released, stating that eNavFit would no longer available for use starting 1 May 2025. Furthermore, it anounced a "modernized and more capable NAVFIT98A" update to be released that month, providing service members with a more "user-friendly" experience, along with "updated business rules that will significantly reduce the number of rejected reports received by Navy Personnel Command".[^4]
 
-## Current State of NAVFIT98A
+## Why replace NAVFIT98A?
 
 ![NAVFIT98A v33](./docs/img/navfit98a_v33.png)
 *NAVFIT98A Version 33, up-to-date as of this writing in October 2025.*
 
-When [NAVADMIN 012/25](https://www.mynavyhr.navy.mil/Portals/55/Messages/NAVADMIN/NAV2025/NAV25012.pdf?ver=XNxecwkcKmyF0dFjhYHpzA%3d%3d) was released in Jan 2025, the new version 32 update had not yet been released. As of this writing (Oct 2025), NAVFIT98A is now on version 33, and no plans have been anounced to move away from NAVFIT98A going forward.
+The need for a platform that can easily facilitate the creation, revision, validation, and submission of performance evaluations is a real one. The Navy recognized this fact which led to the effort to create eNavFit. When eNavFit failed, version 33 of NAVFIT98A was released. It offered nomianl improvements, but many of the same issues remain:
 
-The need for a platform that can easily facilitate the creation, revision, validation, and submission of performance evaluations is a real one. The Navy recognized this fact when it attempted to roll out eNavFit. The most recent update offers nomianl improvements, but many of the same issues remain:
-
-- Installation triggers Microsoft Defender Antivirus alerts because its software is so antiquated.
-- It's very buggy. It's prone to crashing, or throwing errors with unhelpful error messages that do not make it clear what went wrong.
-- bad output formats
-- poor user guide / installation instructions
-- What you see is not what you get
-- It isn't simple to install. 
-- validation could be improved even more
-- not backward compatible; not all .accdb files created by NAVFIT98A can be opened by all other versions.
-- not extensible
+- **Installation is difficult.** NAVFIT98A is not a self-contained executable. It requires dependencies that must be installed separately. Addtionally, according to the user guide, it can require both admin privileges for the host and admin privileges for the Windows Domain in order to install.
+- **It's buggy.** When it does throw an error, the error messages do not give helpful info about what went wrong.
+- **It's still hard to collaborate on reports.** Before a report is fully ready to be printed as a PDF, it's common for sailors to collaborate with their chain of command, department, and/or admin department on the contents of their report. Unfortunately, the only export format for NAVFIT98A is as a Microsoft Access Database (`.accdb`) file. Using this format is quite limiting, as the contents can only be viewed inside NAVFIT98A.[^5] To make the problem worse, if you try to import `.accdb` files exported from earlier versions of NAVFIT98A into NAVFTI98A v33, you'll get an error with no message as to what went wrong.
+- **It's not intuitive to use.** There are multiple official user guides and FAQs PDFs, and despite these, over 50,000 reports a year submitted to NAVPERSCOM are rejected for incorrectness. 
 
 ## Links
 
 - [NAVFIT98A v30 User Guide Manual](https://www.mynavyhr.navy.mil/Portals/55/Career/PerformanceEvaluation/NAVFIT98A%20Version%2030%20user%20guide.pdf?ver=rBFhxjABpJhUybBeMo6AMA%3d%3d)
 - [Performance Evaluation Links](https://www.mn3p.navy.mil/web/performance/overview)
 
-## Roadmap
+## Feedback
 
-- Create PDF export template for [NAVPERS 1610/2](https://www.mynavyhr.navy.mil/Portals/55/Reference/Forms/NAVPERS/NAVPERS%201610-2%2005-2025_Final.pdf?ver=HYg5l9GDUkjIZR6sLcrvUw%3d%3d)
-- Create PDF export template for [NAVPERS 1610/20](https://www.mynavyhr.navy.mil/Portals/55/Reference/Forms/NAVPERS/NAVPERS%201616-26%2005-2025_Final.pdf?ver=peRWyCZKmmrvKu6HcVXCtQ%3d%3d)
-- Create PDF export template for [NAVPERS 1610/5](https://www.mynavyhr.navy.mil/Portals/55/Reference/Forms/NAVPERS/NAVPERS%201616-26%2005-2025_Final.pdf?ver=peRWyCZKmmrvKu6HcVXCtQ%3d%3d)
-- [Add .toml input option](./navpers_1610-2_example.toml)
-- Add .accdb file input option
-- Add .accdb file output option
-- Add sqlite output option
-- Add sqlite input option
-- Add JSON input option
-- Add [FastAPI](https://fastapi.tiangolo.com/)
-- Create cross-platform standalone executables with [pyinstaller](https://github.com/pyinstaller/pyinstaller)
+I'd like to see NAVFITX replace NAFIT98A in the fleet. I'm looking for user testimonials from anyone that's used NAVFIT98A or eNavFit in order to answer the "why is this important" when I make the pitch to stakeholders within the Navy. If you have feedback on these programs, please provide it here:
 
-## Support
-
-If you're interested in seeing this project succeed, you could help in a few ways you could help:
-- Give this repo a star! This helps people find the project and lets me know that you're interested in seeing it develop further.
 - [Provide feedback on NAVFIT98A](https://github.com/tristan-white/navfitx/discussions/1)
 - [Provide feedback on eNavFit](https://github.com/tristan-white/navfitx/discussions/2) (if you had the chance to use it before it was shut down)
+
+---
 
 [^1]: Even in 2025, evaluation reports are still submitted on physical paper via snailmail to Navy Personnel Command; [Performance Evaluation Reports Frequently Asked Questions August 2025](https://www.mn3p.navy.mil/documents/d/performance/navfit98a-v2-2-0-33-frequently-asked-question?download=true) states: "Presently, there is no electronic system to submit performance evaluation reports. Per BUPERSINST 1610.10H, chapter 1, paragraph 1-5, All reports must be mailed within 15 days of the ending date (block 15) for active-duty members and within 30 days for INACT members."
 [^2]: [BUPERSINT 1610.10H](https://www.mynavyhr.navy.mil/Portals/55/Reference/Instructions/BUPERS/BUPERSINST%201610.10.pdf?ver=DZVcHnNH8gLkDjKjDFyaKA%3d%3d) - This document provides policy and procedures for the Navy Performance Evaluation System. It has comprehensive insructions for how to complete and submit reports.
 [^3]: [NAVADMIN 279/23](https://navadmin-viewer.fly.dev/NAVADMIN/279/23) - Permitted NAVFIT98A to be used through the end of 2025 due to issues with eNavFit.
 [^4]: [NAVADMIN 012/25](https://www.mynavyhr.navy.mil/Portals/55/Messages/NAVADMIN/NAV2025/NAV25012.pdf?ver=XNxecwkcKmyF0dFjhYHpzA%3d%3d) - Announced eNavFit would be scrapped, and NAVFIT98A version 32 release.
+[^5]: You can also of course open the file using [Microsoft Access](https://www.microsoft.com/en-us/microsoft-365/access), but 1) many people don't know this 2) it's only available for Windows 3) it's not installed on many of the workstations where NAVFIT98A is installed.

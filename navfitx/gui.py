@@ -13,6 +13,9 @@ def open_navfitx_github():
     webbrowser.open(url)
 
 
+app = typer.Typer(no_args_is_help=True, add_completion=False)
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
