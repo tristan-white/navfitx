@@ -1,9 +1,16 @@
 import sys
 import webbrowser
 
-from PySide6 import QtCore, QtWidgets
+import typer
 from PySide6.QtGui import QAction
-from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtWidgets import QApplication, QGridLayout, QMainWindow, QPushButton, QWidget
+
+app = typer.Typer(no_args_is_help=True, add_completion=False)
+
+
+def open_navfitx_github():
+    url = "https://github.com/tristan-white/navfitx"
+    webbrowser.open(url)
 
 
 class MainWindow(QMainWindow):
@@ -47,44 +54,43 @@ class MainWindow(QMainWindow):
         open_github_action = QAction("About NAVFITX", self)
         help_menu.addAction(open_github_action)
 
-        def open_navfitx_github():
-            url = "https://github.com/tristan-white/navfitx"
-            webbrowser.open(url)
-
         open_github_action.triggered.connect(open_navfitx_github)
 
-        self.setCentralWidget(MyWidget())
+        # self.setLayout(MyWidget().buttons)
+
+        window = MyWidget()
+
+        self.setCentralWidget(window)
 
 
-class MyWidget(QtWidgets.QWidget):
+class MyWidget(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.hello = ["Hallo Welt", "Hei maailma", "Hola Mundo", "Привет мир"]
-
-        self.buttons = QtWidgets.QGridLayout()
+        layout = QGridLayout(self)
+        layout.setVerticalSpacing(0)
         # self.buttons.addWidget( QtWidgets.QPushButton("test"), 0, 0)
 
-        self.buttons.addWidget(QtWidgets.QPushButton("Create Folder"), 0, 0)
-        self.buttons.addWidget(QtWidgets.QPushButton("Edit Folder"), 1, 0)
-        self.buttons.addWidget(QtWidgets.QPushButton("Delete Folder"), 2, 0)
-        self.buttons.addWidget(QtWidgets.QPushButton("Print Folder"), 3, 0)
-        self.buttons.addWidget(QtWidgets.QPushButton("Validate Folder Reports"), 4, 0)
-        self.buttons.addWidget(QtWidgets.QPushButton("Validate Report"), 5, 0)
+        layout.addWidget(QPushButton("Create Folder"), 0, 0)
+        layout.addWidget(QPushButton("Edit Folder"), 1, 0)
+        layout.addWidget(QPushButton("Delete Folder"), 2, 0)
+        layout.addWidget(QPushButton("Print Folder"), 3, 0)
+        layout.addWidget(QPushButton("Validate Folder Reports"), 4, 0)
+        layout.addWidget(QPushButton("Validate Report"), 5, 0)
 
-        self.buttons.addWidget(QtWidgets.QPushButton("Create FitRep"), 0, 1)
-        self.buttons.addWidget(QtWidgets.QPushButton("Create Chief Eval"), 1, 1)
-        self.buttons.addWidget(QtWidgets.QPushButton("Create Eval"), 2, 1)
-        self.buttons.addWidget(QtWidgets.QPushButton("Edit Report"), 3, 1)
-        self.buttons.addWidget(QtWidgets.QPushButton("Delete Report"), 4, 1)
+        layout.addWidget(QPushButton("Create FitRep"), 0, 1)
+        layout.addWidget(QPushButton("Create Chief Eval"), 1, 1)
+        layout.addWidget(QPushButton("Create Eval"), 2, 1)
+        layout.addWidget(QPushButton("Edit Report"), 3, 1)
+        layout.addWidget(QPushButton("Delete Report"), 4, 1)
 
-        self.buttons.addWidget(QtWidgets.QPushButton("Print Summary"), 0, 2)
-        self.buttons.addWidget(QtWidgets.QPushButton("Print Report"), 1, 2)
-        self.buttons.addWidget(QtWidgets.QPushButton("Import Data"), 2, 2)
-        self.buttons.addWidget(QtWidgets.QPushButton("Export Folder"), 3, 2)
-        self.buttons.addWidget(QtWidgets.QPushButton("Export Report"), 4, 2)
+        layout.addWidget(QPushButton("Print Summary"), 0, 2)
+        layout.addWidget(QPushButton("Print Report"), 1, 2)
+        layout.addWidget(QPushButton("Import Data"), 2, 2)
+        layout.addWidget(QPushButton("Export Folder"), 3, 2)
+        layout.addWidget(QPushButton("Export Report"), 4, 2)
 
-        self.text = QtWidgets.QLabel("Hello World", alignment=QtCore.Qt.AlignmentFlag.AlignHCenter)
+        # self.text = QLabel("Hello World", alignment=QtCore.Qt.AlignmentFlag.AlignHCenter)
 
         # self.layout = QtWidgets.QVBoxLayout(self)
         # self.layout.addLayout(self.buttons)
@@ -98,7 +104,8 @@ class MyWidget(QtWidgets.QWidget):
     #     self.text.setText(random.choice(self.hello))
 
 
-if __name__ == "__main__":
+@app.command()
+def gui():
     # app = QtWidgets.QApplication([])
 
     # widget = MyWidget()
