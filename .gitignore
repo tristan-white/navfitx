@@ -210,3 +210,5 @@ __marimo__/
 *.pdf
 
 *.accdb
+
+examples/

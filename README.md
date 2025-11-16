@@ -23,6 +23,10 @@ NAVFITX uses [uv](https://docs.astral.sh/uv/) to manage dependencies.
 3. `uv sync`
 4. `uv run python -m navfitx`
 
+> [!NOTE]
+> If you see the error `This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.`, install `libxcb-cursor0`, then run again.
+ 
+
 ## Background
 
 - Every year, every service member in the Navy creates a performance evalution report.
