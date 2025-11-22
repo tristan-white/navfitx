@@ -62,6 +62,9 @@ class MainWindow(QMainWindow):
 
         edit_menu = menubar.addMenu("Edit")
 
+        print_menu = menubar.addMenu("Print")
+        print_menu.addAction("Print Folder")
+
         edit_report_submenu = edit_menu.addMenu("Edit Eval/Fitrep")
         edit_report_submenu.addAction(QAction("Edit Folder", self))
 
@@ -144,9 +147,9 @@ class HomeWidget(QWidget):
         reports_table.setColumnCount(len(headers))
         reports_table.setHorizontalHeaderLabels(headers)
 
-        row1 = ["CWTC", "DOE, JOHN A", "123-45-6789", "Chief", "15SEP2026", "1", "No"]
-        row2 = ["LTJG", "DOE, JOHN A", "123-45-6789", "FitRep", "28FEB2026", "2", "No"]
-        row3 = ["CTN", "SMITH, TIMMY A", "123-45-6789", "Eval", "30JUN2026", "3", "No"]
+        row1 = ["CWTC", "DOE, JOHN A", "123-45-6789", "Chief", "15SEP2026", "1", "Yes"]
+        row2 = ["LTJG", "DOE, JOHN A", "123-45-6789", "FitRep", "28FEB2026", "2", "Yes"]
+        row3 = ["CTI", "DOE, JOHN A", "123-45-6789", "Eval", "30JUN2026", "3", "Yes"]
         for i, row in enumerate([row1, row2, row3]):
             for j, v in enumerate(row):
                 reports_table.setItem(i, j, QTableWidgetItem(v))
@@ -157,7 +160,7 @@ class HomeWidget(QWidget):
         return group_box
 
     def create_buttons_groupbox(self) -> QGroupBox:
-        group_box = QGroupBox("Buttons")
+        group_box = QGroupBox()
 
         create_folder = QPushButton("Create Folder")
         edit_folder = QPushButton("Edit Folder")

@@ -9,7 +9,15 @@ import typer
 from pymupdf import Point
 from typing_extensions import Annotated
 
-from .models import BilletSubcategory, Fitrep, OccasionForReport, PhysicalReadiness, PromotionStatus, SummaryGroup
+from .models import (
+    BilletSubcategory,
+    Fitrep,
+    OccasionForReport,
+    PhysicalReadiness,
+    PromotionStatus,
+    SummaryGroup,
+    TypeOfReport,
+)
 
 
 def get_manual_path() -> pathlib.Path:
@@ -164,10 +172,12 @@ def create_fitrep_pdf(fitrep: Fitrep, path: Path) -> Path:
     for point in get_perfomance_points(fitrep):
         front.insert_text(point, "X", fontsize=12, fontname="Cour")
 
+    front.insert_text(Point(156, 112), "X", fontsize=12, fontname="Cour")
+
     front.insert_text(Point(273, 140), fitrep.senior_title, fontsize=12, fontname="Cour")
     front.insert_text(Point(405, 140), fitrep.senior_uic, fontsize=12, fontname="Cour")
     front.insert_text(Point(461, 140), fitrep.senior_ssn, fontsize=12, fontname="Cour")
-    front.insert_text(Point(24, 164), fitrep.job, fontsize=10, fontname="Cour")
+    front.insert_text(Point(24, 164), fitrep.job, fontsize=10, fontname="Cour", lineheight=1.0)
     front.insert_text(Point(28, 212), fitrep.duties_abbreviation, fontsize=12, fontname="Cour")
     front.insert_text(Point(146, 212), fitrep.duties_description, fontsize=10, fontname="Cour")
 
@@ -188,35 +198,36 @@ def overlay(
     output: Annotated[Path, typer.Option(help="Path to the output file", dir_okay=False, writable=True)],
 ):
     fitrep = Fitrep(
-        name="LAST, FIRST MI",
+        name="WHITE, TRISTAN K",
         rate="LTJG",
         desig="1840",
         ssn="123-45-6789",
-        uic="12345",
-        station="MYSHIP",
+        uic="46439",
+        station="NAVCYBERWARDEVGRU",
         group=SummaryGroup.AT_ADOS,
         promotion_status=PromotionStatus.REGULAR,
-        date_reported=date(2024, 6, 1),
+        date_reported=date(2022, 9, 9),
         occasion_for_report={
             OccasionForReport.PERIODIC,
             OccasionForReport.INDIVIDUAL_DETACH,
             OccasionForReport.SPECIAL,
             OccasionForReport.SENIOR_DETACH,
         },
-        period_start=date(2023, 12, 1),
-        period_end=date(2024, 5, 31),
-        not_observed=True,
+        period_start=date(2024, 5, 27),
+        period_end=date(2025, 2, 28),
+        # not_observed=True,
         physical_readiness=PhysicalReadiness.PASS,
         billet_subcategory=BilletSubcategory.NA,
-        senior_name="SENIOR, FIRST MI",
-        senior_grade="CDR",
-        senior_desig="1840",
+        type_of_report={TypeOfReport.REGULAR},
+        senior_name="LAST, FI MI",
+        senior_grade="CAPT",
+        senior_desig="1810",
         senior_title="CO",
-        senior_uic="54321",
-        senior_ssn="987-65-4321",
-        job="blah blah blah",
+        senior_uic="46439",
+        senior_ssn="123-45-6789",
+        job="Conducts information and Cyber Warfare R&D, intelligence, and operations. Develops deep\ntechnial understanding of adversary systems, discovers vulnerabilities, and builds\ncountermeasures using rapid prototyping and acquisition authorities.",
         duties_abbreviation="DIVO",
-        duties_description="Responsible for leading the division in all aspects.",
+        duties_description="",
         date_counseled=date(2024, 5, 15),
         counselor="LAST, FIRST MI",
         pro_expertise=3,
