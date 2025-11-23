@@ -1,6 +1,5 @@
 # import QStackedWidget
 import webbrowser
-from pathlib import Path
 
 from PySide6 import QtWidgets
 from PySide6.QtGui import (
@@ -25,18 +24,6 @@ from PySide6.QtWidgets import (
 from .fitrep import FitrepDialog
 
 
-def open_dir():
-    dir = QFileDialog.getExistingDirectory(None, "Select Directory", options=QFileDialog.Option.ShowDirsOnly)
-    if dir:
-        path = Path(dir)
-        print(path)
-
-
-def open_navfitx_github():
-    url = "https://github.com/tristan-white/navfitx"
-    webbrowser.open(url)
-
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -53,7 +40,7 @@ class MainWindow(QMainWindow):
         new_submenu.addAction("Chief Evaluation")
         new_submenu.addAction("Folder")
         create_db_action = file_menu.addAction("Create Database")
-        create_db_action.triggered.connect(open_dir)
+        create_db_action.triggered.connect(self.create_db)
         file_menu.addAction("Open Database")
         file_menu.addAction("Close Database")
         file_menu.addAction("Export Folder")
@@ -80,7 +67,7 @@ class MainWindow(QMainWindow):
         open_github_action = QAction("About NAVFITX", self)
         help_menu.addAction(open_github_action)
 
-        open_github_action.triggered.connect(open_navfitx_github)
+        open_github_action.triggered.connect(self.open_navfitx_github)
 
         # central widget container
         self.stack = QStackedWidget()
@@ -99,9 +86,29 @@ class MainWindow(QMainWindow):
 
     def open_fitrep_dialog(self):
         # self.stack.setCurrentIndex(1)
-        fitrep_form = FitrepDialog(self)
-        fitrep_form.exec()
-        fitrep_form.print()
+        # fitrep_form = FitrepDialog(self)
+        # fitrep_form.exec()
+        # fitrep_form.print()
+
+        # self.stack.addWidget(FitrepDialog(self))
+        # self.stack.setCurrentIndex(1)
+
+        self.fitrep = FitrepDialog()
+        self.setCentralWidget(self.fitrep)
+
+    def create_db(self):
+        dialog = QFileDialog(self)
+        dialog.setFileMode(QFileDialog.FileMode.AnyFile)
+        filename, selected_filter = dialog.getSaveFileName(
+            None, "Create a Database ()File", filter="SQLite Database (*.sqlite)"
+        )
+        if filename:
+            # path = Path(filename)
+            print(filename)
+
+    def open_navfitx_github(self):
+        url = "https://github.com/tristan-white/navfitx"
+        webbrowser.open(url)
 
 
 class HomeWidget(QWidget):
@@ -111,15 +118,6 @@ class HomeWidget(QWidget):
         # self.setWindowIcon(QIcon(/path/to/image))
 
         layout = QGridLayout(self)
-        # layout.setVerticalSpacing(0)
-        # self.buttons.addWidget( QtWidgets.QPushButton("test"), 0, 0)
-
-        # self.text = QLabel("Hello World", alignment=QtCore.Qt.AlignmentFlag.AlignHCenter)
-
-        # self.layout = QtWidgets.QVBoxLayout(self)
-        # self.layout.addLayout(self.buttons)
-        # self.layout.addWidget(self.delete_folder)
-        # self.layout.addLayout(self.buttons)
 
         folder_tree = self.create_folder_tree()
         reports_table = self.create_reports_table()

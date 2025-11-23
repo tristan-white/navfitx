@@ -1,19 +1,21 @@
 from PySide6.QtCore import Slot
+from PySide6.QtGui import QFont, QTextOption
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QDateEdit,
-    QDialog,
     QDialogButtonBox,
     QFormLayout,
+    QLayout,
     QLineEdit,
     QMessageBox,
+    QScrollArea,
     QTextEdit,
     QVBoxLayout,
     QWidget,
 )
 
-from navfitx.models import OccasionForReport, PromotionStatus
+from navfitx.models import BilletSubcategory, OccasionForReport, PhysicalReadiness, PromotionStatus, TypeOfReport
 
 # class NameValidator(QValidator):
 #     def __init__(self, parent=None):
@@ -29,12 +31,17 @@ from navfitx.models import OccasionForReport, PromotionStatus
 #         return input_str.upper()C
 
 
-class FitrepDialog(QDialog):
-    def __init__(self, parent: QWidget):
-        super().__init__(parent)
+class FitrepDialog(QWidget):
+    def __init__(self):
+        super().__init__()
         self.setWindowTitle("FITREP Data Entry")
 
-        form_layout = QFormLayout()
+        scroll_area = QScrollArea(self)
+        scroll_area.setWidgetResizable(True)
+        form_widget = QWidget()
+        # form_widget.setMaximumWidth(1200)
+        form_layout = QFormLayout(form_widget)
+        form_layout.setSizeConstraint(QLayout.SizeConstraint.SetNoConstraint)
 
         self.name = QLineEdit()
         self.name.editingFinished.connect(self.validate_name)
@@ -84,6 +91,18 @@ class FitrepDialog(QDialog):
         self.not_observed = QCheckBox()
         form_layout.addRow("Not Observed Report", self.not_observed)
 
+        self.type_of_report = QComboBox()
+        self.type_of_report.addItems([member.name for member in TypeOfReport])
+        form_layout.addRow("Type of Report", self.type_of_report)
+
+        self.physical_readiness = QComboBox()
+        self.physical_readiness.addItems([member.value for member in PhysicalReadiness])
+        form_layout.addRow("Physical Readiness", self.physical_readiness)
+
+        self.billet_subcategory = QComboBox()
+        self.billet_subcategory.addItems([member.value for member in BilletSubcategory])
+        form_layout.addRow("Billet Subcategory", self.billet_subcategory)
+
         self.senior_name = QLineEdit()
         form_layout.addRow("Reporting Senior Name", self.senior_name)
 
@@ -103,6 +122,7 @@ class FitrepDialog(QDialog):
         form_layout.addRow("Reporting Senior SSN", self.senior_ssn)
 
         self.duties_abbreviation = QLineEdit()
+        self.duties_abbreviation.editingFinished.connect(self.validate_duties_abbreviation)
         form_layout.addRow("Primary Duty Abbreviation", self.duties_abbreviation)
 
         self.duties_description = QLineEdit()
@@ -119,19 +139,78 @@ class FitrepDialog(QDialog):
         # self.comments.setLineWrapColumnOrWidth(10)
         form_layout.addRow("Command Employment and\nCommand Achievements", self.job)
 
+        performance_trait_options = [
+            "Not Observed",
+            "1 - Below Standards",
+            "2 - Progressing",
+            "3 - Meets Standards",
+            "4 - Above Standards",
+            "5 - Greatly Exceeds Standards",
+        ]
+
+        self.pro_expertise = QComboBox()
+        self.pro_expertise.addItems(performance_trait_options)
+        form_layout.addRow("Professional Expertise", self.pro_expertise)
+
+        self.cmd_climate = QComboBox()
+        self.cmd_climate.addItems(performance_trait_options)
+        form_layout.addRow("Command or Organizational Climate", self.cmd_climate)
+
+        self.bearing_and_character = QComboBox()
+        self.bearing_and_character.addItems(performance_trait_options)
+        form_layout.addRow("Military Bearing/Character", self.bearing_and_character)
+
+        self.teamwork = QComboBox()
+        self.teamwork.addItems(performance_trait_options)
+        form_layout.addRow("Teamwork", self.teamwork)
+
+        self.accomp_and_initiative = QComboBox()
+        self.accomp_and_initiative.addItems(performance_trait_options)
+        form_layout.addRow("Mission Accomplishment and Initiative", self.accomp_and_initiative)
+
+        self.leadership = QComboBox()
+        self.leadership.addItems(performance_trait_options)
+        form_layout.addRow("Leadership", self.leadership)
+
+        self.tactical_performance = QComboBox()
+        self.tactical_performance.addItems(performance_trait_options)
+        form_layout.addRow("Tactical Performance", self.tactical_performance)
+
+        self.career_rec_1 = QLineEdit()
+        form_layout.addRow("Career Recommendation 1", self.career_rec_1)
+
+        self.career_rec_2 = QLineEdit()
+        form_layout.addRow("Career Recommendation 2", self.career_rec_2)
+
         self.comments = QTextEdit()
         self.comments.setLineWrapMode(QTextEdit.LineWrapMode.FixedColumnWidth)
-        self.comments.setLineWrapColumnOrWidth(10)
+        self.comments.setLineWrapColumnOrWidth(91)
+        self.comments.setWordWrapMode(QTextOption.WrapMode.WordWrap)
+        self.comments.setFont(QFont("Courier"))
+        line_height = self.comments.fontMetrics().lineSpacing()
+        self.comments.setFixedHeight(line_height * 18)
+        self.comments.setFixedWidth(900)
         form_layout.addRow("Comments", self.comments)
 
-        layout = QVBoxLayout(self)
+        self.senior_address = QTextEdit()
+
+        # layout = QVBoxLayout()
 
         # ---- buttons ----
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
-        button_box.accepted.connect(self.verify)
-        button_box.rejected.connect(self.reject)
-        layout.addLayout(form_layout)
-        layout.addWidget(button_box)
+        # button_box.accepted.connect(self.verify)
+        # button_box.rejected.connect(self.reject)
+        # layout.setWidget(button_box)
+
+        scroll_area.setWidget(form_widget)
+
+        # Set the layout for the secondary window
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(scroll_area)
+        main_layout.addWidget(button_box)
+
+        # Set the layout for the secondary window
+        self.setLayout(main_layout)
 
     def print(self):
         print(type(self.comments))
@@ -212,7 +291,7 @@ class FitrepDialog(QDialog):
 
     @Slot()
     def validate_billet_subcategory(self):
-        if "SPECIAL" in self.billet_subcategory.text().upper():
+        if "SPECIAL" in self.billet_subcategory.currentData():
             QMessageBox.information(
                 self,
                 "Billet Subcategory Validation",
@@ -221,14 +300,26 @@ class FitrepDialog(QDialog):
             )
 
     @Slot()
-    def verify(self):
-        print(self.comments.toPlainText().encode())
-        self.accept()
+    def validate_duties_abbreviation(self):
+        text = self.duties_abbreviation.text()
+        if text.isalnum() and len(text) <= 14:
+            return
+        QMessageBox.information(
+            self,
+            "Duty Abbreviation Validation",
+            "The abbreviation for the primary duty in the small box in block 29 may only contain up to 14 alphanumeric characters.",
+            QMessageBox.StandardButton.Ok,
+        )
 
-        # answer = QMessageBox.warning(self, "Invalid Input",
-        #                              "The form does not contain all the necessary information.\n"
-        #                              "Do you want to discard it?",
-        #                              QMessageBox.StandardButton.Ok, QMessageBox.No)
+    # @Slot()
+    # def verify(self):
+    #     print(self.comments.toPlainText().encode())
+    #     self.accept()
 
-        # if answer == QMessageBox.Yes:
-        #     self.reject()
+    # answer = QMessageBox.warning(self, "Invalid Input",
+    #                              "The form does not contain all the necessary information.\n"
+    #                              "Do you want to discard it?",
+    #                              QMessageBox.StandardButton.Ok, QMessageBox.No)
+
+    # if answer == QMessageBox.Yes:
+    #     self.reject()
