@@ -1,10 +1,8 @@
 # import QStackedWidget
 import webbrowser
+from pathlib import Path
 
 from PySide6 import QtWidgets
-from PySide6.QtGui import (
-    QAction,
-)
 from PySide6.QtWidgets import (
     QFileDialog,
     QGridLayout,
@@ -34,6 +32,7 @@ class MainWindow(QMainWindow):
         menubar = self.menuBar()
         file_menu = menubar.addMenu("File")
         new_submenu = file_menu.addMenu("New")
+        # new_submenu.setDisabled(True)
         new_submenu.addAction("Evaluation")
         fitness_report_action = new_submenu.addAction("Fitness Report")
         fitness_report_action.triggered.connect(self.open_fitrep_dialog)
@@ -42,32 +41,33 @@ class MainWindow(QMainWindow):
         create_db_action = file_menu.addAction("Create Database")
         create_db_action.triggered.connect(self.create_db)
         file_menu.addAction("Open Database")
-        file_menu.addAction("Close Database")
-        file_menu.addAction("Export Folder")
-        file_menu.addAction("Import Data")
+        self.close_db_action = file_menu.addAction("Close Database")
+        self.export_folder_action = file_menu.addAction("Export Folder")
+        self.export_folder_action.setDisabled(True)
+        self.import_data_action = file_menu.addAction("Import Data")
+        self.import_data_action.setDisabled(True)
         file_menu.addAction("Exit")
 
         edit_menu = menubar.addMenu("Edit")
 
         print_menu = menubar.addMenu("Print")
-        print_menu.addAction("Print Folder")
+        self.print_folder_action = print_menu.addAction("Print Folder")
 
-        edit_report_submenu = edit_menu.addMenu("Edit Eval/Fitrep")
-        edit_report_submenu.addAction(QAction("Edit Folder", self))
+        edit_report_submenu = edit_menu.addMenu("Edit Report")
+        self.edit_folder_action = edit_report_submenu.addAction("Edit Folder")
+        self.edit_folder_action.setDisabled(True)
 
         delete_submenu = edit_menu.addMenu("Delete")
-        delete_submenu.addAction(QAction("Delete Folder", self))
+        self.delete_folder_action = delete_submenu.addAction("Delete Folder")
+        self.delete_folder_action.setDisabled(True)
 
         # validate_submenu = edit_menu.addMenu("Validate")
         # lookup_tables_submenu = edit_menu.addMenu("Lookup Tables")
         # print_menu = menubar.addMenu("Print")
 
         help_menu = menubar.addMenu("Help")
-        help_menu.addAction(QAction("User Guide", self))
-        open_github_action = QAction("About NAVFITX", self)
-        help_menu.addAction(open_github_action)
-
-        open_github_action.triggered.connect(self.open_navfitx_github)
+        self.about_navfitx_action = help_menu.addAction("About NAVFITX")
+        self.about_navfitx_action.triggered.connect(self.open_navfitx_github)
 
         # central widget container
         self.stack = QStackedWidget()
@@ -85,14 +85,6 @@ class MainWindow(QMainWindow):
         self.stack.setCurrentIndex(0)
 
     def open_fitrep_dialog(self):
-        # self.stack.setCurrentIndex(1)
-        # fitrep_form = FitrepDialog(self)
-        # fitrep_form.exec()
-        # fitrep_form.print()
-
-        # self.stack.addWidget(FitrepDialog(self))
-        # self.stack.setCurrentIndex(1)
-
         self.fitrep = FitrepDialog()
         self.setCentralWidget(self.fitrep)
 
@@ -100,11 +92,12 @@ class MainWindow(QMainWindow):
         dialog = QFileDialog(self)
         dialog.setFileMode(QFileDialog.FileMode.AnyFile)
         filename, selected_filter = dialog.getSaveFileName(
-            None, "Create a Database ()File", filter="SQLite Database (*.sqlite)"
+            None, "Create a File for NAVFITX", filter="SQLite Database (*.sqlite)"
         )
         if filename:
-            # path = Path(filename)
-            print(filename)
+            path = Path(filename)
+            print(path)
+            # create a sqlite db
 
     def open_navfitx_github(self):
         url = "https://github.com/tristan-white/navfitx"

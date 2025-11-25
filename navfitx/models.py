@@ -285,3 +285,6 @@ class Fitrep(SQLModel):
             avg = total / observed
             return f"{avg:.2f}"
         return "0.00"
+
+    def summary_group_avg(self) -> str:
+        return "0.00"

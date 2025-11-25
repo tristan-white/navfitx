@@ -1,3 +1,5 @@
+import textwrap
+
 from PySide6.QtCore import Slot
 from PySide6.QtGui import QFont, QTextOption
 from PySide6.QtWidgets import (
@@ -28,7 +30,7 @@ from navfitx.models import BilletSubcategory, OccasionForReport, PhysicalReadine
 #         return QValidator.State.Acceptable, input_str, pos
 
 #     def fixup(self, input_str: str) -> str:
-#         return input_str.upper()C
+#         return input_str.upper()
 
 
 class FitrepDialog(QWidget):
@@ -68,6 +70,7 @@ class FitrepDialog(QWidget):
         form_layout.addRow("UIC", self.uic)
 
         self.station = QLineEdit()
+        self.station.editingFinished.connect(self.validate_ship_station)
         form_layout.addRow("Ship/Station", self.station)
 
         self.promotion_status = QComboBox()
@@ -93,9 +96,11 @@ class FitrepDialog(QWidget):
 
         self.type_of_report = QComboBox()
         self.type_of_report.addItems([member.name for member in TypeOfReport])
+        self.type_of_report.currentIndexChanged.connect(self.validate_type_of_report)
         form_layout.addRow("Type of Report", self.type_of_report)
 
         self.physical_readiness = QComboBox()
+        self.physical_readiness.addItems("")
         self.physical_readiness.addItems([member.value for member in PhysicalReadiness])
         form_layout.addRow("Physical Readiness", self.physical_readiness)
 
@@ -126,7 +131,7 @@ class FitrepDialog(QWidget):
         form_layout.addRow("Primary Duty Abbreviation", self.duties_abbreviation)
 
         self.duties_description = QLineEdit()
-        form_layout.addRow("Primary/Collateral/Watchstanding Duties", self.duties_abbreviation)
+        form_layout.addRow("Primary/Collateral/Watchstanding Duties", self.duties_description)
 
         self.date_counseled = QDateEdit()
         form_layout.addRow("Date Counseled", self.date_counseled)
@@ -140,6 +145,7 @@ class FitrepDialog(QWidget):
         form_layout.addRow("Command Employment and\nCommand Achievements", self.job)
 
         performance_trait_options = [
+            "",
             "Not Observed",
             "1 - Below Standards",
             "2 - Progressing",
@@ -176,10 +182,27 @@ class FitrepDialog(QWidget):
         self.tactical_performance.addItems(performance_trait_options)
         form_layout.addRow("Tactical Performance", self.tactical_performance)
 
-        self.career_rec_1 = QLineEdit()
+        self.career_rec_1 = QTextEdit(tabChangesFocus=True)
+        self.career_rec_1.setLineWrapMode(QTextEdit.LineWrapMode.FixedColumnWidth)
+        self.career_rec_1.setLineWrapColumnOrWidth(13)
+        self.career_rec_1.setWordWrapMode(QTextOption.WrapMode.WordWrap)
+        self.career_rec_1.setFont(QFont("Courier"))
+        line_spacing = self.career_rec_1.fontMetrics().lineSpacing()
+        # capHeight = self.career_rec_1.fontMetrics().capHeight()
+        # height = self.career_rec_1.height()
+        self.career_rec_1.setFixedHeight(line_spacing * 2)
+        self.career_rec_1.setFixedWidth(900)
+        self.career_rec_1.textChanged.connect(self.validate_career_rec1)
         form_layout.addRow("Career Recommendation 1", self.career_rec_1)
 
-        self.career_rec_2 = QLineEdit()
+        self.career_rec_2 = QTextEdit()
+        self.career_rec_2.setLineWrapMode(QTextEdit.LineWrapMode.FixedColumnWidth)
+        self.career_rec_2.setLineWrapColumnOrWidth(13)
+        self.career_rec_2.setWordWrapMode(QTextOption.WrapMode.WordWrap)
+        self.career_rec_2.setFont(QFont("Courier"))
+        line_height = self.career_rec_2.fontMetrics().lineSpacing()
+        self.career_rec_2.setFixedHeight(line_height * 2)
+        self.career_rec_2.setFixedWidth(900)
         form_layout.addRow("Career Recommendation 2", self.career_rec_2)
 
         self.comments = QTextEdit()
@@ -193,6 +216,14 @@ class FitrepDialog(QWidget):
         form_layout.addRow("Comments", self.comments)
 
         self.senior_address = QTextEdit()
+        self.senior_address.setLineWrapMode(QTextEdit.LineWrapMode.FixedColumnWidth)
+        self.senior_address.setLineWrapColumnOrWidth(27)
+        self.senior_address.setWordWrapMode(QTextOption.WrapMode.WordWrap)
+        self.senior_address.setFont(QFont("Courier"))
+        line_height = self.senior_address.fontMetrics().lineSpacing()
+        self.senior_address.setFixedHeight(line_height * 5)
+        self.senior_address.setFixedWidth(500)
+        form_layout.addRow("Reporting Senior Address", self.comments)
 
         # layout = QVBoxLayout()
 
@@ -215,6 +246,41 @@ class FitrepDialog(QWidget):
     def print(self):
         print(type(self.comments))
         print(self.comments.toPlainText())
+
+    @Slot()
+    def validate_career_rec1(self):
+        text = self.career_rec_1.document().toPlainText()
+        wrapped = textwrap.wrap(text, width=13)
+        msg = (
+            "In order to mimic the exact constraints of NAVFIT98, the following constraints\n"
+            "apply to the the career reccomendation blocks:\n"
+            "- Maximum of 20 characters, including spaces, but not including newlines.\n"
+            "- No more than 13 characters on a line."
+        )
+        if len(wrapped) > 2 or len(text) > 20:
+            QMessageBox.information(
+                self,
+                "Career Reccomendation Validation",
+                msg,
+                QMessageBox.StandardButton.Ok,
+            )
+            self.career_rec_1.setText(text[:20])
+
+    @Slot()
+    def validate_type_of_report(self):
+        # text = self.type_of_report.currentText()
+        pass
+
+    @Slot()
+    def validate_ship_station(self):
+        if not self.station.text().isalnum() or len(self.station.text()) > 18:
+            QMessageBox.information(
+                self,
+                "Ship/Station Validation",
+                "Maximum of 18 characters allowed. Only letters and number are permitted.",
+                QMessageBox.StandardButton.Ok,
+            )
+            self.station.setText("")
 
     @Slot()
     def validate_name(self):

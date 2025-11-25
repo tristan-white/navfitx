@@ -6,7 +6,7 @@ NAVFITX is a drop-in replacement for NAVFIT98A.
 > NAVFITX is still in production.
 
 | Feature | NAVFIT98A v33 | NAVFITX | 
-|---------|-----------|---------|
+|---------|---------------|---------|
 | Runs on Windows 7 | :x: | :x: |
 | Cross-Platform (Windows/MacOS/Linux) | :x: | :white_check_mark: |
 | Imports Microsoft Access Databases (.accdb) | :white_check_mark: | :white_check_mark: |
@@ -18,7 +18,7 @@ NAVFITX is a drop-in replacement for NAVFIT98A.
 
 NAVFITX uses [uv](https://docs.astral.sh/uv/) to manage dependencies.
 
-1. [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
+1. [Install uv](https://docs.astral.sh/uv/getting-started/installation/).
 2. `git clone https://github.com/tristan-white/navfitx.git && cd navfitx`
 3. `uv sync`
 4. `uv run python -m navfitx`
