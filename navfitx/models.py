@@ -8,6 +8,10 @@ from sqlmodel import Field, SQLModel
 class Report(SQLModel, table=True):
     """
     A model for the Reports table in NAVFIT98A Access database.
+
+    Args:
+        report_id (int): Primary key for Reports database table.
+        parent
     """
 
     report_id: int = Field(primary_key=True)

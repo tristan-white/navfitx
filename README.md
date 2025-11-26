@@ -7,12 +7,12 @@ NAVFITX is a drop-in replacement for NAVFIT98A.
 
 | Feature | NAVFIT98A v33 | NAVFITX | 
 |---------|---------------|---------|
+| Export Reports as PDF | :white_check_mark: | :white_check_mark: |
 | Runs on Windows 7 | :x: | :x: |
 | Cross-Platform (Windows/MacOS/Linux) | :x: | :white_check_mark: |
-| Imports Microsoft Access Databases (.accdb) | :white_check_mark: | :white_check_mark: |
-| Export Report as PDF | :white_check_mark: | :white_check_mark: |
-| Usable w/out Admin Privileges | :x: | :white_check_mark: |
+| Install & Use w/out Admin Privileges | :x: | :white_check_mark: |
 | Open Source | :x: | :white_check_mark: |
+<!-- | Imports Microsoft Access Databases (.accdb) | :white_check_mark: | :white_check_mark: | -->
 
 ## Installation
 

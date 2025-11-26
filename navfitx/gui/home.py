@@ -18,13 +18,16 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from sqlmodel import SQLModel, create_engine
 
-from .fitrep import FitrepDialog
+from .fitrep import FitrepForm
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+
+        self.db = Path | None
 
         self.setWindowTitle("NAVFITX")
 
@@ -85,7 +88,7 @@ class MainWindow(QMainWindow):
         self.stack.setCurrentIndex(0)
 
     def open_fitrep_dialog(self):
-        self.fitrep = FitrepDialog()
+        self.fitrep = FitrepForm()
         self.setCentralWidget(self.fitrep)
 
     def create_db(self):
@@ -94,10 +97,11 @@ class MainWindow(QMainWindow):
         filename, selected_filter = dialog.getSaveFileName(
             None, "Create a File for NAVFITX", filter="SQLite Database (*.sqlite)"
         )
-        if filename:
-            path = Path(filename)
-            print(path)
-            # create a sqlite db
+        assert filename
+        db_path = Path(f"{filename}.sqlite")
+        engine = create_engine(f"sqlite:///{db_path}")
+        SQLModel.metadata.create_all(engine)
+        self.db = db_path
 
     def open_navfitx_github(self):
         url = "https://github.com/tristan-white/navfitx"

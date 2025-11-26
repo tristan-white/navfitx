@@ -3,14 +3,15 @@ from pathlib import Path
 import pyodbc
 import typer
 from rich import print
+
+# from pydantic import BaseModel, Field
+from sqlmodel import Session, SQLModel, create_engine
 from typing_extensions import Annotated
 
 from .models import Report
 
-# from pydantic import BaseModel, Field
 
-
-def get_reports_from_access_db(db: Path) -> list[Report]:
+def get_reports_from_accdb(db: Path) -> list[Report]:
     conn_str = (
         r"DRIVER={MDBTools};"
         rf"DBQ={db};"
@@ -47,10 +48,66 @@ def get_reports_from_access_db(db: Path) -> list[Report]:
             special=row.Special,
             from_date=row.FromDate,
             to_date=row.ToDate,
+            nob=row.NOB,
+            regular=row.Regular,
+            concurrent=row.Concurrent,
+            ops_cdr=row.OpsCdr,
+            physical_readiness=row.PhysicalReadiness,
+            billet_subcat=row.BilletSubcat,
+            reporting_senior=row.ReportingSenior,
+            rs_grade=row.RSGrade,
+            rs_desig=row.RSDesig,
+            rs_title=row.RSTitle,
+            rs_uic=row.RSUIC,
+            rs_ssn=row.RSSSN,
+            achievements=row.Achievements,
+            primary_duty=row.PrimaryDuty,
+            duties=row.Duties,
+            date_counseled=row.DateCounseled,
+            counselor=row.Counselor,
+            prof=row.PROF,
+            qual=row.QUAL,
+            eo=row.EO,
+            mil=row.MIL,
+            pa=row.PA,
+            team=row.TEAM,
+            mis=row.MIS,
+            tac=row.TAC,
+            recommend_1=row.RecommendA,
+            recommend_2=row.RecommendB,
+            rater=row.Rater,
+            rater_date=row.RaterDate,
+            comments_pitch=row.CommentsPitch,
+            comments=row.Comments,
+            qualifications=row.Qualifications,
+            promotion_recom=row.PromotionRecom,
+            summary_sp=row.SummarySP,
+            summary_prog=row.SummaryProg,
+            summary_mp=row.SummaryMP,
+            summary_ep=row.SummaryEP,
+            retention_yes=row.RetentionYes,
+            retention_no=row.RetentionNo,
+            rs_address=row.RSAddress,
+            senior_rater=row.SeniorRater,
+            senior_rater_date=row.SeniorRaterDate,
+            statement_yes=row.StatementYes,
+            statement_no=row.StatementNo,
+            rs_info=row.RSInfo,
+            user_comments=row.UserComments,
         )
         reports.append(report)
     cnxn.close()
     return reports
+
+
+def convert_accdb_to_sqlite(accdb: Path, sqlite: Path):
+    reports = get_reports_from_accdb(accdb)
+    engine = create_engine(f"sqlite:///{sqlite}")
+    SQLModel.metadata.create_all(engine)
+    with Session(engine) as session:
+        for report in reports:
+            session.add(report)
+        session.commit()
 
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
@@ -67,6 +124,36 @@ def print_accdb(
         ),
     ],
 ):
-    reports = get_reports_from_access_db(file)
+    reports = get_reports_from_accdb(file)
     for report in reports:
         print(report)
+
+
+@app.command(no_args_is_help=True)
+def convert_accdb(
+    accdb: Annotated[
+        Path,
+        typer.Option(
+            "-a",
+            "--accdb",
+            help="Path to the Microsoft Access Database file (.accdb)",
+            exists=True,
+            dir_okay=False,
+        ),
+    ],
+    output: Annotated[
+        Path,
+        typer.Option(
+            "-o",
+            "--output",
+            help="Path to the Microsoft Access Database file (.accdb)",
+            dir_okay=False,
+        ),
+    ],
+):
+    """
+    Convert a Microsoft Access Database file (.accdb) from NAVFIT98 to a sqlite database for NAVFITX.
+    """
+    assert not output.exists()
+    convert_accdb_to_sqlite(accdb, output)
+    print(f"[green]Converted database written to {output}")

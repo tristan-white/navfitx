@@ -17,7 +17,14 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from navfitx.models import BilletSubcategory, OccasionForReport, PhysicalReadiness, PromotionStatus, TypeOfReport
+from navfitx.models import (
+    BilletSubcategory,
+    Fitrep,
+    OccasionForReport,
+    PhysicalReadiness,
+    PromotionStatus,
+    TypeOfReport,
+)
 
 # class NameValidator(QValidator):
 #     def __init__(self, parent=None):
@@ -33,7 +40,7 @@ from navfitx.models import BilletSubcategory, OccasionForReport, PhysicalReadine
 #         return input_str.upper()
 
 
-class FitrepDialog(QWidget):
+class FitrepForm(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("FITREP Data Entry")
@@ -215,6 +222,11 @@ class FitrepDialog(QWidget):
         self.comments.setFixedWidth(900)
         form_layout.addRow("Comments", self.comments)
 
+        self.indiv_promo_rec = QComboBox()
+        choices = ["", "NOB", "Significant Problems", "Progressing", "Promotable", "Must Promote", "Early Promote"]
+        self.leadership.addItems(choices)
+        form_layout.addRow("Promotion Reccomendation", self.indiv_promo_rec)
+
         self.senior_address = QTextEdit()
         self.senior_address.setLineWrapMode(QTextEdit.LineWrapMode.FixedColumnWidth)
         self.senior_address.setLineWrapColumnOrWidth(27)
@@ -223,7 +235,7 @@ class FitrepDialog(QWidget):
         line_height = self.senior_address.fontMetrics().lineSpacing()
         self.senior_address.setFixedHeight(line_height * 5)
         self.senior_address.setFixedWidth(500)
-        form_layout.addRow("Reporting Senior Address", self.comments)
+        form_layout.addRow("Reporting Senior Address", self.senior_address)
 
         # layout = QVBoxLayout()
 
@@ -242,10 +254,6 @@ class FitrepDialog(QWidget):
 
         # Set the layout for the secondary window
         self.setLayout(main_layout)
-
-    def print(self):
-        print(type(self.comments))
-        print(self.comments.toPlainText())
 
     @Slot()
     def validate_career_rec1(self):
@@ -389,3 +397,48 @@ class FitrepDialog(QWidget):
 
     # if answer == QMessageBox.Yes:
     #     self.reject()
+
+    def get_fitrep(self) -> Fitrep:
+        """
+        Create a Fitrep class from the data input in the GUI Form.
+        """
+        return Fitrep(
+            name=self.name,
+            rate=self.rank,
+            desig=self.desig,
+            ssn=self.ssn,
+            group=self.group,
+            uic=self.uic,
+            station=self.station,
+            promotion_status=self.promotion_status,
+            date_reported=self.date_reported,
+            occasion_for_report=self.occasion_for_report,
+            period_start=self.period_start,
+            period_end=self.period_end,
+            not_observed=self.not_observed,
+            type_of_report=self.type_of_report,
+            physical_readiness=self.physical_readiness,
+            billet_subcategory=self.billet_subcategory,
+            senior_name=self.senior_name,
+            senior_grade=self.senior_grade,
+            senior_desig=self.senior_desig,
+            senior_title=self.senior_title,
+            senior_uic=self.senior_uic,
+            senior_ssn=self.senior_ssn,
+            duties_abbreviation=self.duties_abbreviation,
+            duties_description=self.duties_description,
+            date_counseled=self.date_counseled,
+            counselor=self.counselor,
+            pro_expertise=self.pro_expertise,
+            cmd_climate=self.cmd_climate,
+            bearing_and_character=self.bearing_and_character,
+            teamwork=self.teamwork,
+            accomp_and_initiative=self.accomp_and_initiative,
+            leadership=self.leadership,
+            tactical_performance=self.tactical_performance,
+            career_rec_1=self.career_rec_1,
+            career_rec_2=self.career_rec_2,
+            comments=self.comments,
+            indiv_promo_rec=self.indiv_promo_rec,
+            senior_address=self.senior_address,
+        )
