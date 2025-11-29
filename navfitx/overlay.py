@@ -46,8 +46,10 @@ def get_blank_report_path(report: str) -> Path:
         return pdf_path
 
 
-def format_date(dt: date) -> str:
+def format_date(dt: date | None) -> str:
     """Formats a date object into the Fitrep date format (YYMMMDD)."""
+    if not dt:
+        return ""
     return dt.strftime("%y%b%d").upper()
 
 
@@ -63,20 +65,20 @@ def get_group_point(fitrep: Fitrep) -> Point:
 
 
 def get_occasion_points(fitrep: Fitrep) -> set[Point]:
-    ret = set()
-    if OccasionForReport.PERIODIC in fitrep.occasion_for_report:
+    ret: set[Point] = set()
+    if OccasionForReport.PERIODIC == fitrep.occasion_for_report:
         ret.add(Point(76, 88))
-    if OccasionForReport.INDIVIDUAL_DETACH in fitrep.occasion_for_report:
+    if OccasionForReport.INDIVIDUAL_DETACH == fitrep.occasion_for_report:
         ret.add(Point(157, 88))
-    if OccasionForReport.SENIOR_DETACH in fitrep.occasion_for_report:
+    if OccasionForReport.SENIOR_DETACH == fitrep.occasion_for_report:
         ret.add(Point(251, 88))
-    if OccasionForReport.SPECIAL in fitrep.occasion_for_report:
+    if OccasionForReport.SPECIAL == fitrep.occasion_for_report:
         ret.add(Point(329, 88))
     return ret
 
 
 def get_type_of_report_point(fitrep: Fitrep) -> Point:
-    if TypeOfReport.REGULAR in fitrep.type_of_report:
+    if TypeOfReport.REGULAR == fitrep.type_of_report:
         return Point(76, 130)
 
 
@@ -212,7 +214,7 @@ def create_eval_pdf():
     # back = doc[1]
 
 
-def create_fitrep_pdf(fitrep: Fitrep, path: Path) -> Path:
+def create_fitrep_pdf(fitrep: Fitrep, path: Path):
     """Fills out a FITREP PDF report with the provided FITREP data."""
     # doc = pymupdf.open("/home/tristan/Downloads/fitrep_files/navfit98_pdfs/blank_fitrep.pdf")
     blank_fitrep = get_blank_report_path("fitrep")
@@ -247,7 +249,7 @@ def create_fitrep_pdf(fitrep: Fitrep, path: Path) -> Path:
 
     front.insert_text(Point(156, 112), "X", fontsize=12, fontname="Cour")
 
-    front.insert_text(Point(361, 115), fitrep.physical_readiness.value, fontsize=12, fontname="Cour")
+    front.insert_text(Point(361, 115), fitrep.physical_readiness, fontsize=12, fontname="Cour")
     front.insert_text(Point(460, 115), fitrep.billet_subcategory, fontsize=12, fontname="Cour")
 
     front.insert_text(Point(22, 140), fitrep.senior_name, fontsize=12, fontname="Cour")

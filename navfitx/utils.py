@@ -8,7 +8,7 @@ from rich import print
 from sqlmodel import Session, SQLModel, create_engine
 from typing_extensions import Annotated
 
-from .models import Report
+from .models import Fitrep, Report
 
 
 def get_reports_from_accdb(db: Path) -> list[Report]:
@@ -107,6 +107,21 @@ def convert_accdb_to_sqlite(accdb: Path, sqlite: Path):
     with Session(engine) as session:
         for report in reports:
             session.add(report)
+        session.commit()
+
+
+def add_report_to_db(db_path: Path, report: Report):
+    # TODO: confirm that db_path is to a sqlite database with appropriate schema
+    engine = create_engine(f"sqlite:///{db_path}")
+    with Session(engine) as session:
+        session.add(report)
+        session.commit()
+
+
+def add_fitrep_to_db(db_path: Path, fitrep: Fitrep):
+    engine = create_engine(f"sqlite:///{db_path}")
+    with Session(engine) as session:
+        session.add(fitrep)
         session.commit()
 
 

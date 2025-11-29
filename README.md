@@ -25,6 +25,7 @@ NAVFITX uses [uv](https://docs.astral.sh/uv/) to manage dependencies.
 
 > [!NOTE]
 > If you see the error `This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.`, install `libxcb-cursor0`, then run again.
+> If you see the error `ImportError: libodbc.so.2: cannot open shared object file: No such file or directory`, install unixodbc: `sudo apt install unixodbc`.
  
 
 ## Background

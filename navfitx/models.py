@@ -227,7 +227,8 @@ class PromotionRecommendation(Enum):
     EARLY_PROMOTE = auto()
 
 
-class Fitrep(SQLModel):
+class Fitrep(SQLModel, table=True):
+    id: int = Field(primary_key=True)
     name: str = ""
     rate: str = ""
     desig: str = ""
@@ -237,11 +238,11 @@ class Fitrep(SQLModel):
     station: str = ""
     promotion_status: PromotionStatus | None = None
     date_reported: date | None = None
-    occasion_for_report: set[OccasionForReport] = Field(default_factory=set)
+    occasion_for_report: int | None = None
     period_start: date | None = None
     period_end: date | None = None
     not_observed: bool = False
-    type_of_report: set[TypeOfReport] = Field(default_factory=set)
+    type_of_report: int | None = None
     physical_readiness: PhysicalReadiness | None = None
     billet_subcategory: BilletSubcategory | None = None
     senior_name: str = ""
@@ -266,7 +267,7 @@ class Fitrep(SQLModel):
     career_rec_2: str = ""
     comments: str = ""
     indiv_promo_rec: PromotionRecommendation | None = None
-    summary_promo_rec: list[int] = Field(default_factory=list)
+    # summary_promo_rec: int = Field(default_factory=list)
     senior_address: str = ""
 
     def member_trait_avg(self) -> str:
@@ -292,3 +293,24 @@ class Fitrep(SQLModel):
 
     def summary_group_avg(self) -> str:
         return "0.00"
+
+    def generate_report(self) -> Report:
+        return Report(
+            report_type="FitRep",
+            full_name=self.name,
+            desig=self.desig,
+            ssn=self.ssn,
+            uic=self.uic,
+            ship_station=self.station,
+            from_date=self.period_start,
+            to_date=self.period_end,
+            reporting_senior=self.senior_name,
+            rs_grade=self.senior_grade,
+            rs_desig=self.senior_desig,
+            rs_title=self.senior_title,
+            rs_uic=self.senior_uic,
+            rs_ssn=self.senior_ssn,
+            billet_subcat=self.billet_subcategory,
+            date_counseled=self.date_counseled,
+            counselor=self.counselor,
+        )

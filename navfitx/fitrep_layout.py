@@ -87,19 +87,19 @@ def update_date_reported(fitrep: Fitrep, comp: String) -> None:
 
 
 def update_occasion_periodic(fitrep: Fitrep, comp: Checkbox) -> None:
-    comp.checked = OccasionForReport.PERIODIC in fitrep.occasion_for_report
+    comp.checked = OccasionForReport.PERIODIC == fitrep.occasion_for_report
 
 
 def update_occasion_detachment_individual(fitrep: Fitrep, comp: Checkbox) -> None:
-    comp.checked = OccasionForReport.INDIVIDUAL_DETACH in fitrep.occasion_for_report
+    comp.checked = OccasionForReport.INDIVIDUAL_DETACH == fitrep.occasion_for_report
 
 
 def update_occasion_detachment_reporting_senior(fitrep: Fitrep, comp: Checkbox) -> None:
-    comp.checked = OccasionForReport.SENIOR_DETACH in fitrep.occasion_for_report
+    comp.checked = OccasionForReport.SENIOR_DETACH == fitrep.occasion_for_report
 
 
 def update_occasion_special(fitrep: Fitrep, comp: Checkbox) -> None:
-    comp.checked = OccasionForReport.SPECIAL in fitrep.occasion_for_report
+    comp.checked = OccasionForReport.SPECIAL == fitrep.occasion_for_report
 
 
 def update_period_start(fitrep: Fitrep, comp: String) -> None:
