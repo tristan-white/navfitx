@@ -1,6 +1,6 @@
 [project]
 name = "navfitx"
-version = "0.1.0"
+version = "0.0.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -35,3 +35,7 @@ ignore_missing_imports = true
 
 [tool.setuptools.package-data]
 "navfitx" = ["data/*.pdf"]
+
+[project.scripts]
+navfitx = "navfitx.__main__:main"
+

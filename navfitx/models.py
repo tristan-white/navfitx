@@ -1,7 +1,8 @@
+import re
 from datetime import date
 from enum import Enum, StrEnum, auto
 
-# from pydantic import BaseModel, Field
+from pydantic import field_validator
 from sqlmodel import Field, SQLModel
 
 
@@ -230,7 +231,7 @@ class PromotionRecommendation(Enum):
 class Fitrep(SQLModel, table=True):
     id: int = Field(primary_key=True)
     name: str = ""
-    rate: str = ""
+    grade: str = ""
     desig: str = ""
     ssn: str = ""
     group: SummaryGroup | None = None
@@ -238,7 +239,7 @@ class Fitrep(SQLModel, table=True):
     station: str = ""
     promotion_status: PromotionStatus | None = None
     date_reported: date | None = None
-    occasion_for_report: int | None = None
+    occasion_for_report: OccasionForReport | None = None
     period_start: date | None = None
     period_end: date | None = None
     not_observed: bool = False
@@ -269,6 +270,80 @@ class Fitrep(SQLModel, table=True):
     indiv_promo_rec: PromotionRecommendation | None = None
     # summary_promo_rec: int = Field(default_factory=list)
     senior_address: str = ""
+
+    @classmethod
+    @field_validator("name")
+    def validate_name(cls, name: str) -> str:
+        if len(name) > 27:
+            raise ValueError("Name must be 27 characters or less")
+        return name.upper()
+
+    @classmethod
+    @field_validator("grade")
+    def validate_grade(cls, grade: str) -> str:
+        if len(grade) > 5:
+            raise ValueError("Rate must be 5 characters or less")
+        return grade
+
+    @classmethod
+    @field_validator("desig")
+    def validate_desig(cls, desig: str) -> str:
+        if len(desig) > 12:
+            raise ValueError("Designator must be 12 characters or less")
+        return desig.upper()
+
+    @classmethod
+    @field_validator("ssn")
+    def validate_ssn(cls, ssn: str) -> str:
+        ssn = ssn.strip()
+        ssn_pattern = re.compile(r"^\d{3}-\d{2}-\d{4}$")
+        if not ssn_pattern.match(ssn):
+            raise ValueError("SSN must be in the format XXX-XX-XXXX")
+        return ssn
+
+    @classmethod
+    @field_validator("group")
+    def validate_group(cls, group: SummaryGroup | None) -> SummaryGroup:
+        if group is None:
+            raise ValueError("Summary Group must be specified.")
+        return group
+
+    @classmethod
+    @field_validator("uic")
+    def validate_uic(cls, uic: str) -> str:
+        if len(uic) > 5:
+            raise ValueError("UIC must be 5 characters or less.")
+        if not uic.isalnum():
+            raise ValueError("UIC must be alphanumeric.")
+        return uic.upper()
+
+    @classmethod
+    @field_validator("station")
+    def validate_station(cls, station: str) -> str:
+        if len(station) > 18:
+            raise ValueError("Station must be 18 characters or less.")
+        return station
+
+    @classmethod
+    @field_validator("promotion_status")
+    def validate_promotion_status(cls, promotion_status: PromotionStatus | None) -> PromotionStatus:
+        if promotion_status is None:
+            raise ValueError("Promotion Status must be specified.")
+        return promotion_status
+
+    @classmethod
+    @field_validator("occasion_for_report")
+    def validate_occasion_for_report(cls, occasion_for_report: int | None) -> int:
+        if occasion_for_report is None:
+            raise ValueError("Occasion for Report must be specified.")
+        return occasion_for_report
+
+    @classmethod
+    @field_validator("billet_subcategory")
+    def validate_billet_subcategory(cls, billet_subcategory: BilletSubcategory | None) -> BilletSubcategory:
+        if billet_subcategory is None:
+            raise ValueError("Billet Subcategory must be specified.")
+        return billet_subcategory
 
     def member_trait_avg(self) -> str:
         traits = [

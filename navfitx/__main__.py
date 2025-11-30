@@ -24,4 +24,10 @@ app.add_typer(overlay_app)
 app.add_typer(gui_app)
 # app.add_typer(utils_app)
 
-app()
+
+def main():
+    app()
+
+
+if __name__ == "__main__":
+    main()
