@@ -41,4 +41,4 @@ I'd like to see NAVFITX replace NAFIT98A in the fleet. I'm looking for user test
 
 Additionally, please consider giving this repo a ⭐ to help it gain visibility.
 
-<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Buy me a Coffee', '#72a4f2', 'Q5Q41PEEPR');kofiwidget2.draw();</script> 
+<a href='https://ko-fi.com/Q5Q41PEEPR' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi5.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
