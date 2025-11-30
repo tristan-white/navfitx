@@ -1,11 +1,10 @@
+> Note: NAVFITX is still in development.
+
 # NAVFITX
 
 NAVFITX is a drop-in replacement for NAVFIT98A.
 
 See [here](./docs/navfitx.pdf) for more information about why NAVFIT98 needs to be replaced.
-
-> Note:
-> NAVFITX is still in production.
 
 | Feature | NAVFIT98A v33 | NAVFITX | 
 |---------|---------------|---------|
@@ -17,34 +16,29 @@ See [here](./docs/navfitx.pdf) for more information about why NAVFIT98 needs to 
 
 ## Installation
 
-NAVFITX uses [uv](https://docs.astral.sh/uv/) to manage dependencies.
+The simplest way to use navfitx is to open a terminal on your computer and copy and past a couple commands to it. On Windows, open powershell. On MacOS, open Terminal. On linux, open whatever terminal app you use.
 
 1. [Install uv](https://docs.astral.sh/uv/getting-started/installation/).
-2. `git clone https://github.com/tristan-white/navfitx.git && cd navfitx`
-3. `uv sync`
-4. `uv run python -m navfitx`
+    - Windows: `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`
+    - MacOS or Linux: `curl -LsSf https://astral.sh/uv/install.sh | sh`
+2. Close and reopen your terminal, then run: `uvx navfitx`
 
 > NOTE:
 > If you see the error `This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.`, install `libxcb-cursor0`, then run again.
 > If you see the error `ImportError: libodbc.so.2: cannot open shared object file: No such file or directory`, install unixodbc: `sudo apt install unixodbc`.
  
-
 ## Links
 
-- [NAVFIT98A v30 User Guide Manual](https://www.mynavyhr.navy.mil/Portals/55/Career/PerformanceEvaluation/NAVFIT98A%20Version%2030%20user%20guide.pdf?ver=rBFhxjABpJhUybBeMo6AMA%3d%3d)
+- [NAVFIT98A v30 User Guide Manual](https://www.mynavyhr.navy.mil/Portals/55/Career/PerformanceEvaluation/NAVFIT98A%20Version%2030%20user%20guide.pdf?ver=rBFhxjABpJhUybBeMo6AMA%3d%3d). Helpful as it contains constraints/validation for each block in of overy report in the appendices. Note: These constraints do not always match what is in [BUPERSINT 1610.10H](https://www.mynavyhr.navy.mil/Portals/55/Reference/Instructions/BUPERS/BUPERSINST%201610.10.pdf?ver=DZVcHnNH8gLkDjKjDFyaKA%3d%3d) nor match the validation performed by NAVFIT98A itself.
 - [Performance Evaluation Links](https://www.mn3p.navy.mil/web/performance/overview)
 
-## Feedback
+## Help NAVFITX Succeed
 
-I'd like to see NAVFITX replace NAFIT98A in the fleet. I'm looking for user testimonials from anyone that's used NAVFIT98A or eNavFit in order to answer the "why is this important" when I make the pitch to stakeholders within the Navy. If you have feedback on these programs, please provide it here:
+I'd like to see NAVFITX replace NAFIT98A in the fleet. I'm looking for user testimonials from anyone that's used NAVFIT98A or eNavFit in order to answer the "why is this important" when I make the pitch to current NAVFIT98 stakeholders within the Navy. If you have feedback on these programs, please provide it here:
 
 - [Provide feedback on NAVFIT98A](https://github.com/tristan-white/navfitx/discussions/1)
 - [Provide feedback on eNavFit](https://github.com/tristan-white/navfitx/discussions/2) (if you had the chance to use it before it was shut down)
 
----
+Additionally, please consider giving this repo a ⭐ to help it gain visibility.
 
-[^1]: Even in 2025, evaluation reports are still submitted on physical paper via snailmail to Navy Personnel Command; [Performance Evaluation Reports Frequently Asked Questions August 2025](https://www.mn3p.navy.mil/documents/d/performance/navfit98a-v2-2-0-33-frequently-asked-question?download=true) states: "Presently, there is no electronic system to submit performance evaluation reports. Per BUPERSINST 1610.10H, chapter 1, paragraph 1-5, All reports must be mailed within 15 days of the ending date (block 15) for active-duty members and within 30 days for INACT members."
-[^2]: [BUPERSINT 1610.10H](https://www.mynavyhr.navy.mil/Portals/55/Reference/Instructions/BUPERS/BUPERSINST%201610.10.pdf?ver=DZVcHnNH8gLkDjKjDFyaKA%3d%3d) - This document provides policy and procedures for the Navy Performance Evaluation System. It has comprehensive insructions for how to complete and submit reports.
-[^3]: [NAVADMIN 279/23](https://navadmin-viewer.fly.dev/NAVADMIN/279/23) - Permitted NAVFIT98A to be used through the end of 2025 due to issues with eNavFit.
-[^4]: [NAVADMIN 012/25](https://www.mynavyhr.navy.mil/Portals/55/Messages/NAVADMIN/NAV2025/NAV25012.pdf?ver=XNxecwkcKmyF0dFjhYHpzA%3d%3d) - Announced eNavFit would be scrapped, and NAVFIT98A version 32 release.
-[^5]: You can also of course open the file using [Microsoft Access](https://www.microsoft.com/en-us/microsoft-365/access), but 1) many people don't know this 2) it's only available for Windows 3) it's not installed on many of the workstations where NAVFIT98A is installed.
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Buy me a Coffee', '#72a4f2', 'Q5Q41PEEPR');kofiwidget2.draw();</script> 

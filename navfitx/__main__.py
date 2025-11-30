@@ -14,7 +14,7 @@ def callback():
     """
     NAVFITX
 
-    A Next-Gen NAVFIT tool.
+    Created by Tristan White
     """
     pass
 
