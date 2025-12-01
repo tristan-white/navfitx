@@ -1,4 +1,3 @@
-import importlib.resources as resources
 import textwrap
 import webbrowser
 from datetime import date
@@ -8,6 +7,8 @@ import pymupdf
 import typer
 from pymupdf import Point
 from typing_extensions import Annotated
+
+from navfitx.utils import get_blank_report_path
 
 from .models import (
     BilletSubcategory,
@@ -33,19 +34,6 @@ def wrap_duty_desc(text: str) -> str:
     return text
 
 
-def get_blank_report_path(report: str) -> Path:
-    """
-    Return a pathlib.Path to the bundled PDF.
-    The file is extracted to a temporary location if the package is zipped.
-
-    Args:
-        report (str): The type of report for which to retrieve a path.
-    """
-    assert report != "fitrep" or report != "chief" or report != "eval"
-    with resources.path("navfitx.data", f"blank_{report}.pdf") as pdf_path:
-        return pdf_path
-
-
 def format_date(dt: date | None) -> str:
     """Formats a date object into the Fitrep date format (YYMMMDD)."""
     if not dt:
@@ -53,7 +41,7 @@ def format_date(dt: date | None) -> str:
     return dt.strftime("%y%b%d").upper()
 
 
-def get_group_point(fitrep: Fitrep) -> Point:
+def get_group_point(fitrep: Fitrep) -> Point | None:
     if fitrep.group == SummaryGroup.ACT:
         return Point(33, 64)
     if fitrep.group == SummaryGroup.TAR:
@@ -77,9 +65,9 @@ def get_occasion_points(fitrep: Fitrep) -> set[Point]:
     return ret
 
 
-def get_type_of_report_point(fitrep: Fitrep) -> Point:
-    if TypeOfReport.REGULAR == fitrep.type_of_report:
-        return Point(76, 130)
+# def get_type_of_report_point(fitrep: Fitrep) -> Point:
+#     if TypeOfReport.REGULAR == fitrep.type_of_report:
+#         return Point(76, 130)
 
 
 def get_perfomance_points(fitrep: Fitrep) -> set[Point]:
@@ -214,23 +202,22 @@ def create_eval_pdf():
     # back = doc[1]
 
 
-def create_fitrep_pdf(fitrep: Fitrep, path: Path):
+def create_fitrep_pdf(fitrep: Fitrep, path: Path) -> None:
     """Fills out a FITREP PDF report with the provided FITREP data."""
-    # doc = pymupdf.open("/home/tristan/Downloads/fitrep_files/navfit98_pdfs/blank_fitrep.pdf")
     blank_fitrep = get_blank_report_path("fitrep")
     doc = pymupdf.open(str(blank_fitrep))
     front = doc[0]
     back = doc[1]
     front.insert_text(Point(22, 43), fitrep.name, fontsize=12, fontname="Cour")
     back.insert_text(Point(22, 43), fitrep.name, fontsize=12, fontname="Cour")
-    front.insert_text(Point(292, 43), fitrep.rate, fontsize=12, fontname="Cour")
-    back.insert_text(Point(292, 43), fitrep.rate, fontsize=12, fontname="Cour")
+    front.insert_text(Point(292, 43), fitrep.grade, fontsize=12, fontname="Cour")
+    back.insert_text(Point(292, 43), fitrep.grade, fontsize=12, fontname="Cour")
     front.insert_text(Point(360, 43), fitrep.desig, fontsize=12, fontname="Cour")
     back.insert_text(Point(360, 43), fitrep.desig, fontsize=12, fontname="Cour")
     front.insert_text(Point(460, 43), fitrep.ssn, fontsize=12, fontname="Cour")
     back.insert_text(Point(460, 43), fitrep.ssn, fontsize=12, fontname="Cour")
-    group_point = get_group_point(fitrep)
-    front.insert_text(group_point, "X", fontsize=12, fontname="Cour")
+    if group_point := get_group_point(fitrep):
+        front.insert_text(group_point, "X", fontsize=12, fontname="Cour")
     front.insert_text(Point(170, 67), fitrep.uic, fontsize=12, fontname="Cour")
     front.insert_text(Point(223, 67), fitrep.station, fontsize=12, fontname="Cour")
     front.insert_text(Point(416, 67), fitrep.promotion_status, fontsize=12, fontname="Cour")

@@ -1,3 +1,4 @@
+import importlib.resources as resources
 from pathlib import Path
 
 import pyodbc
@@ -9,6 +10,30 @@ from sqlmodel import Session, SQLModel, create_engine
 from typing_extensions import Annotated
 
 from .models import Fitrep, Report
+
+
+def get_blank_report_path(report: str) -> Path:
+    """
+    Return a pathlib.Path to the bundled PDF.
+    The file is extracted to a temporary location if the package is zipped.
+
+    Args:
+        report (str): The type of report for which to retrieve a path.
+    """
+    options = {"fitrep", "chief", "eval", "summary"}
+    assert report in options, f"report must be one of {options}"
+    with resources.path("navfitx.data", f"blank_{report}.pdf") as pdf_path:
+        return pdf_path
+
+
+def get_icon_path() -> Path:
+    """
+    Return a pathlib.Path to the bundled icon.
+    The file is extracted to a temporary location if the package is zipped.
+    """
+    with resources.path("navfitx.data", "navfit98.ico") as icon_path:
+        print(type(icon_path), icon_path)
+        return icon_path
 
 
 def get_reports_from_accdb(db: Path) -> list[Report]:
@@ -120,6 +145,7 @@ def add_report_to_db(db_path: Path, report: Report):
 
 def add_fitrep_to_db(db_path: Path, fitrep: Fitrep):
     engine = create_engine(f"sqlite:///{db_path}")
+    print(f"fitrep to add: {fitrep}")
     with Session(engine) as session:
         session.add(fitrep)
         session.commit()

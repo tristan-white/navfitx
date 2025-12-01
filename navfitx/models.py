@@ -367,6 +367,9 @@ class Fitrep(SQLModel, table=True):
         return "0.00"
 
     def summary_group_avg(self) -> str:
+        """
+        Get the text representation of the summary group average.
+        """
         return "0.00"
 
     def generate_report(self) -> Report:

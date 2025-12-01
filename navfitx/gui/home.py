@@ -1,4 +1,4 @@
-# import QStackedWidget
+import shutil
 import webbrowser
 from pathlib import Path
 
@@ -17,10 +17,11 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from sqlmodel import SQLModel, create_engine
+from sqlmodel import Session, SQLModel, create_engine, select
 
-from navfitx.models import Fitrep, Report
-from navfitx.utils import add_report_to_db
+from navfitx.constants import BUPERSINST_URL, GITHUB_URL
+from navfitx.models import Fitrep
+from navfitx.utils import add_fitrep_to_db, get_blank_report_path
 
 from .fitrep import FitrepForm
 
@@ -30,118 +31,177 @@ class Home(QMainWindow):
         super().__init__()
 
         self.db: Path | None = None
+        self.reports_table: QTableWidget = QTableWidget()
+        headers = ["Rank/Rate", "Full Name", "SSN", "Report", "To Date", "Record ID", "Validated"]
+        self.reports_table.setRowCount(0)
+        self.reports_table.setColumnCount(len(headers))
+        self.reports_table.setHorizontalHeaderLabels(headers)
+        self.reports_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.reports_table.cellDoubleClicked.connect(self.edit_fitrep_from_table)
 
         self.setWindowTitle("NAVFITX")
 
-        # Set up menu bar
-        menubar = self.menuBar()
-        file_menu = menubar.addMenu("File")
-        new_submenu = file_menu.addMenu("New")
-        # new_submenu.setDisabled(True)
+        # central widget container
+        self.stack = QStackedWidget()
+        self.stack.currentChanged.connect(self.on_stack_index_changed)
+        # create home widget via method (moved from former HomeWidget class)
+        self.stack.addWidget(self.create_home_widget())
+        self.setCentralWidget(self.stack)
 
-        new_eval_action = new_submenu.addAction("Evaluation")
+    def build_home_menu(self):
+        self.menuBar().clear()
+        file_menu = self.menuBar().addMenu("File")
+        self.new_submenu = file_menu.addMenu("New")
+
+        if not self.db:
+            self.new_submenu.setDisabled(True)
+
+        new_eval_action = self.new_submenu.addAction("Evaluation")
         new_eval_action.setDisabled(True)  # not implemented yet
 
-        new_chief_action = new_submenu.addAction("Chief Evaluation")
+        new_chief_action = self.new_submenu.addAction("Chief Evaluation")
         new_chief_action.setDisabled(True)  # not implemented yet
 
-        fitness_report_action = new_submenu.addAction("Fitness Report")
+        fitness_report_action = self.new_submenu.addAction("Fitness Report")
         fitness_report_action.triggered.connect(self.open_fitrep_dialog)
 
-        new_submenu.addAction("Folder")
+        self.new_submenu.addAction("Folder")
         create_db_action = file_menu.addAction("Create Database")
         create_db_action.triggered.connect(self.create_db)
-        file_menu.addAction("Open Database")
-        self.close_db_action = file_menu.addAction("Close Database")
-        self.export_folder_action = file_menu.addAction("Export Folder")
-        self.export_folder_action.setDisabled(True)
-        self.import_data_action = file_menu.addAction("Import Data")
-        self.import_data_action.setDisabled(True)
+        open_db_action = file_menu.addAction("Open Database")
+        open_db_action.triggered.connect(self.open_db)
+
+        close_db_action = file_menu.addAction("Close Database")
+        close_db_action.setDisabled(True)
+
+        export_folder_action = file_menu.addAction("Export Folder")
+        export_folder_action.setDisabled(True)
+        import_data_action = file_menu.addAction("Import Data")
+        import_data_action.setDisabled(True)
         exit_action = file_menu.addAction("Exit")
         exit_action.triggered.connect(self.close)
 
-        edit_menu = menubar.addMenu("Edit")
+        edit_menu = self.menuBar().addMenu("Edit")
 
-        print_menu = menubar.addMenu("Print")
-        self.print_folder_action = print_menu.addAction("Print Folder")
+        print_menu = self.menuBar().addMenu("Print")
+        print_folder_action = print_menu.addAction("Print Folder")
+        print_folder_action.setDisabled(True)
+
+        print_blank_fitrep_action = print_menu.addAction("Print Blank FITREP")
+        print_blank_fitrep_action.triggered.connect(lambda: self.print_blank("fitrep"))
+
+        print_blank_chief = print_menu.addAction("Print Blank Chief Eval")
+        print_blank_chief.triggered.connect(lambda: self.print_blank("chief"))
+
+        print_blank_eval = print_menu.addAction("Print Blank Evaluation")
+        print_blank_eval.triggered.connect(lambda: self.print_blank("eval"))
+
+        print_blank_summary = print_menu.addAction("Print Blank Summary Letter")
+        print_blank_summary.triggered.connect(lambda: self.print_blank("summary"))
 
         edit_report_submenu = edit_menu.addMenu("Edit Report")
-        self.edit_folder_action = edit_report_submenu.addAction("Edit Folder")
-        self.edit_folder_action.setDisabled(True)
+        edit_report_submenu.setDisabled(True)
+
+        edit_folder_action = edit_report_submenu.addAction("Edit Folder")
+        edit_folder_action.setDisabled(True)
 
         delete_submenu = edit_menu.addMenu("Delete")
+        delete_submenu.setDisabled(True)
         self.delete_folder_action = delete_submenu.addAction("Delete Folder")
         self.delete_folder_action.setDisabled(True)
 
-        help_menu = menubar.addMenu("Help")
-        self.about_navfitx_action = help_menu.addAction("About NAVFITX")
-        self.about_navfitx_action.triggered.connect(self.open_navfitx_github)
+        help_menu = self.menuBar().addMenu("Help")
+        about_navfitx_action = help_menu.addAction("About NAVFITX")
+        about_navfitx_action.triggered.connect(lambda: self.open_link(GITHUB_URL))
 
-        # central widget container
-        self.stack = QStackedWidget()
-        self.stack.addWidget(HomeWidget())
+        instruction = help_menu.addAction("Instructions (BUPERSINST 1610.10H)")
+        instruction.triggered.connect(lambda: self.open_link(BUPERSINST_URL))
 
-        # self.home_page.setSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.setCentralWidget(self.stack)
-        # self.stack.addWidget(self.home_page)
+    def build_form_menu(self):
+        self.menuBar().clear()
+        file_menu = self.menuBar().addMenu("File")
+        save_action = file_menu.addAction("Save")
+        save_action.triggered.connect(self.submit_form)
 
-        # index 1
-        # self.fitrep_form = FitrepDialog()
-        # self.stack.addWidget(self.fitrep_form)
+        print_action = file_menu.addAction("Print")
+        print_action.triggered.connect(self.fitrep_form.print)
+        close_action = file_menu.addAction("Close")
+        close_action.triggered.connect(self.set_index_to_home)
 
-        # self.stack.setCurrentIndex(0)
+    def on_stack_index_changed(self, index: int):
+        if index == 0:
+            self.setWindowTitle("NAVFITX")
+            self.build_home_menu()
+        elif index == 1:
+            self.build_form_menu()
+            self.setWindowTitle("FITREP Data Entry")
 
-    def open_fitrep_dialog(self):
-        self.fitrep = FitrepForm(self.add_fitrep_to_db)
-        self.stack.addWidget(self.fitrep)
+    def open_fitrep_dialog(self, fitrep: Fitrep | None = None):
+        self.fitrep_form = FitrepForm(self.submit_form, self.set_index_to_home, fitrep)
+
+        # Menu must be built after form is created so that actions can connect to it
+        self.build_form_menu()
+
+        self.stack.addWidget(self.fitrep_form)
         self.stack.setCurrentIndex(1)
-        # self.fitrep.show()
+
+    def open_db(self):
+        filename, selected_filter = QFileDialog.getOpenFileName(
+            self, "Open Database", filter="Database Files (*.db *.sqlite);;All Files (*)"
+        )
+        # TODO: validate that selected file is a valid navfitx database
+        if filename:
+            self.db = Path(filename)
+            self.refresh_reports_table()
+            self.new_submenu.setDisabled(False)
 
     def create_db(self):
-        dialog = QFileDialog(self)
-        dialog.setFileMode(QFileDialog.FileMode.AnyFile)
-        filename, selected_filter = dialog.getSaveFileName(
-            None, "Create a File for NAVFITX", filter="SQLite Database (*.sqlite)"
-        )
-        assert filename
-        db_path = Path(f"{filename}.sqlite")
-        engine = create_engine(f"sqlite:///{db_path}")
+        filename, selected_filter = QFileDialog.getSaveFileName(self, "Create Database", "navfitx.db")
+        engine = create_engine(f"sqlite:///{filename}")
         SQLModel.metadata.create_all(engine)
-        self.db = db_path
+        self.db = Path(filename)
+        self.new_submenu.setDisabled(False)
 
-    def open_navfitx_github(self):
-        url = "https://github.com/tristan-white/navfitx"
+    def open_link(self, url: str):
         webbrowser.open(url)
 
-    def add_report_to_db(self, report: Report):
+    def submit_form(self, fitrep: Fitrep):
         assert self.db is not None
-        add_report_to_db(self.db, report)
+        add_fitrep_to_db(self.db, fitrep)
+        self.refresh_reports_table()
+        i = self.stack.currentIndex()
+        self.stack.setCurrentIndex(0)
+        self.stack.removeWidget(self.stack.widget(i))
 
-    def add_fitrep_to_db(self, fitrep: Fitrep):
-        # assert self.db is not None
-        # add_fitrep_to_db(self.db, fitrep)
+    def set_index_to_home(self):
         self.stack.setCurrentIndex(0)
 
+    def print_blank(self, report_type: str):
+        filename, selected_filter = QFileDialog.getSaveFileName(
+            self, f"Save Blank {report_type.upper()} Report", f"{report_type}.pdf"
+        )
 
-class HomeWidget(QWidget):
-    def __init__(self):
-        super().__init__()
+        report_path = get_blank_report_path(report_type)
+        shutil.copy(report_path, filename)
 
-        # self.setWindowIcon(QIcon(/path/to/image))
+    # New: create the home widget here instead of a separate class
+    def create_home_widget(self) -> QWidget:
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
 
-        layout = QVBoxLayout(self)
-
-        self.folder_tree = self.create_folder_tree()
-
-        # reports_group_box = QGroupBox("Reports")
-        self.reports_table = self.get_reports_table()
-        layout.addWidget(self.reports_table)
-
+        # folder tree
+        folder_tree = self.create_folder_tree()
+        # reports table
+        self.refresh_reports_table()
+        # buttons
         buttons_groupbox = self.create_buttons_groupbox()
-        layout.addWidget(self.folder_tree)
+
+        layout.addWidget(folder_tree)
         layout.addWidget(QLabel("Reports"))
         layout.addWidget(self.reports_table)
         layout.addWidget(buttons_groupbox)
+
+        return widget
 
     def create_folder_tree(self) -> QTreeWidget:
         folder_tree = QTreeWidget()
@@ -154,21 +214,44 @@ class HomeWidget(QWidget):
         folder_tree.insertTopLevelItem(0, root)
         return folder_tree
 
-    def get_reports_table(self) -> QTableWidget:
-        reports_table = QTableWidget()
-        headers = ["Rank/Rate", "Full Name", "SSN", "Report", "To Date", "Record ID", "Validated"]
-        reports_table.setRowCount(3)
-        reports_table.setColumnCount(len(headers))
-        reports_table.setHorizontalHeaderLabels(headers)
+    def edit_fitrep_from_table(self, x: int, y: int) -> Fitrep | None:
+        item = self.reports_table.item(x, y)
+        assert item is not None
 
-        row1 = ["CWTC", "DOE, JOHN A", "123-45-6789", "Chief", "15SEP2026", "1", "Yes"]
-        row2 = ["LTJG", "DOE, JOHN A", "123-45-6789", "FitRep", "28FEB2026", "2", "Yes"]
-        row3 = ["CTI", "DOE, JOHN A", "123-45-6789", "Eval", "30JUN2026", "3", "Yes"]
-        for i, row in enumerate([row1, row2, row3]):
-            for j, v in enumerate(row):
-                reports_table.setItem(i, j, QTableWidgetItem(v))
-        reports_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
-        return reports_table
+        if not self.db:
+            return None
+
+        row = item.row()
+        record_id_item = self.reports_table.item(row, 5)  # assuming Record ID is in column 5
+        assert record_id_item is not None
+
+        record_id = int(record_id_item.text())
+        print(f"record id: {record_id}")
+        engine = create_engine(f"sqlite:///{self.db}")
+        with Session(engine) as session:
+            stmt = select(Fitrep).where(Fitrep.id == record_id)
+            fitrep = session.exec(stmt).first()
+        self.open_fitrep_dialog(fitrep)
+
+    def refresh_reports_table(self):
+        if not self.db:
+            return
+
+        self.reports_table.clearContents()
+
+        engine = create_engine(f"sqlite:///{self.db}")
+        with Session(engine) as session:
+            stmt = select(Fitrep)
+            results = list(session.exec(stmt))
+            self.reports_table.setRowCount(len(results))
+            for i, fitrep in enumerate(results):
+                self.reports_table.setItem(i, 0, QTableWidgetItem(fitrep.grade))
+                self.reports_table.setItem(i, 1, QTableWidgetItem(fitrep.name))
+                self.reports_table.setItem(i, 2, QTableWidgetItem(fitrep.ssn))
+                self.reports_table.setItem(i, 3, QTableWidgetItem("FitRep"))
+                self.reports_table.setItem(i, 4, QTableWidgetItem(str(fitrep.period_start)))
+                self.reports_table.setItem(i, 5, QTableWidgetItem(str(fitrep.id)))
+                self.reports_table.setItem(i, 6, QTableWidgetItem("no"))
 
     def create_buttons_groupbox(self) -> QGroupBox:
         group_box = QGroupBox()

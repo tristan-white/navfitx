@@ -16,21 +16,16 @@ See [here](./docs/navfitx.pdf) for more information about why NAVFIT98 needs to 
 
 ## Installation
 
-The simplest way to use navfitx is to open a terminal on your computer and copy and past a couple commands to it. On Windows, open powershell. On MacOS, open Terminal. On linux, open whatever terminal app you use.
+The simplest way to use navfitx is to open a terminal on your computer and copy and past two commands into it. On Windows, open powershell. On MacOS, open Terminal. (If you're on linux, you don't need help installing this.)
 
-1. [Install uv](https://docs.astral.sh/uv/getting-started/installation/).
+1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/):
     - Windows: `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`
     - MacOS or Linux: `curl -LsSf https://astral.sh/uv/install.sh | sh`
-2. Close and reopen your terminal, then run: `uvx navfitx`
+2. Close and reopen your terminal, then run: `uvx navfitx`. You're done!
 
 > NOTE:
 > If you see the error `This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.`, install `libxcb-cursor0`, then run again.
 > If you see the error `ImportError: libodbc.so.2: cannot open shared object file: No such file or directory`, install unixodbc: `sudo apt install unixodbc`.
- 
-## Links
-
-- [NAVFIT98A v30 User Guide Manual](https://www.mynavyhr.navy.mil/Portals/55/Career/PerformanceEvaluation/NAVFIT98A%20Version%2030%20user%20guide.pdf?ver=rBFhxjABpJhUybBeMo6AMA%3d%3d). Helpful as it contains constraints/validation for each block in of overy report in the appendices. Note: These constraints do not always match what is in [BUPERSINT 1610.10H](https://www.mynavyhr.navy.mil/Portals/55/Reference/Instructions/BUPERS/BUPERSINST%201610.10.pdf?ver=DZVcHnNH8gLkDjKjDFyaKA%3d%3d) nor match the validation performed by NAVFIT98A itself.
-- [Performance Evaluation Links](https://www.mn3p.navy.mil/web/performance/overview)
 
 ## Help NAVFITX Succeed
 
@@ -41,4 +36,4 @@ I'd like to see NAVFITX replace NAFIT98A in the fleet. I'm looking for user test
 
 Additionally, please consider giving this repo a ⭐ to help it gain visibility.
 
-<a href='https://ko-fi.com/Q5Q41PEEPR' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi5.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+<!-- <a href='https://ko-fi.com/Q5Q41PEEPR' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi5.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a> -->

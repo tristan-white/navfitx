@@ -41,7 +41,7 @@ def update_name(fitrep: Fitrep, comp: String) -> None:
 
 
 def update_rate(fitrep: Fitrep, comp: String) -> None:
-    comp.text = fitrep.rate
+    comp.text = fitrep.grade
 
 
 def update_desig(fitrep: Fitrep, comp: String) -> None:
