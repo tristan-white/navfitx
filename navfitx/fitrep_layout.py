@@ -10,7 +10,7 @@ from typing_extensions import Annotated
 
 from navfitx.boxes import Box, Bullets, Checkbox, Multiline, MultilineCentered, String
 from navfitx.constants import MARGIN_BOTTOM, MARGIN_LEFT, MARGIN_RIGHT, MARGIN_SIDES, MARGIN_TOP
-from navfitx.models import Fitrep, OccasionForReport, PromotionStatus, SummaryGroup
+from navfitx.models import Fitrep, PromotionStatus, SummaryGroup
 
 
 def make_box_to_right(box: Box, width: float) -> Box:
@@ -87,19 +87,19 @@ def update_date_reported(fitrep: Fitrep, comp: String) -> None:
 
 
 def update_occasion_periodic(fitrep: Fitrep, comp: Checkbox) -> None:
-    comp.checked = OccasionForReport.PERIODIC == fitrep.occasion_for_report
+    comp.checked = fitrep.periodic
 
 
 def update_occasion_detachment_individual(fitrep: Fitrep, comp: Checkbox) -> None:
-    comp.checked = OccasionForReport.INDIVIDUAL_DETACH == fitrep.occasion_for_report
+    comp.checked = fitrep.det_indiv
 
 
 def update_occasion_detachment_reporting_senior(fitrep: Fitrep, comp: Checkbox) -> None:
-    comp.checked = OccasionForReport.SENIOR_DETACH == fitrep.occasion_for_report
+    comp.checked = fitrep.det_rs
 
 
 def update_occasion_special(fitrep: Fitrep, comp: Checkbox) -> None:
-    comp.checked = OccasionForReport.SPECIAL == fitrep.occasion_for_report
+    comp.checked = fitrep.special
 
 
 def update_period_start(fitrep: Fitrep, comp: String) -> None:
@@ -754,7 +754,6 @@ def test_make_fitrep(
         station="MYSHIP",
         promotion_status=PromotionStatus.REGULAR,
         date_reported=date(2025, 1, 15),
-        occasion_for_report={OccasionForReport.PERIODIC, OccasionForReport.INDIVIDUAL_DETACH},
         period_start=date.today(),
         period_end=date.today(),
         not_observed=True,

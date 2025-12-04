@@ -1,15 +1,19 @@
 import textwrap
+from enum import StrEnum
 from pathlib import Path
 from typing import Callable
 
-from PySide6.QtCore import Slot
+from PySide6.QtCore import QDate, Qt, Slot
 from PySide6.QtGui import QFont, QTextOption, QValidator
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QDateEdit,
     QDialogButtonBox,
+    QFileDialog,
     QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
     QLabel,
     QLayout,
     QLineEdit,
@@ -23,12 +27,18 @@ from PySide6.QtWidgets import (
 from navfitx.models import (
     BilletSubcategory,
     Fitrep,
-    OccasionForReport,
     PhysicalReadiness,
+    PromotionRecommendation,
     PromotionStatus,
-    TypeOfReport,
 )
 from navfitx.overlay import create_fitrep_pdf
+
+
+def get_idx_for_str_enum(strenum_cls: type[StrEnum], value: str) -> int | None:
+    for i, s in enumerate(strenum_cls):
+        if s.value == value:
+            return i
+    return None
 
 
 class ExampleValidator(QValidator):
@@ -45,13 +55,34 @@ class ExampleValidator(QValidator):
         return input_str.upper()
 
 
+perf_traits = {
+    "": None,
+    "Not Observed": 0,
+    "1 - Below Standards": 1,
+    "2 - Progressing": 2,
+    "3 - Meets Standards": 3,
+    "4 - Above Standards": 4,
+    "5 - Greatly Exceeds Standards": 5,
+}
+
+promotion_recs = {
+    "": None,
+    "NOB": PromotionRecommendation.NOB.value,
+    "Significant Problems": PromotionRecommendation.SIGNIFICANT_PROBLEMS.value,
+    "Progressing": PromotionRecommendation.PROGRESSING.value,
+    "Promotable": PromotionRecommendation.PROMOTABLE.value,
+    "Must Promote": PromotionRecommendation.MUST_PROMOTE.value,
+    "Early Promote": PromotionRecommendation.EARLY_PROMOTE.value,
+}
+
+
 class FitrepForm(QWidget):
-    def __init__(
-        self, on_accept: Callable[[Fitrep], None], on_reject: Callable[[], None], fitrep: Fitrep | None = None
-    ):
+    def __init__(self, on_accept: Callable[[Fitrep], None], on_reject: Callable[[], None], fitrep: Fitrep | None):
         super().__init__()
+        self.fitrep = fitrep or Fitrep()
         self.on_accept = on_accept
         self.on_reject = on_reject
+
         self.setWindowTitle("FITREP Data Entry")
 
         scroll_area = QScrollArea(self)
@@ -65,224 +96,296 @@ class FitrepForm(QWidget):
         grid_layout.setSizeConstraint(QLayout.SizeConstraint.SetNoConstraint)
 
         self.name = QLineEdit()
-        self.name.setText("test test")
+        self.name.setText(self.fitrep.name)
+        self.name.setPlaceholderText("LAST, FIRST MI Suffix")
         self.name.editingFinished.connect(self.validate_name)
-        grid_layout.addWidget(QLabel("Name"), 0, 0)
+        grid_layout.addWidget(QLabel("1. Name"), 0, 0)
         grid_layout.addWidget(self.name, 0, 1)
 
-        self.rank = QLineEdit()
-        self.rank.editingFinished.connect(self.validate_grade)
-        grid_layout.addWidget(QLabel("Rank"), 0, 2)
-        grid_layout.addWidget(self.rank, 0, 3)
+        self.grade = QLineEdit()
+        self.grade.setText(self.fitrep.grade)
+        self.grade.editingFinished.connect(self.validate_grade)
+        grid_layout.addWidget(QLabel("2. Rank"), 0, 2)
+        grid_layout.addWidget(self.grade, 0, 3)
 
         self.desig = QLineEdit()
-        grid_layout.addWidget(QLabel("Designator"), 1, 0)
+        self.desig.setText(self.fitrep.desig)
+        grid_layout.addWidget(QLabel("3. Designator"), 1, 0)
         grid_layout.addWidget(self.desig, 1, 1)
 
         self.ssn = QLineEdit()
-        self.ssn.setToolTip("Format: XXX-XX-XXXX")
+        self.ssn.setText(self.fitrep.ssn)
+        self.ssn.setPlaceholderText("XXX-XX-XXXX")
         self.ssn.editingFinished.connect(self.validate_ssn)
-        grid_layout.addWidget(QLabel("SSN"), 1, 2)
+        grid_layout.addWidget(QLabel("4. SSN"), 1, 2)
         grid_layout.addWidget(self.ssn, 1, 3)
 
         self.group = QComboBox()
         self.group.addItems(["ACT", "TAR", "INACT", "AT/ADSW/265"])
-        grid_layout.addWidget(QLabel("Group"), 2, 0)
+        grid_layout.addWidget(QLabel("5. Group"), 2, 0)
         grid_layout.addWidget(self.group, 2, 1)
 
         self.uic = QLineEdit()
+        self.uic.setText(self.fitrep.uic)
         self.uic.editingFinished.connect(self.validate_uic)
-        grid_layout.addWidget(QLabel("UIC"), 2, 2)
+        grid_layout.addWidget(QLabel("6. UIC"), 2, 2)
         grid_layout.addWidget(self.uic, 2, 3)
 
         self.station = QLineEdit()
+        self.station.setText(self.fitrep.station)
         self.station.editingFinished.connect(self.validate_ship_station)
-        grid_layout.addWidget(QLabel("Ship/Station"), 3, 0)
+        grid_layout.addWidget(QLabel("7. Ship/Station"), 3, 0)
         grid_layout.addWidget(self.station, 3, 1)
 
-        self.promotion_status = QComboBox()
+        self.promotion_status = QComboBox(currentText=self.fitrep.promotion_status)
         self.promotion_status.addItems([member.value for member in PromotionStatus])
-        grid_layout.addWidget(QLabel("Promotion Status"), 3, 2)
+        self.promotion_status.setCurrentIndex(get_idx_for_str_enum(PromotionStatus, self.fitrep.promotion_status) or 0)
+        grid_layout.addWidget(QLabel("8. Promotion Status"), 3, 2)
         grid_layout.addWidget(self.promotion_status, 3, 3)
 
-        self.date_reported = QDateEdit()
+        # Move Date Reported so it appears before Type of Report in the grid
+        self.date_reported = QDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")
+        if self.fitrep.date_reported:
+            y = self.fitrep.date_reported.year
+            m = self.fitrep.date_reported.month
+            d = self.fitrep.date_reported.day
+            self.date_reported.setDate(QDate(y, m, d))
         grid_layout.addWidget(QLabel("Date Reported"), 4, 0)
         grid_layout.addWidget(self.date_reported, 4, 1)
 
-        self.occasion_for_report = QComboBox()
-        self.occasion_for_report.addItems([member.name for member in OccasionForReport])
-        grid_layout.addWidget(QLabel("Occasion for Report"), 4, 2)
-        grid_layout.addWidget(self.occasion_for_report, 4, 3)
+        group_box = QGroupBox("Type of Report")
+        self.regular = QCheckBox("Regular")
+        self.regular.setChecked(self.fitrep.regular)
+        self.concurrent = QCheckBox("Concurrent")
+        self.concurrent.setChecked(self.fitrep.concurrent)
+        self.concurrent.checkStateChanged.connect(self.validate_concurrent)
+        self.ops_cdr = QCheckBox("OpsCdr")
+        self.ops_cdr.setChecked(self.fitrep.ops_cdr)
+        self.ops_cdr.checkStateChanged.connect(self.validate_ops_cdr)
+        hbox = QHBoxLayout()
+        hbox.addWidget(self.regular)
+        hbox.addWidget(self.concurrent)
+        hbox.addWidget(self.ops_cdr)
+        group_box.setLayout(hbox)
+        grid_layout.addWidget(group_box, 5, 0, 1, 2)
 
-        self.period_start = QDateEdit()
-        grid_layout.addWidget(QLabel("Period Start"), 5, 0)
-        grid_layout.addWidget(self.period_start, 5, 1)
+        group_box = QGroupBox("Occasion for Report")
+        self.periodic = QCheckBox("Periodic")
+        self.periodic.setChecked(self.fitrep.periodic)
+        self.periodic.checkStateChanged.connect(self.validate_occasion)
+        self.det_indiv = QCheckBox("Detachment of Individual")
+        self.det_indiv.setChecked(self.fitrep.det_indiv)
+        self.det_indiv.checkStateChanged.connect(self.validate_occasion)
+        self.det_rs = QCheckBox("Detachment of Reporting Senior")
+        self.det_rs.setChecked(self.fitrep.det_rs)
+        self.det_rs.checkStateChanged.connect(self.validate_occasion)
+        self.special = QCheckBox("Special")
+        self.special.setChecked(self.fitrep.special)
+        self.special.checkStateChanged.connect(self.validate_special)
+        vbox = QHBoxLayout()
+        vbox.addWidget(self.periodic)
+        vbox.addWidget(self.det_indiv)
+        vbox.addWidget(self.det_rs)
+        vbox.addWidget(self.special)
+        group_box.setLayout(vbox)
+        grid_layout.addWidget(group_box, 5, 2, 1, 2)
 
-        self.period_end = QDateEdit()
-        grid_layout.addWidget(QLabel("Period End"), 5, 2)
-        grid_layout.addWidget(self.period_end, 5, 3)
+        self.period_start = QDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")
+        if self.fitrep.period_start:
+            y = self.fitrep.period_start.year
+            m = self.fitrep.period_start.month
+            d = self.fitrep.period_start.day
+            self.period_start.setDate(QDate(y, m, d))
+        grid_layout.addWidget(QLabel("Period Start"), 6, 0)
+        grid_layout.addWidget(self.period_start, 6, 1)
+
+        self.period_end = QDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")
+        if self.fitrep.period_end:
+            y = self.fitrep.period_end.year
+            m = self.fitrep.period_end.month
+            d = self.fitrep.period_end.day
+            self.period_end.setDate(QDate(y, m, d))
+        grid_layout.addWidget(QLabel("Period End"), 6, 2)
+        grid_layout.addWidget(self.period_end, 6, 3)
 
         self.not_observed = QCheckBox()
-        grid_layout.addWidget(QLabel("Not Observed Report"), 6, 0)
-        grid_layout.addWidget(self.not_observed, 6, 1)
-
-        self.type_of_report = QComboBox()
-        self.type_of_report.addItems([member.name for member in TypeOfReport])
-        self.type_of_report.currentIndexChanged.connect(self.validate_type_of_report)
-        grid_layout.addWidget(QLabel("Type of Report"), 6, 2)
-        grid_layout.addWidget(self.type_of_report, 6, 3)
+        self.not_observed.setChecked(self.fitrep.not_observed)
+        grid_layout.addWidget(QLabel("Not Observed Report"), 7, 0)
+        grid_layout.addWidget(self.not_observed, 7, 1)
 
         self.physical_readiness = QComboBox()
-        self.physical_readiness.addItems("")
         self.physical_readiness.addItems([member.value for member in PhysicalReadiness])
-        grid_layout.addWidget(QLabel("Physical Readiness"), 7, 0)
-        grid_layout.addWidget(self.physical_readiness, 7, 1)
+        self.physical_readiness.setCurrentIndex(
+            get_idx_for_str_enum(PhysicalReadiness, self.fitrep.physical_readiness) or 0
+        )
+        grid_layout.addWidget(QLabel("Physical Readiness"), 8, 0)
+        grid_layout.addWidget(self.physical_readiness, 8, 1)
 
         self.billet_subcategory = QComboBox()
         self.billet_subcategory.addItems([member.value for member in BilletSubcategory])
-        grid_layout.addWidget(QLabel("Billet Subcategory"), 7, 2)
-        grid_layout.addWidget(self.billet_subcategory, 7, 3)
+        self.billet_subcategory.setCurrentIndex(
+            get_idx_for_str_enum(BilletSubcategory, self.fitrep.billet_subcategory) or 0
+        )
+        grid_layout.addWidget(QLabel("Billet Subcategory"), 8, 2)
+        grid_layout.addWidget(self.billet_subcategory, 8, 3)
 
         self.senior_name = QLineEdit()
-        grid_layout.addWidget(QLabel("Reporting Senior Name"), 8, 0)
-        grid_layout.addWidget(self.senior_name, 8, 1)
+        self.senior_name.setText(self.fitrep.senior_name)
+        self.senior_name.setPlaceholderText("LAST, FI MI")
+        grid_layout.addWidget(QLabel("Reporting Senior Name"), 9, 0)
+        grid_layout.addWidget(self.senior_name, 9, 1)
 
         self.senior_grade = QLineEdit()
-        grid_layout.addWidget(QLabel("Reporting Senior Grade"), 8, 2)
-        grid_layout.addWidget(self.senior_grade, 8, 3)
+        self.senior_grade.setText(self.fitrep.senior_grade)
+        grid_layout.addWidget(QLabel("Reporting Senior Grade"), 9, 2)
+        grid_layout.addWidget(self.senior_grade, 9, 3)
 
         self.senior_desig = QLineEdit()
-        grid_layout.addWidget(QLabel("Reporting Senior Designator"), 9, 0)
-        grid_layout.addWidget(self.senior_desig, 9, 1)
+        self.senior_desig.setText(self.fitrep.senior_desig)
+        grid_layout.addWidget(QLabel("Reporting Senior Designator"), 10, 0)
+        grid_layout.addWidget(self.senior_desig, 10, 1)
 
         self.senior_title = QLineEdit()
-        grid_layout.addWidget(QLabel("Reporting Senior Title"), 9, 2)
-        grid_layout.addWidget(self.senior_title, 9, 3)
+        self.senior_title.setText(self.fitrep.senior_title)
+        grid_layout.addWidget(QLabel("Reporting Senior Title"), 10, 2)
+        grid_layout.addWidget(self.senior_title, 10, 3)
 
         self.senior_uic = QLineEdit()
-        grid_layout.addWidget(QLabel("Reporting Senior UIC"), 10, 0)
-        grid_layout.addWidget(self.senior_uic, 10, 1)
+        self.senior_uic.setText(self.fitrep.senior_uic)
+        grid_layout.addWidget(QLabel("Reporting Senior UIC"), 11, 0)
+        grid_layout.addWidget(self.senior_uic, 11, 1)
 
         self.senior_ssn = QLineEdit()
-        grid_layout.addWidget(QLabel("Reporting Senior SSN"), 10, 2)
-        grid_layout.addWidget(self.senior_ssn, 10, 3)
+        self.senior_ssn.setText(self.fitrep.senior_ssn)
+        grid_layout.addWidget(QLabel("Reporting Senior SSN"), 11, 2)
+        grid_layout.addWidget(self.senior_ssn, 11, 3)
 
         self.duties_abbreviation = QLineEdit()
+        self.duties_abbreviation.setText(self.fitrep.duties_abbreviation)
         self.duties_abbreviation.editingFinished.connect(self.validate_duties_abbreviation)
-        grid_layout.addWidget(QLabel("Primary Duty Abbreviation"), 11, 0)
-        grid_layout.addWidget(self.duties_abbreviation, 11, 1)
+        grid_layout.addWidget(QLabel("Primary Duty Abbreviation"), 12, 0)
+        grid_layout.addWidget(self.duties_abbreviation, 12, 1)
 
         self.duties_description = QLineEdit()
-        grid_layout.addWidget(QLabel("Primary/Collateral/Watchstanding Duties"), 11, 2)
-        grid_layout.addWidget(self.duties_description, 11, 3)
+        self.duties_description.setText(self.fitrep.duties_description)
+        grid_layout.addWidget(QLabel("Primary/Collateral/Watchstanding Duties"), 12, 2)
+        grid_layout.addWidget(self.duties_description, 12, 3)
 
-        self.date_counseled = QDateEdit()
-        grid_layout.addWidget(QLabel("Date Counseled"), 12, 0)
-        grid_layout.addWidget(self.date_counseled, 12, 1)
+        self.job = QTextEdit()
+        self.job.setText(self.fitrep.job)
+        grid_layout.addWidget(QLabel("Command Employment and\nCommand Achievements"), 13, 0)
+        grid_layout.addWidget(self.job, 13, 1, 1, 3)
+
+        self.date_counseled = QDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")
+        if self.fitrep.date_counseled:
+            y = self.fitrep.date_counseled.year
+            m = self.fitrep.date_counseled.month
+            d = self.fitrep.date_counseled.day
+            self.date_counseled.setDate(QDate(y, m, d))
+        grid_layout.addWidget(QLabel("Date Counseled"), 14, 0)
+        grid_layout.addWidget(self.date_counseled, 14, 1)
 
         self.counselor = QLineEdit()
-        grid_layout.addWidget(QLabel("Counselor"), 12, 2)
-        grid_layout.addWidget(self.counselor, 12, 3)
+        self.counselor.setText(self.fitrep.counselor)
+        grid_layout.addWidget(QLabel("Counselor"), 14, 2)
+        grid_layout.addWidget(self.counselor, 14, 3)
 
         # h = self.counselor.sizeHint().height()
         # w = self.counselor.sizeHint().width()
-
         # grid_layout.addItem(QSpacerItem(0, h), 13, 0)
 
-        self.job = QTextEdit()
-        # self.comments.setLineWrapMode(QTextEdit.LineWrapMode.FixedColumnWidth)
-        # self.comments.setLineWrapColumnOrWidth(10)
-        grid_layout.addWidget(QLabel("Command Employment and\nCommand Achievements"), 14, 0)
-        grid_layout.addWidget(self.job, 14, 1, 1, 3)
-
-        performance_trait_options = [
-            "",
-            "Not Observed",
-            "1 - Below Standards",
-            "2 - Progressing",
-            "3 - Meets Standards",
-            "4 - Above Standards",
-            "5 - Greatly Exceeds Standards",
-        ]
-
         self.pro_expertise = QComboBox()
-        self.pro_expertise.addItems(performance_trait_options)
-        grid_layout.addWidget(QLabel("Professional Expertise"), 15, 0)
-        grid_layout.addWidget(self.pro_expertise, 15, 1)
+        self.pro_expertise.addItems([p for p in perf_traits.keys()])
+        if self.fitrep.pro_expertise is not None:
+            self.pro_expertise.setCurrentIndex(self.fitrep.pro_expertise + 1)
+        grid_layout.addWidget(QLabel("Professional Expertise"), 16, 0)
+        grid_layout.addWidget(self.pro_expertise, 16, 1)
 
         self.cmd_climate = QComboBox()
-        self.cmd_climate.addItems(performance_trait_options)
-        grid_layout.addWidget(QLabel("Command or Organizational Climate"), 15, 2)
-        grid_layout.addWidget(self.cmd_climate, 15, 3)
+        self.cmd_climate.addItems([p for p in perf_traits.keys()])
+        if self.fitrep.cmd_climate is not None:
+            self.cmd_climate.setCurrentIndex(self.fitrep.cmd_climate + 1)
+        grid_layout.addWidget(QLabel("Command or Organizational Climate"), 16, 2)
+        grid_layout.addWidget(self.cmd_climate, 16, 3)
 
         self.bearing_and_character = QComboBox()
-        self.bearing_and_character.addItems(performance_trait_options)
-        grid_layout.addWidget(QLabel("Military Bearing/Character"), 16, 0)
-        grid_layout.addWidget(self.bearing_and_character, 16, 1)
+        self.bearing_and_character.addItems([p for p in perf_traits.keys()])
+        if self.fitrep.bearing_and_character is not None:
+            self.bearing_and_character.setCurrentIndex(self.fitrep.bearing_and_character + 1)
+        grid_layout.addWidget(QLabel("Military Bearing/Character"), 17, 0)
+        grid_layout.addWidget(self.bearing_and_character, 17, 1)
 
         self.teamwork = QComboBox()
-        self.teamwork.addItems(performance_trait_options)
-        grid_layout.addWidget(QLabel("Teamwork"), 16, 2)
-        grid_layout.addWidget(self.teamwork, 16, 3)
+        self.teamwork.addItems([p for p in perf_traits.keys()])
+        if self.fitrep.teamwork is not None:
+            self.teamwork.setCurrentIndex(self.fitrep.teamwork + 1)
+        grid_layout.addWidget(QLabel("Teamwork"), 17, 2)
+        grid_layout.addWidget(self.teamwork, 17, 3)
 
         self.accomp_and_initiative = QComboBox()
-        self.accomp_and_initiative.addItems(performance_trait_options)
-        grid_layout.addWidget(QLabel("Mission Accomplishment and Initiative"), 17, 0)
-        grid_layout.addWidget(self.accomp_and_initiative, 17, 1)
+        self.accomp_and_initiative.addItems([p for p in perf_traits.keys()])
+        if self.fitrep.accomp_and_initiative is not None:
+            self.accomp_and_initiative.setCurrentIndex(self.fitrep.accomp_and_initiative + 1)
+        grid_layout.addWidget(QLabel("Mission Accomplishment and Initiative"), 18, 0)
+        grid_layout.addWidget(self.accomp_and_initiative, 18, 1)
 
         self.leadership = QComboBox()
-        self.leadership.addItems(performance_trait_options)
-        grid_layout.addWidget(QLabel("Leadership"), 17, 2)
-        grid_layout.addWidget(self.leadership, 17, 3)
+        self.leadership.addItems([p for p in perf_traits.keys()])
+        if self.fitrep.leadership is not None:
+            self.leadership.setCurrentIndex(self.fitrep.leadership + 1)
+        grid_layout.addWidget(QLabel("Leadership"), 18, 2)
+        grid_layout.addWidget(self.leadership, 18, 3)
 
         self.tactical_performance = QComboBox()
-        self.tactical_performance.addItems(performance_trait_options)
-        grid_layout.addWidget(QLabel("Tactical Performance"), 18, 0)
-        grid_layout.addWidget(self.tactical_performance, 18, 1)
+        self.tactical_performance.addItems([p for p in perf_traits.keys()])
+        if self.fitrep.tactical_performance is not None:
+            self.tactical_performance.setCurrentIndex(self.fitrep.tactical_performance + 1)
+        grid_layout.addWidget(QLabel("Tactical Performance"), 19, 0)
+        grid_layout.addWidget(self.tactical_performance, 19, 1)
 
-        self.career_rec_1 = QTextEdit(tabChangesFocus=True)
-        self.career_rec_1.setLineWrapMode(QTextEdit.LineWrapMode.FixedColumnWidth)
+        self.career_rec_1 = QTextEdit(tabChangesFocus=True, lineWrapMode=QTextEdit.LineWrapMode.FixedColumnWidth)
+        self.career_rec_1.setWordWrapMode(QTextOption.WrapMode.WrapAnywhere)
+        self.career_rec_1.setText(self.fitrep.career_rec_1)
         self.career_rec_1.setLineWrapColumnOrWidth(13)
-        self.career_rec_1.setWordWrapMode(QTextOption.WrapMode.WordWrap)
         self.career_rec_1.setFont(QFont("Courier"))
         line_spacing = self.career_rec_1.fontMetrics().lineSpacing()
-        # capHeight = self.career_rec_1.fontMetrics().capHeight()
-        # height = self.career_rec_1.height()
         self.career_rec_1.setFixedHeight(line_spacing * 2)
-        self.career_rec_1.setFixedWidth(900)
+        # self.career_rec_1.setFixedWidth(900)
         self.career_rec_1.textChanged.connect(self.validate_career_rec1)
-        grid_layout.addWidget(QLabel("Career Recommendation 1"), 19, 0)
-        grid_layout.addWidget(self.career_rec_1, 19, 1, 1, 3)
+        grid_layout.addWidget(QLabel("Career Recommendation 1"), 20, 0)
+        grid_layout.addWidget(self.career_rec_1, 20, 1)
 
-        self.career_rec_2 = QTextEdit()
-        self.career_rec_2.setLineWrapMode(QTextEdit.LineWrapMode.FixedColumnWidth)
-        self.career_rec_2.setLineWrapColumnOrWidth(13)
+        self.career_rec_2 = QTextEdit(tabChangesFocus=True, lineWrapMode=QTextEdit.LineWrapMode.FixedColumnWidth)
         self.career_rec_2.setWordWrapMode(QTextOption.WrapMode.WordWrap)
+        self.career_rec_2.setText(self.fitrep.career_rec_2)
+        self.career_rec_2.setLineWrapColumnOrWidth(13)
         self.career_rec_2.setFont(QFont("Courier"))
         line_height = self.career_rec_2.fontMetrics().lineSpacing()
         self.career_rec_2.setFixedHeight(line_height * 2)
-        self.career_rec_2.setFixedWidth(900)
-        grid_layout.addWidget(QLabel("Career Recommendation 2"), 20, 0)
-        grid_layout.addWidget(self.career_rec_2, 20, 1, 1, 3)
+        # self.career_rec_2.setFixedWidth(900)
+        grid_layout.addWidget(QLabel("Career Recommendation 2"), 20, 2)
+        grid_layout.addWidget(self.career_rec_2, 20, 3)
 
-        self.comments = QTextEdit()
-        self.comments.setLineWrapMode(QTextEdit.LineWrapMode.FixedColumnWidth)
-        self.comments.setLineWrapColumnOrWidth(91)
+        self.comments = QTextEdit(tabChangesFocus=True, lineWrapMode=QTextEdit.LineWrapMode.FixedColumnWidth)
+        self.comments.setText(self.fitrep.comments)
         self.comments.setWordWrapMode(QTextOption.WrapMode.WordWrap)
+        self.comments.setLineWrapColumnOrWidth(91)
         self.comments.setFont(QFont("Courier"))
         line_height = self.comments.fontMetrics().lineSpacing()
         self.comments.setFixedHeight(line_height * 18)
         self.comments.setFixedWidth(900)
-        grid_layout.addWidget(QLabel("Comments"), 21, 0)
-        grid_layout.addWidget(self.comments, 21, 1, 1, 3)
+        grid_layout.addWidget(QLabel("Comments"), 22, 0)
+        grid_layout.addWidget(self.comments, 22, 1, 1, 3)
 
         self.indiv_promo_rec = QComboBox()
-        choices = ["", "NOB", "Significant Problems", "Progressing", "Promotable", "Must Promote", "Early Promote"]
-        self.indiv_promo_rec.addItems(choices)
-        grid_layout.addWidget(QLabel("Promotion Reccomendation"), 22, 0)
-        grid_layout.addWidget(self.indiv_promo_rec, 22, 1)
+        self.indiv_promo_rec.addItems(promotion_recs.keys())
+        if self.fitrep.indiv_promo_rec is not None:
+            self.indiv_promo_rec.setCurrentIndex(self.fitrep.indiv_promo_rec + 1)
+        grid_layout.addWidget(QLabel("Promotion Reccomendation"), 23, 0)
+        grid_layout.addWidget(self.indiv_promo_rec, 23, 1)
 
         self.senior_address = QTextEdit()
+        self.senior_address.setText(self.fitrep.senior_address)
         self.senior_address.setLineWrapMode(QTextEdit.LineWrapMode.FixedColumnWidth)
         self.senior_address.setLineWrapColumnOrWidth(27)
         self.senior_address.setWordWrapMode(QTextOption.WrapMode.WordWrap)
@@ -290,8 +393,8 @@ class FitrepForm(QWidget):
         line_height = self.name.fontMetrics().lineSpacing()
         self.senior_address.setFixedHeight(line_height * 5)
         self.senior_address.setFixedWidth(500)
-        grid_layout.addWidget(QLabel("Reporting Senior Address"), 23, 0)
-        grid_layout.addWidget(self.senior_address, 23, 1, 1, 3)
+        grid_layout.addWidget(QLabel("Reporting Senior Address"), 24, 0)
+        grid_layout.addWidget(self.senior_address, 24, 1, 1, 3)
 
         # layout = QVBoxLayout()
 
@@ -301,7 +404,7 @@ class FitrepForm(QWidget):
         # ---- buttons ----
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         ok_btn = button_box.button(QDialogButtonBox.StandardButton.Ok)
-        ok_btn.setText("Submit")
+        ok_btn.setText("Save")
         button_box.accepted.connect(self.submit)
         button_box.rejected.connect(self.on_reject)
 
@@ -317,28 +420,48 @@ class FitrepForm(QWidget):
         self.setLayout(main_layout)
 
     @Slot()
+    def validate_special(self, check_state: Qt.CheckState):
+        if check_state == Qt.CheckState.Checked:
+            self.det_indiv.setChecked(False)
+            self.det_rs.setChecked(False)
+            self.periodic.setChecked(False)
+
+    @Slot()
+    def validate_occasion(self, check_state: Qt.CheckState):
+        if check_state == Qt.CheckState.Checked:
+            self.special.setChecked(False)
+
+    @Slot()
+    def validate_ops_cdr(self, check_state: Qt.CheckState):
+        if check_state == Qt.CheckState.Checked:
+            self.concurrent.setChecked(False)
+
+    @Slot()
+    def validate_concurrent(self, check_state: Qt.CheckState):
+        if check_state == Qt.CheckState.Checked:
+            self.ops_cdr.setChecked(False)
+
+    @Slot()
     def validate_career_rec1(self):
         text = self.career_rec_1.document().toPlainText()
         wrapped = textwrap.wrap(text, width=13)
-        msg = (
-            "In order to mimic the exact constraints of NAVFIT98, the following constraints\n"
-            "apply to the the career reccomendation blocks:\n"
-            "- Maximum of 20 characters, including spaces, but not including newlines.\n"
-            "- No more than 13 characters on a line."
-        )
-        if len(wrapped) > 2 or len(text) > 20:
+        if len(text) > 20:
             QMessageBox.information(
                 self,
                 "Career Reccomendation Validation",
-                msg,
+                "Maximum of 20 characters allowed (including whitespace)",
                 QMessageBox.StandardButton.Ok,
             )
             self.career_rec_1.setText(text[:20])
-
-    @Slot()
-    def validate_type_of_report(self):
-        # text = self.type_of_report.currentText()
-        pass
+        if len(wrapped) > 2:
+            QMessageBox.information(
+                self,
+                "Career Reccomendation Validation",
+                "Carreer Reccomenation may not exceed two lines.",
+                QMessageBox.StandardButton.Ok,
+            )
+            allowed_text = "\n".join(wrapped[:2])
+            self.career_rec_1.setText(allowed_text)
 
     @Slot()
     def validate_ship_station(self):
@@ -353,25 +476,16 @@ class FitrepForm(QWidget):
 
     @Slot()
     def validate_name(self):
-        if not self.name.text().isupper():
-            answer = QMessageBox.information(
-                self,
-                "Name Validation",
-                "Names are required to be uppercase. Convert to uppercase now?",
-                QMessageBox.StandardButton.Yes,
-                QMessageBox.StandardButton.No,
-            )
-            if answer == QMessageBox.StandardButton.Yes:
-                self.name.setText(self.name.text().upper())
+        self.name.setText(self.name.text().upper())
 
     @Slot()
     def validate_grade(self):
-        if len(self.rank.text()) > 5:
+        if len(self.grade.text()) > 5:
             QMessageBox.information(
                 self, "Grade Validation", "Rank/Grade cannot be more than 5 characters.", QMessageBox.StandardButton.Ok
             )
             return
-        for char in self.rank.text():
+        for char in self.grade.text():
             if not char.isalpha():
                 QMessageBox.information(
                     self, "Grade Validation", "Rank/Grade may only contain letters.", QMessageBox.StandardButton.Ok
@@ -380,7 +494,7 @@ class FitrepForm(QWidget):
 
     @Slot()
     def validate_desig(self):
-        if len(self.rank.text()) > 5:
+        if len(self.desig.text()) > 5:
             QMessageBox.information(
                 self,
                 "Designator Validation",
@@ -447,61 +561,60 @@ class FitrepForm(QWidget):
         )
 
     def print(self):
-        """
-        Open a print preview dialog for the FITREP report.
-        """
-        fitrep = self.create_fitrep()
-        foo = Path("foo.pdf")
-        create_fitrep_pdf(fitrep, foo)
-
-        # fitrep = self.create_fitrep()
-        # print(fitrep)
+        self.save_form()
+        filename, selected_filter = QFileDialog.getSaveFileName(self, "Choose FITREP PDF Destination", "fitrep.pdf")
+        if filename:
+            create_fitrep_pdf(self.fitrep, Path(filename))
 
     def submit(self):
-        fitrep = self.create_fitrep()
-        self.on_accept(fitrep)
+        self.save_form()
+        self.on_accept(self.fitrep)
 
-    def create_fitrep(self) -> Fitrep:
+    def save_form(self) -> Fitrep:
         """
         Create a Fitrep class from the data input in the GUI Form.
         """
-        return Fitrep(
-            name=self.name.text(),
-            rate=self.rank.text(),
-            desig=self.desig.text(),
-            ssn=self.ssn.text(),
-            # group=self.group.currentText(),
-            uic=self.uic.text(),
-            station=self.station.text(),
-            promotion_status=self.promotion_status.currentText(),
-            date_reported=self.date_reported.date().toPython(),
-            # occasion_for_report=self.occasion_for_report.currentText(),
-            period_start=self.period_start.date().toPython(),
-            period_end=self.period_end.date().toPython(),
-            not_observed=self.not_observed.isChecked(),
-            # type_of_report=self.type_of_report.currentText(),
-            physical_readiness=self.physical_readiness.currentText(),
-            billet_subcategory=self.billet_subcategory.currentText(),
-            senior_name=self.senior_name.text(),
-            senior_grade=self.senior_grade.text(),
-            senior_desig=self.senior_desig.text(),
-            senior_title=self.senior_title.text(),
-            senior_uic=self.senior_uic.text(),
-            senior_ssn=self.senior_ssn.text(),
-            duties_abbreviation=self.duties_abbreviation.text(),
-            duties_description=self.duties_description.text(),
-            date_counseled=self.date_counseled.date().toPython(),
-            counselor=self.counselor.text(),
-            # pro_expertise=self.pro_expertise,
-            # cmd_climate=self.cmd_climate,
-            # bearing_and_character=self.bearing_and_character,
-            # teamwork=self.teamwork,
-            # accomp_and_initiative=self.accomp_and_initiative,
-            # leadership=self.leadership,
-            # tactical_performance=self.tactical_performance,
-            career_rec_1=self.career_rec_1.toPlainText(),
-            career_rec_2=self.career_rec_2.toPlainText(),
-            comments=self.comments.toPlainText(),
-            # indiv_promo_rec=self.indiv_promo_rec,
-            senior_address=self.senior_address.toPlainText(),
-        )
+        self.fitrep.name = self.name.text()
+        self.fitrep.grade = self.grade.text()
+        self.fitrep.desig = self.desig.text()
+        self.fitrep.ssn = self.ssn.text()
+        self.fitrep.group = self.group.currentText()
+        self.fitrep.uic = self.uic.text()
+        self.fitrep.station = self.station.text()
+        self.fitrep.promotion_status = self.promotion_status.currentText()
+        self.fitrep.date_reported = self.date_reported.date().toPython()
+        self.fitrep.periodic = self.periodic.isChecked()
+        self.fitrep.det_indiv = self.det_indiv.isChecked()
+        self.fitrep.det_rs = self.det_rs.isChecked()
+        self.fitrep.special = self.special.isChecked()
+        self.fitrep.period_start = self.period_start.date().toPython()
+        self.fitrep.period_end = self.period_end.date().toPython()
+        self.fitrep.not_observed = self.not_observed.isChecked()
+        self.fitrep.regular = self.regular.isChecked()
+        self.fitrep.concurrent = self.concurrent.isChecked()
+        self.fitrep.ops_cdr = self.ops_cdr.isChecked()
+        self.fitrep.physical_readiness = self.physical_readiness.currentText()
+        self.fitrep.billet_subcategory = self.billet_subcategory.currentText()
+        self.fitrep.senior_name = self.senior_name.text()
+        self.fitrep.senior_grade = self.senior_grade.text()
+        self.fitrep.senior_desig = self.senior_desig.text()
+        self.fitrep.senior_title = self.senior_title.text()
+        self.fitrep.senior_uic = self.senior_uic.text()
+        self.fitrep.senior_ssn = self.senior_ssn.text()
+        self.fitrep.duties_abbreviation = self.duties_abbreviation.text()
+        self.fitrep.duties_description = self.duties_description.text()
+        self.fitrep.job = self.job.toPlainText()
+        self.fitrep.date_counseled = self.date_counseled.date().toPython()
+        self.fitrep.counselor = self.counselor.text()
+        self.fitrep.pro_expertise = perf_traits[self.pro_expertise.currentText()]
+        self.fitrep.cmd_climate = perf_traits[self.cmd_climate.currentText()]
+        self.fitrep.bearing_and_character = perf_traits[self.bearing_and_character.currentText()]
+        self.fitrep.teamwork = perf_traits[self.teamwork.currentText()]
+        self.fitrep.accomp_and_initiative = perf_traits[self.accomp_and_initiative.currentText()]
+        self.fitrep.leadership = perf_traits[self.leadership.currentText()]
+        self.fitrep.tactical_performance = perf_traits[self.tactical_performance.currentText()]
+        self.fitrep.career_rec_1 = self.career_rec_1.toPlainText()
+        self.fitrep.career_rec_2 = self.career_rec_2.toPlainText()
+        self.fitrep.comments = self.comments.toPlainText()
+        self.fitrep.indiv_promo_rec = promotion_recs[self.indiv_promo_rec.currentText()]
+        self.fitrep.senior_address = self.senior_address.toPlainText()

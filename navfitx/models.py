@@ -1,6 +1,6 @@
 import re
 from datetime import date
-from enum import Enum, StrEnum, auto
+from enum import Enum, StrEnum
 
 from pydantic import field_validator
 from sqlmodel import Field, SQLModel
@@ -144,33 +144,29 @@ class Report(SQLModel, table=True):
 
 
 class SummaryGroup(Enum):
-    ACT = auto()
-    TAR = auto()
-    INACT = auto()
-    AT_ADOS = auto()
+    BLANK = ""
+    ACT = "ACT"
+    TAR = "TAR"
+    INACT = "INACT"
+    ATADSW = "ATADSW"
 
 
 class PromotionStatus(StrEnum):
+    BLANK = ""
     REGULAR = "REGULAR"
     FROCKED = "FROCKED"
     SELECTED = "SELECTED"
     SPOT = "SPOT"
 
 
-class OccasionForReport(Enum):
-    PERIODIC = auto()
-    INDIVIDUAL_DETACH = auto()
-    SENIOR_DETACH = auto()
-    SPECIAL = auto()
-
-
-class TypeOfReport(Enum):
-    REGULAR = auto()
-    CONCURRENT = auto()
-    OpsCdr = auto()
+# class TypeOfReport(Enum):
+#     REGULAR = "Regular"
+#     CONCURRENT = "Concurrent"
+#     OpsCdr = "OpsCdr"
 
 
 class PhysicalReadiness(StrEnum):
+    BLANK = ""
     PASS = "P"
     BCA_PASS = "B"
     FAIL = "F"
@@ -180,6 +176,7 @@ class PhysicalReadiness(StrEnum):
 
 
 class BilletSubcategory(StrEnum):
+    BLANK = ""
     NA = "NA"
     BASIC = "BASIC"
     APPROVED = "APPROVED"
@@ -220,16 +217,16 @@ class BilletSubcategory(StrEnum):
 
 
 class PromotionRecommendation(Enum):
-    NOB = auto()
-    SIGNIFICANT_PROBLEMS = auto()
-    PROGRESSING = auto()
-    PROMOTABLE = auto()
-    MUST_PROMOTE = auto()
-    EARLY_PROMOTE = auto()
+    NOB = 0
+    SIGNIFICANT_PROBLEMS = 1
+    PROGRESSING = 2
+    PROMOTABLE = 3
+    MUST_PROMOTE = 4
+    EARLY_PROMOTE = 5
 
 
 class Fitrep(SQLModel, table=True):
-    id: int = Field(primary_key=True)
+    id: int = Field(primary_key=True, default=None)
     name: str = ""
     grade: str = ""
     desig: str = ""
@@ -237,15 +234,20 @@ class Fitrep(SQLModel, table=True):
     group: SummaryGroup | None = None
     uic: str = ""
     station: str = ""
-    promotion_status: PromotionStatus | None = None
+    promotion_status: PromotionStatus = PromotionStatus.BLANK
     date_reported: date | None = None
-    occasion_for_report: OccasionForReport | None = None
+    periodic: bool = False
+    det_indiv: bool = False
+    det_rs: bool = False
+    special: bool = False
     period_start: date | None = None
     period_end: date | None = None
     not_observed: bool = False
-    type_of_report: int | None = None
-    physical_readiness: PhysicalReadiness | None = None
-    billet_subcategory: BilletSubcategory | None = None
+    regular: bool = False
+    concurrent: bool = False
+    ops_cdr: bool = False
+    physical_readiness: PhysicalReadiness = PhysicalReadiness.BLANK
+    billet_subcategory: BilletSubcategory = BilletSubcategory.BLANK
     senior_name: str = ""
     senior_grade: str = ""
     senior_desig: str = ""
@@ -267,7 +269,7 @@ class Fitrep(SQLModel, table=True):
     career_rec_1: str = ""
     career_rec_2: str = ""
     comments: str = ""
-    indiv_promo_rec: PromotionRecommendation | None = None
+    indiv_promo_rec: int | None = None
     # summary_promo_rec: int = Field(default_factory=list)
     senior_address: str = ""
 
@@ -332,18 +334,18 @@ class Fitrep(SQLModel, table=True):
         return promotion_status
 
     @classmethod
-    @field_validator("occasion_for_report")
-    def validate_occasion_for_report(cls, occasion_for_report: int | None) -> int:
-        if occasion_for_report is None:
-            raise ValueError("Occasion for Report must be specified.")
-        return occasion_for_report
-
-    @classmethod
     @field_validator("billet_subcategory")
     def validate_billet_subcategory(cls, billet_subcategory: BilletSubcategory | None) -> BilletSubcategory:
         if billet_subcategory is None:
             raise ValueError("Billet Subcategory must be specified.")
         return billet_subcategory
+
+    @classmethod
+    @field_validator("career_rec_2", "career_rec_1")
+    def validate_career_rec(cls, career_rec: str) -> str:
+        if len(career_rec) > 20:
+            raise ValueError("Career Recommendation must be 20 characters or less (including whitespace).")
+        return career_rec
 
     def member_trait_avg(self) -> str:
         traits = [

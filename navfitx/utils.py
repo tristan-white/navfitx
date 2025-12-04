@@ -32,7 +32,6 @@ def get_icon_path() -> Path:
     The file is extracted to a temporary location if the package is zipped.
     """
     with resources.path("navfitx.data", "navfit98.ico") as icon_path:
-        print(type(icon_path), icon_path)
         return icon_path
 
 
@@ -145,8 +144,13 @@ def add_report_to_db(db_path: Path, report: Report):
 
 def add_fitrep_to_db(db_path: Path, fitrep: Fitrep):
     engine = create_engine(f"sqlite:///{db_path}")
-    print(f"fitrep to add: {fitrep}")
     with Session(engine) as session:
+        # if fitrep.id is not None:
+        #     db_fitrep = session.get(Fitrep, fitrep.id)
+        #     for key, value in fitrep.model_dump().items():
+        #         setattr(db_fitrep, key, value)
+        #     session.add(db_fitrep)
+        # else:
         session.add(fitrep)
         session.commit()
 

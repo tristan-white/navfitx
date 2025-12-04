@@ -13,13 +13,34 @@ from navfitx.utils import get_blank_report_path
 from .models import (
     BilletSubcategory,
     Fitrep,
-    OccasionForReport,
     PhysicalReadiness,
     PromotionRecommendation,
     PromotionStatus,
     SummaryGroup,
-    TypeOfReport,
 )
+
+
+def format_comments(txt: str) -> str:
+    """
+    Format the Comments on Performance text so that it conforms to the constraints:
+    - Max of 92 chars per line (not including newlines)
+    - Max of 18 lines
+
+    Note:
+        Soley using the wrap or fill function from the textwrap module to format the comments completely
+        isn't quite sufficient because it doesn't appropriately handle cases when users want
+        to add empty lines to the comments. The textwrap module by default eliminates newlines. This behavior
+        can be disabled, but then newlines are counted as characters that count towards the character limit
+        for each line. This function handles each situation appropriately.
+    """
+    parts = txt.split("\n")
+    all_lines = []
+    for part in parts:
+        lines = textwrap.wrap(part, 92)
+        if not lines:
+            lines = [""]
+        all_lines.extend(lines)
+    return "\n".join(all_lines)
 
 
 def wrap_duty_desc(text: str) -> str:
@@ -54,13 +75,13 @@ def get_group_point(fitrep: Fitrep) -> Point | None:
 
 def get_occasion_points(fitrep: Fitrep) -> set[Point]:
     ret: set[Point] = set()
-    if OccasionForReport.PERIODIC == fitrep.occasion_for_report:
+    if fitrep.periodic:
         ret.add(Point(76, 88))
-    if OccasionForReport.INDIVIDUAL_DETACH == fitrep.occasion_for_report:
+    if fitrep.det_indiv:
         ret.add(Point(157, 88))
-    if OccasionForReport.SENIOR_DETACH == fitrep.occasion_for_report:
+    if fitrep.det_rs:
         ret.add(Point(251, 88))
-    if OccasionForReport.SPECIAL == fitrep.occasion_for_report:
+    if fitrep.special:
         ret.add(Point(329, 88))
     return ret
 
@@ -124,7 +145,7 @@ def get_perfomance_points(fitrep: Fitrep) -> set[Point]:
             ret.add(Point(414, 655))
         case 5:
             ret.add(Point(551, 655))
-    match fitrep.leadership:
+    match fitrep.accomp_and_initiative:
         case 0:
             ret.add(Point(76, 739))
         case 1:
@@ -265,7 +286,7 @@ def create_fitrep_pdf(fitrep: Fitrep, path: Path) -> None:
 
     back.insert_text(
         Point(34, 354),
-        fitrep.comments,
+        format_comments(fitrep.comments),
         fontsize=9.2,
         fontname="Cour",
     )
@@ -273,37 +294,14 @@ def create_fitrep_pdf(fitrep: Fitrep, path: Path) -> None:
     back.insert_text(Point(388, 586), fitrep.senior_address, fontsize=9, fontname="Cour", lineheight=1.1)
     back.insert_text(Point(105, 694), fitrep.member_trait_avg(), fontsize=12, fontname="Cour")
     back.insert_text(Point(240, 694), fitrep.summary_group_avg(), fontsize=12, fontname="Cour")
-    back.insert_text(Point(370, 300), fitrep.career_rec_1, fontsize=10, fontname="Cour")
-    back.insert_text(Point(467, 300), fitrep.career_rec_2, fontsize=10, fontname="Cour")
+    back.insert_text(Point(370, 300), textwrap.fill(fitrep.career_rec_1, 13), fontsize=10, fontname="Cour")
+    back.insert_text(Point(467, 300), textwrap.fill(fitrep.career_rec_2, 13), fontsize=10, fontname="Cour")
 
     doc.save(str(path))
     doc.close()
 
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
-
-
-def format_comments(txt: str) -> str:
-    """
-    Format the Comments on Performance text so that it conforms to the constraints:
-    - Max of 92 chars per line (not including newlines)
-    - Max of 18 lines
-
-    Note:
-        Soley using the wrap or fill function from the textwrap module to format the comments completely
-        isn't quite sufficient because it doesn't handle appropriately handle cases when users want
-        to add newlines to the comments. The textwrap module by default eliminates newlines. This can be
-        disabled, but then newlines are counted as characters that count towards the character limit for
-        each line. This function handles each situation appropriately.
-    """
-    parts = txt.split("\n")
-    all_lines = []
-    for part in parts:
-        lines = textwrap.wrap(part, 92)
-        if not lines:
-            lines = [""]
-        all_lines.extend(lines)
-    return "\n".join(all_lines)
 
 
 @app.command()
@@ -328,18 +326,15 @@ def overlay_fitrep(
         group=SummaryGroup.AT_ADOS,
         promotion_status=PromotionStatus.REGULAR,
         date_reported=date(2022, 9, 9),
-        occasion_for_report={
-            OccasionForReport.PERIODIC,
-            OccasionForReport.INDIVIDUAL_DETACH,
-            OccasionForReport.SPECIAL,
-            OccasionForReport.SENIOR_DETACH,
-        },
+        periodic=True,
+        det_indiv=True,
+        det_rs=True,
+        special=False,
         period_start=date(2024, 5, 27),
         period_end=date(2025, 2, 28),
         # not_observed=True,
         physical_readiness=PhysicalReadiness.PASS,
         billet_subcategory=BilletSubcategory.NA,
-        type_of_report={TypeOfReport.REGULAR},
         senior_name="LAST, FI MI",
         senior_grade="CAPT",
         senior_desig="1810",
