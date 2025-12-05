@@ -41,6 +41,11 @@ def get_idx_for_str_enum(strenum_cls: type[StrEnum], value: str) -> int | None:
     return None
 
 
+class NoScrollComboBox(QComboBox):
+    def wheelEvent(self, event):
+        event.ignore()
+
+
 class ExampleValidator(QValidator):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -120,7 +125,10 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(QLabel("4. SSN"), 1, 2)
         grid_layout.addWidget(self.ssn, 1, 3)
 
-        self.group = QComboBox()
+        self.group = NoScrollComboBox()
+        # AT/ADSW/265 does not match the ATADSW option in BUPERS, the NAVFIT98 user guide, nor
+        # the NAVFIT98 .accdb database, but it is what is shown on paper reports themselves,
+        # so it's used here to look the same as the form.
         self.group.addItems(["ACT", "TAR", "INACT", "AT/ADSW/265"])
         grid_layout.addWidget(QLabel("5. Group"), 2, 0)
         grid_layout.addWidget(self.group, 2, 1)
@@ -150,36 +158,20 @@ class FitrepForm(QWidget):
             m = self.fitrep.date_reported.month
             d = self.fitrep.date_reported.day
             self.date_reported.setDate(QDate(y, m, d))
-        grid_layout.addWidget(QLabel("Date Reported"), 4, 0)
+        grid_layout.addWidget(QLabel("9. Date Reported"), 4, 0)
         grid_layout.addWidget(self.date_reported, 4, 1)
 
-        group_box = QGroupBox("Type of Report")
-        self.regular = QCheckBox("Regular")
-        self.regular.setChecked(self.fitrep.regular)
-        self.concurrent = QCheckBox("Concurrent")
-        self.concurrent.setChecked(self.fitrep.concurrent)
-        self.concurrent.checkStateChanged.connect(self.validate_concurrent)
-        self.ops_cdr = QCheckBox("OpsCdr")
-        self.ops_cdr.setChecked(self.fitrep.ops_cdr)
-        self.ops_cdr.checkStateChanged.connect(self.validate_ops_cdr)
-        hbox = QHBoxLayout()
-        hbox.addWidget(self.regular)
-        hbox.addWidget(self.concurrent)
-        hbox.addWidget(self.ops_cdr)
-        group_box.setLayout(hbox)
-        grid_layout.addWidget(group_box, 5, 0, 1, 2)
-
         group_box = QGroupBox("Occasion for Report")
-        self.periodic = QCheckBox("Periodic")
+        self.periodic = QCheckBox("10. Periodic")
         self.periodic.setChecked(self.fitrep.periodic)
         self.periodic.checkStateChanged.connect(self.validate_occasion)
-        self.det_indiv = QCheckBox("Detachment of Individual")
+        self.det_indiv = QCheckBox("11. Detachment of Individual")
         self.det_indiv.setChecked(self.fitrep.det_indiv)
         self.det_indiv.checkStateChanged.connect(self.validate_occasion)
-        self.det_rs = QCheckBox("Detachment of Reporting Senior")
+        self.det_rs = QCheckBox("12. Detachment of Reporting Senior")
         self.det_rs.setChecked(self.fitrep.det_rs)
         self.det_rs.checkStateChanged.connect(self.validate_occasion)
-        self.special = QCheckBox("Special")
+        self.special = QCheckBox("13. Special")
         self.special.setChecked(self.fitrep.special)
         self.special.checkStateChanged.connect(self.validate_special)
         vbox = QHBoxLayout()
@@ -188,7 +180,7 @@ class FitrepForm(QWidget):
         vbox.addWidget(self.det_rs)
         vbox.addWidget(self.special)
         group_box.setLayout(vbox)
-        grid_layout.addWidget(group_box, 5, 2, 1, 2)
+        grid_layout.addWidget(group_box, 4, 2, 1, 2)
 
         self.period_start = QDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")
         if self.fitrep.period_start:
@@ -196,7 +188,7 @@ class FitrepForm(QWidget):
             m = self.fitrep.period_start.month
             d = self.fitrep.period_start.day
             self.period_start.setDate(QDate(y, m, d))
-        grid_layout.addWidget(QLabel("Period Start"), 6, 0)
+        grid_layout.addWidget(QLabel("14. Period Start"), 6, 0)
         grid_layout.addWidget(self.period_start, 6, 1)
 
         self.period_end = QDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")
@@ -205,20 +197,36 @@ class FitrepForm(QWidget):
             m = self.fitrep.period_end.month
             d = self.fitrep.period_end.day
             self.period_end.setDate(QDate(y, m, d))
-        grid_layout.addWidget(QLabel("Period End"), 6, 2)
+        grid_layout.addWidget(QLabel("15. Period End"), 6, 2)
         grid_layout.addWidget(self.period_end, 6, 3)
 
         self.not_observed = QCheckBox()
         self.not_observed.setChecked(self.fitrep.not_observed)
-        grid_layout.addWidget(QLabel("Not Observed Report"), 7, 0)
+        grid_layout.addWidget(QLabel("16. Not Observed Report"), 7, 0)
         grid_layout.addWidget(self.not_observed, 7, 1)
+
+        group_box = QGroupBox("Type of Report")
+        self.regular = QCheckBox("17. Regular")
+        self.regular.setChecked(self.fitrep.regular)
+        self.concurrent = QCheckBox("18. Concurrent")
+        self.concurrent.setChecked(self.fitrep.concurrent)
+        self.concurrent.checkStateChanged.connect(self.validate_concurrent)
+        self.ops_cdr = QCheckBox("19. OpsCdr")
+        self.ops_cdr.setChecked(self.fitrep.ops_cdr)
+        self.ops_cdr.checkStateChanged.connect(self.validate_ops_cdr)
+        hbox = QHBoxLayout()
+        hbox.addWidget(self.regular)
+        hbox.addWidget(self.concurrent)
+        hbox.addWidget(self.ops_cdr)
+        group_box.setLayout(hbox)
+        grid_layout.addWidget(group_box, 7, 2, 1, 2)
 
         self.physical_readiness = QComboBox()
         self.physical_readiness.addItems([member.value for member in PhysicalReadiness])
         self.physical_readiness.setCurrentIndex(
             get_idx_for_str_enum(PhysicalReadiness, self.fitrep.physical_readiness) or 0
         )
-        grid_layout.addWidget(QLabel("Physical Readiness"), 8, 0)
+        grid_layout.addWidget(QLabel("20. Physical Readiness"), 8, 0)
         grid_layout.addWidget(self.physical_readiness, 8, 1)
 
         self.billet_subcategory = QComboBox()
@@ -226,55 +234,57 @@ class FitrepForm(QWidget):
         self.billet_subcategory.setCurrentIndex(
             get_idx_for_str_enum(BilletSubcategory, self.fitrep.billet_subcategory) or 0
         )
-        grid_layout.addWidget(QLabel("Billet Subcategory"), 8, 2)
+        grid_layout.addWidget(QLabel("21. Billet Subcategory"), 8, 2)
         grid_layout.addWidget(self.billet_subcategory, 8, 3)
 
         self.senior_name = QLineEdit()
         self.senior_name.setText(self.fitrep.senior_name)
         self.senior_name.setPlaceholderText("LAST, FI MI")
-        grid_layout.addWidget(QLabel("Reporting Senior Name"), 9, 0)
+        grid_layout.addWidget(QLabel("22. Reporting Senior Name"), 9, 0)
         grid_layout.addWidget(self.senior_name, 9, 1)
 
         self.senior_grade = QLineEdit()
         self.senior_grade.setText(self.fitrep.senior_grade)
-        grid_layout.addWidget(QLabel("Reporting Senior Grade"), 9, 2)
+        grid_layout.addWidget(QLabel("23. Reporting Senior Grade"), 9, 2)
         grid_layout.addWidget(self.senior_grade, 9, 3)
 
         self.senior_desig = QLineEdit()
         self.senior_desig.setText(self.fitrep.senior_desig)
-        grid_layout.addWidget(QLabel("Reporting Senior Designator"), 10, 0)
+        grid_layout.addWidget(QLabel("24. Reporting Senior Designator"), 10, 0)
         grid_layout.addWidget(self.senior_desig, 10, 1)
 
         self.senior_title = QLineEdit()
         self.senior_title.setText(self.fitrep.senior_title)
-        grid_layout.addWidget(QLabel("Reporting Senior Title"), 10, 2)
+        grid_layout.addWidget(QLabel("25. Reporting Senior Title"), 10, 2)
         grid_layout.addWidget(self.senior_title, 10, 3)
 
         self.senior_uic = QLineEdit()
         self.senior_uic.setText(self.fitrep.senior_uic)
-        grid_layout.addWidget(QLabel("Reporting Senior UIC"), 11, 0)
+        grid_layout.addWidget(QLabel("26. Reporting Senior UIC"), 11, 0)
         grid_layout.addWidget(self.senior_uic, 11, 1)
 
         self.senior_ssn = QLineEdit()
         self.senior_ssn.setText(self.fitrep.senior_ssn)
-        grid_layout.addWidget(QLabel("Reporting Senior SSN"), 11, 2)
+        grid_layout.addWidget(QLabel("27. Reporting Senior SSN"), 11, 2)
         grid_layout.addWidget(self.senior_ssn, 11, 3)
-
-        self.duties_abbreviation = QLineEdit()
-        self.duties_abbreviation.setText(self.fitrep.duties_abbreviation)
-        self.duties_abbreviation.editingFinished.connect(self.validate_duties_abbreviation)
-        grid_layout.addWidget(QLabel("Primary Duty Abbreviation"), 12, 0)
-        grid_layout.addWidget(self.duties_abbreviation, 12, 1)
-
-        self.duties_description = QLineEdit()
-        self.duties_description.setText(self.fitrep.duties_description)
-        grid_layout.addWidget(QLabel("Primary/Collateral/Watchstanding Duties"), 12, 2)
-        grid_layout.addWidget(self.duties_description, 12, 3)
 
         self.job = QTextEdit()
         self.job.setText(self.fitrep.job)
-        grid_layout.addWidget(QLabel("Command Employment and\nCommand Achievements"), 13, 0)
-        grid_layout.addWidget(self.job, 13, 1, 1, 3)
+        grid_layout.addWidget(QLabel("28. Command Employment and\nCommand Achievements"), 12, 0)
+        grid_layout.addWidget(self.job, 12, 1, 1, 3)
+
+        self.duties_abbreviation = QLineEdit()
+        self.duties_abbreviation.setPlaceholderText("(14 characters max)")
+        self.duties_abbreviation.setMaxLength(14)
+        self.duties_abbreviation.setText(self.fitrep.duties_abbreviation)
+        # self.duties_abbreviation.editingFinished.connect(self.validate_duties_abbreviation)
+        grid_layout.addWidget(QLabel("Primary Duty Abbreviation"), 13, 0)
+        grid_layout.addWidget(self.duties_abbreviation, 13, 1)
+
+        self.duties_description = QLineEdit()
+        self.duties_description.setText(self.fitrep.duties_description)
+        grid_layout.addWidget(QLabel("Primary/Collateral/Watchstanding Duties"), 13, 2)
+        grid_layout.addWidget(self.duties_description, 13, 3)
 
         self.date_counseled = QDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")
         if self.fitrep.date_counseled:
@@ -547,18 +557,6 @@ class FitrepForm(QWidget):
                 "Note: 'SPECIAL' subcategories are only permitted use with Commander, Navy Personnel Command approval.",
                 QMessageBox.StandardButton.Ok,
             )
-
-    @Slot()
-    def validate_duties_abbreviation(self):
-        text = self.duties_abbreviation.text()
-        if text.isalnum() and len(text) <= 14:
-            return
-        QMessageBox.information(
-            self,
-            "Duty Abbreviation Validation",
-            "The abbreviation for the primary duty in the small box in block 29 may only contain up to 14 alphanumeric characters.",
-            QMessageBox.StandardButton.Ok,
-        )
 
     def print(self):
         self.save_form()

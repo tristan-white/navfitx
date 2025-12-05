@@ -55,6 +55,12 @@ def wrap_duty_desc(text: str) -> str:
     return text
 
 
+def format_job(text: str) -> str:
+    """Formats the 'Command employment and command achievements' to fit within the constraints of the FITREP form."""
+    text = textwrap.fill(text, width=91)
+    return text
+
+
 def format_date(dt: date | None) -> str:
     """Formats a date object into the Fitrep date format (YYMMMDD)."""
     if not dt:
@@ -69,8 +75,9 @@ def get_group_point(fitrep: Fitrep) -> Point | None:
         return Point(63, 64)
     if fitrep.group == SummaryGroup.INACT:
         return Point(92, 64)
-    if fitrep.group == SummaryGroup.AT_ADOS:
+    if fitrep.group == SummaryGroup.ATADSW:
         return Point(120, 64)
+    return None
 
 
 def get_occasion_points(fitrep: Fitrep) -> set[Point]:
@@ -227,6 +234,9 @@ def create_fitrep_pdf(fitrep: Fitrep, path: Path) -> None:
     """Fills out a FITREP PDF report with the provided FITREP data."""
     blank_fitrep = get_blank_report_path("fitrep")
     doc = pymupdf.open(str(blank_fitrep))
+    meta = doc.metadata
+    meta["title"] = f"FITREP - {fitrep.name}"
+    doc.set_metadata(meta)
     front = doc[0]
     back = doc[1]
     front.insert_text(Point(22, 43), fitrep.name, fontsize=12, fontname="Cour")
@@ -267,7 +277,7 @@ def create_fitrep_pdf(fitrep: Fitrep, path: Path) -> None:
     front.insert_text(Point(405, 140), fitrep.senior_uic, fontsize=12, fontname="Cour")
     front.insert_text(Point(461, 140), fitrep.senior_ssn, fontsize=12, fontname="Cour")
 
-    front.insert_text(Point(24, 164), fitrep.job, fontsize=10, fontname="Cour", lineheight=1.0)
+    front.insert_text(Point(24, 164), format_job(fitrep.job), fontsize=10, fontname="Cour", lineheight=1.0)
     front.insert_text(Point(28, 212), fitrep.duties_abbreviation, fontsize=12, fontname="Cour")
 
     duties_desc = wrap_duty_desc(fitrep.duties_description)
@@ -308,6 +318,9 @@ app = typer.Typer(no_args_is_help=True, add_completion=False)
 def overlay_fitrep(
     output: Annotated[Path, typer.Option(help="Path to the output file", dir_okay=False, writable=True)],
 ):
+    """
+    Test creating a FITREP PDF with hardcoded data.
+    """
     comments = (
         "*MY #5 OF 19 LTJGs AMONG VERY COMPETITIVE PEERS! EXTREMELY TALENTED LEADER AND DEVELOPER!*\n\n"
         "-MULTIDISCIPLINARY EXPERT. Actively identifies rare, high-demand skills to address key expertise gaps. Utilizes self-taught methods to reverse-engineer computer hardware, overcoming obstacles to critical vulnerability research and exploit development essential to mission success. Developed a solution to a major data analytics problem that had significantly impacted mission operations.\n"
@@ -323,7 +336,7 @@ def overlay_fitrep(
         ssn="123-45-6789",
         uic="46439",
         station="NAVCYBERWARDEVGRU",
-        group=SummaryGroup.AT_ADOS,
+        group=SummaryGroup.ATADSW,
         promotion_status=PromotionStatus.REGULAR,
         date_reported=date(2022, 9, 9),
         periodic=True,
@@ -332,7 +345,7 @@ def overlay_fitrep(
         special=False,
         period_start=date(2024, 5, 27),
         period_end=date(2025, 2, 28),
-        # not_observed=True,
+        not_observed=True,
         physical_readiness=PhysicalReadiness.PASS,
         billet_subcategory=BilletSubcategory.NA,
         senior_name="LAST, FI MI",

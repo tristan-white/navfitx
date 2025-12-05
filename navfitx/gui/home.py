@@ -123,7 +123,7 @@ class Home(QMainWindow):
         # save_action = file_menu.addAction("Save")
         # save_action.triggered.connect(self.submit_form)
 
-        print_action = file_menu.addAction("Print")
+        print_action = file_menu.addAction("Export as PDF")
         print_action.triggered.connect(self.fitrep_form.print)
         close_action = file_menu.addAction("Close")
         close_action.triggered.connect(self.set_index_to_home)
@@ -196,15 +196,17 @@ class Home(QMainWindow):
         layout = QVBoxLayout(widget)
 
         # folder tree
-        folder_tree = self.create_folder_tree()
+        # folder_tree = self.create_folder_tree()
+        # layout.addWidget(folder_tree)
+
         # reports table
         self.refresh_reports_table()
+        layout.addWidget(QLabel("Reports"))
+
         # buttons
         buttons_groupbox = self.create_buttons_groupbox()
-
-        layout.addWidget(folder_tree)
-        layout.addWidget(QLabel("Reports"))
         layout.addWidget(self.reports_table)
+
         layout.addWidget(buttons_groupbox)
 
         return widget
