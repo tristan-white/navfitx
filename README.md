@@ -18,15 +18,15 @@ See [here](./docs/navfitx.pdf) for more information about why NAVFIT98 needs to 
 
 The quickest way to use navfitx is to use [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
-Open a terminal on your computer and copy and paste two commands into it. On Windows, open powershell. On MacOS, open Terminal. (If you're on linux, you don't need help)
+Open a terminal (or powershell on Windows) on your computer and copy and paste two commands into it:
 
 1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/):
     - Windows: `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`
     - MacOS or Linux: `curl -LsSf https://astral.sh/uv/install.sh | sh`
 2. Close your terminal, then reopen it and run: `uvx navfitx` to launch NAVFITX.
 
-> NOTE:
-> If you see the error `This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.`, install `libxcb-cursor0`, then run again.
+> NOTE for Linux :
+> f you see the error `This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.`, do a `sudo apt install libxcb-cursor0`, then run again.
 > If you see the error `ImportError: libodbc.so.2: cannot open shared object file: No such file or directory`, install unixodbc: `sudo apt install unixodbc`.
 
 ## Help NAVFITX Succeed

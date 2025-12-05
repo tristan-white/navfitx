@@ -232,10 +232,6 @@ class Fitrep(SQLModel, table=True):
     desig: str = ""
     ssn: str = ""
     group: SummaryGroup = SummaryGroup.BLANK
-    # active: bool = False
-    # tar: bool = False
-    # inactive: bool = False
-    # atadsw: bool = False
     uic: str = ""
     station: str = ""
     promotion_status: PromotionStatus = PromotionStatus.BLANK
@@ -375,8 +371,10 @@ class Fitrep(SQLModel, table=True):
     def summary_group_avg(self) -> str:
         """
         Get the text representation of the summary group average.
+
+        TODO: Get avg of all fitreps with same summary group field.
         """
-        return "0.00"
+        return self.member_trait_avg()
 
     def generate_report(self) -> Report:
         return Report(

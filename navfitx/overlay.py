@@ -1,21 +1,15 @@
 import textwrap
-import webbrowser
 from datetime import date
 from pathlib import Path
 
 import pymupdf
-import typer
 from pymupdf import Point
-from typing_extensions import Annotated
 
 from navfitx.utils import get_blank_report_path
 
 from .models import (
-    BilletSubcategory,
     Fitrep,
-    PhysicalReadiness,
     PromotionRecommendation,
-    PromotionStatus,
     SummaryGroup,
 )
 
@@ -91,11 +85,6 @@ def get_occasion_points(fitrep: Fitrep) -> set[Point]:
     if fitrep.special:
         ret.add(Point(329, 88))
     return ret
-
-
-# def get_type_of_report_point(fitrep: Fitrep) -> Point:
-#     if TypeOfReport.REGULAR == fitrep.type_of_report:
-#         return Point(76, 130)
 
 
 def get_perfomance_points(fitrep: Fitrep) -> set[Point]:
@@ -205,29 +194,28 @@ def get_promo_rec_point(fitrep: Fitrep) -> Point:
     Promotion Reccomendation.
     """
     match fitrep.indiv_promo_rec:
-        case PromotionRecommendation.NOB:
+        case PromotionRecommendation.NOB.value:
             return Point(101, 606)
-        case PromotionRecommendation.SIGNIFICANT_PROBLEMS:
+        case PromotionRecommendation.SIGNIFICANT_PROBLEMS.value:
             return Point(151, 606)
-        case PromotionRecommendation.PROGRESSING:
+        case PromotionRecommendation.PROGRESSING.value:
             return Point(202, 606)
-        case PromotionRecommendation.PROMOTABLE:
+        case PromotionRecommendation.PROMOTABLE.value:
             return Point(253, 606)
-        case PromotionRecommendation.MUST_PROMOTE:
+        case PromotionRecommendation.MUST_PROMOTE.value:
             return Point(304, 606)
-        case PromotionRecommendation.EARLY_PROMOTE:
+        case PromotionRecommendation.EARLY_PROMOTE.value:
             return Point(355, 606)
         case _:
-            raise Exception()
+            raise ValueError("Fitrep has no Promotion Recommendation set.")
 
 
 def create_eval_pdf():
-    """Fills out an Eval PDF with the provided Eval data."""
+    """Fills out an Eval PDF with the provided Eval data.
+
+    TODO: Implement this function.
+    """
     pass
-    # blank_eval = get_blank_report_path("eval")
-    # doc = pymupdf.open(str(blank_eval))
-    # front = doc[0]
-    # back = doc[1]
 
 
 def create_fitrep_pdf(fitrep: Fitrep, path: Path) -> None:
@@ -235,11 +223,11 @@ def create_fitrep_pdf(fitrep: Fitrep, path: Path) -> None:
     blank_fitrep = get_blank_report_path("fitrep")
     doc = pymupdf.open(str(blank_fitrep))
     meta = doc.metadata
-    meta["title"] = f"FITREP - {fitrep.name}"
+    meta["title"] = f"FITREP for {fitrep.name}"
     doc.set_metadata(meta)
     front = doc[0]
     back = doc[1]
-    front.insert_text(Point(22, 43), fitrep.name, fontsize=12, fontname="Cour")
+    front.insert_text(Point(22, 43), fitrep.name, fontsize=12, fontname="cour")
     back.insert_text(Point(22, 43), fitrep.name, fontsize=12, fontname="Cour")
     front.insert_text(Point(292, 43), fitrep.grade, fontsize=12, fontname="Cour")
     back.insert_text(Point(292, 43), fitrep.grade, fontsize=12, fontname="Cour")
@@ -301,6 +289,9 @@ def create_fitrep_pdf(fitrep: Fitrep, path: Path) -> None:
         fontname="Cour",
     )
 
+    if fitrep.indiv_promo_rec is not None:
+        back.insert_text(get_promo_rec_point(fitrep), "X", fontsize=12, fontname="Cour")
+
     back.insert_text(Point(388, 586), fitrep.senior_address, fontsize=9, fontname="Cour", lineheight=1.1)
     back.insert_text(Point(105, 694), fitrep.member_trait_avg(), fontsize=12, fontname="Cour")
     back.insert_text(Point(240, 694), fitrep.summary_group_avg(), fontsize=12, fontname="Cour")
@@ -309,67 +300,3 @@ def create_fitrep_pdf(fitrep: Fitrep, path: Path) -> None:
 
     doc.save(str(path))
     doc.close()
-
-
-app = typer.Typer(no_args_is_help=True, add_completion=False)
-
-
-@app.command()
-def overlay_fitrep(
-    output: Annotated[Path, typer.Option(help="Path to the output file", dir_okay=False, writable=True)],
-):
-    """
-    Test creating a FITREP PDF with hardcoded data.
-    """
-    comments = (
-        "*MY #5 OF 19 LTJGs AMONG VERY COMPETITIVE PEERS! EXTREMELY TALENTED LEADER AND DEVELOPER!*\n\n"
-        "-MULTIDISCIPLINARY EXPERT. Actively identifies rare, high-demand skills to address key expertise gaps. Utilizes self-taught methods to reverse-engineer computer hardware, overcoming obstacles to critical vulnerability research and exploit development essential to mission success. Developed a solution to a major data analytics problem that had significantly impacted mission operations.\n"
-        "-DISTINGUISHED TECHNICAL LEADER. Hand-selected to join a team of senior developers at a partner site; promptly received recognition from partner's Commanding Officer for exceptional contributions, then solicited to apply for an O3 billet despite current grade of O2. Following these successes, chosen by leadership to be a Division Officer to lead Sailors at partner site, enhancing department's capacity to adapt to evolving requirements.\n"
-        "-PROACTIVE LEARNER. Dedicated substantial personal time to obtain the industry's leading certificate in offensive security; resulted in qualification of key role within partner organization and increased department's capacity to meet operational requirements.\n\n"
-        "PRESS 100 NOW"
-    )
-    lines = format_comments(comments)
-    fitrep = Fitrep(
-        name="WHITE, TRISTAN K",
-        rate="LTJG",
-        desig="1840",
-        ssn="123-45-6789",
-        uic="46439",
-        station="NAVCYBERWARDEVGRU",
-        group=SummaryGroup.ATADSW,
-        promotion_status=PromotionStatus.REGULAR,
-        date_reported=date(2022, 9, 9),
-        periodic=True,
-        det_indiv=True,
-        det_rs=True,
-        special=False,
-        period_start=date(2024, 5, 27),
-        period_end=date(2025, 2, 28),
-        not_observed=True,
-        physical_readiness=PhysicalReadiness.PASS,
-        billet_subcategory=BilletSubcategory.NA,
-        senior_name="LAST, FI MI",
-        senior_grade="CAPT",
-        senior_desig="1810",
-        senior_title="CO",
-        senior_uic="46439",
-        senior_ssn="123-45-6789",
-        job="Conducts information and Cyber Warfare R&D, intelligence, and operations. Develops deep\ntechnial understanding of adversary systems, discovers vulnerabilities, and builds\ncountermeasures using rapid prototyping and acquisition authorities.",
-        duties_abbreviation="12345678901234",
-        duties_description="Division Officer-3. Led four sailors in daily execution of Naval and Joint missions. Cyberspace Operations (CO) Developer-12. Researches technologies and develops custom cyber tools to support Navy and national level mission priorities. Cyber Operator Trainee-2. PFA: CY2024.",
-        date_counseled=date(2024, 5, 15),
-        counselor="LAST, FIRST MI",
-        pro_expertise=3,
-        bearing_and_character=4,
-        cmd_climate=4,
-        teamwork=5,
-        accomp_and_initiative=4,
-        leadership=5,
-        tactical_performance=3,
-        career_rec_1="1234567890123\n1234567",
-        career_rec_2="1234567890123\n1234567",
-        comments=lines,
-        senior_address="12345\n12345\n12345\n12345\n12345",
-    )
-    create_fitrep_pdf(fitrep, output)
-    webbrowser.open(str(output))

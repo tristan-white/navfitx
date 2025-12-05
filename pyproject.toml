@@ -1,7 +1,7 @@
 [project]
 name = "navfitx"
-version = "0.0.3a0"
-description = "It's like NAVFIT98, but not as bad."
+version = "0.0.1a1"
+description = "it's like NAVFIT98 but better"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
