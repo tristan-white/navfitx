@@ -1,6 +1,6 @@
 [project]
 name = "navfitx"
-version = "0.0.2"
+version = "0.0.1a1"
 description = "It's like NAVFIT98, but not as bad."
 readme = "README.md"
 requires-python = ">=3.13"
