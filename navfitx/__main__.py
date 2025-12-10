@@ -5,9 +5,7 @@ from typing_extensions import Annotated
 
 from navfitx.gui import app as gui_app
 
-# from navfitx.utils import app as utils_app
-
-app = typer.Typer(no_args_is_help=True, add_completion=False)
+app = typer.Typer(add_completion=False)
 
 
 def version_callback(value: bool):
@@ -16,8 +14,9 @@ def version_callback(value: bool):
         raise typer.Exit()
 
 
-@app.callback()
+@app.callback(invoke_without_command=True)
 def callback(
+    ctx: typer.Context,
     version: Annotated[
         bool,
         typer.Option(
@@ -35,7 +34,9 @@ def callback(
 
     Created by Tristan White
     """
-    pass
+    # With no args, launch the GUI
+    if ctx.invoked_subcommand is None:
+        gui_app()
 
 
 app.add_typer(gui_app)

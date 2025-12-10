@@ -83,6 +83,7 @@ promotion_recs = {
 
 class FitrepForm(QWidget):
     def __init__(self, on_accept: Callable[[Fitrep], None], on_reject: Callable[[], None], fitrep: Fitrep | None):
+        print("creating fitrep form")
         super().__init__()
         self.fitrep = fitrep or Fitrep()
         self.on_accept = on_accept
@@ -153,7 +154,7 @@ class FitrepForm(QWidget):
 
         # Move Date Reported so it appears before Type of Report in the grid
         self.date_reported = QDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")
-        if self.fitrep.date_reported:
+        if self.fitrep.date_reported is not None:
             y = self.fitrep.date_reported.year
             m = self.fitrep.date_reported.month
             d = self.fitrep.date_reported.day
@@ -560,7 +561,7 @@ class FitrepForm(QWidget):
 
     def print(self):
         self.save_form()
-        filename, selected_filter = QFileDialog.getSaveFileName(self, "Choose FITREP PDF Destination", "fitrep.pdf")
+        filename, selected_filter = QFileDialog.getSaveFileName(self, "Export FITREP PDF", "fitrep.pdf")
         if filename:
             create_fitrep_pdf(self.fitrep, Path(filename))
 
@@ -572,6 +573,7 @@ class FitrepForm(QWidget):
         """
         Create a Fitrep class from the data input in the GUI Form.
         """
+        print("form saved")
         self.fitrep.name = self.name.text()
         self.fitrep.grade = self.grade.text()
         self.fitrep.desig = self.desig.text()

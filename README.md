@@ -1,4 +1,4 @@
-> Note: NAVFITX is still in development.
+> Note: NAVFITX is still in development
 
 # NAVFITX
 
@@ -6,24 +6,22 @@ NAVFITX is a drop-in replacement for NAVFIT98A.
 
 See [here](./docs/navfitx.pdf) for more information about why NAVFIT98 needs to be replaced.
 
-| Feature | NAVFIT98A v33 | NAVFITX | 
+| Feature | NAVFIT98 v33 | NAVFITX | 
 |---------|---------------|---------|
 | Export Reports as PDF | ✅ | ✅ |
-| Runs on Windows 7 | ❌ | ❌ |
-| Cross-Platform (Windows/MacOS/Linux) | ❌ | ✅ |
+| Runs on Windows | ✅ | ✅ |
+| Runs on MacOS | ❌ | ✅ |
+| Runs on Linux | ❌ | ✅ |
 | Install & Use w/out Admin Privileges | ❌ | ✅ |
-| Open Source | ❌ | ✅ |
+| What-You-See-Is-What-You-Get (WYSIWYG)<br>for text blocks | ❌ | ✅ | 
+| Export data as sqlite database | ❌ | ✅ |
 
 ## Installation
 
-The quickest way to use navfitx is to use [uv](https://docs.astral.sh/uv/getting-started/installation/).
+The quickest way to use navfitx is to use uv:
 
-Open a terminal (or powershell on Windows) on your computer and copy and paste two commands into it:
-
-1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/):
-    - Windows: `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`
-    - MacOS or Linux: `curl -LsSf https://astral.sh/uv/install.sh | sh`
-2. Close your terminal, then reopen it and run: `uvx navfitx` to launch NAVFITX.
+1. [Install uv](https://docs.astral.sh/uv/getting-started/installation/):
+2. Run `uvx navfitx gui`
 
 > NOTE for Linux :
 > f you see the error `This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.`, do a `sudo apt install libxcb-cursor0`, then run again.
@@ -31,11 +29,9 @@ Open a terminal (or powershell on Windows) on your computer and copy and paste t
 
 ## Help NAVFITX Succeed
 
+If you find a bug, have a question, or have feedback/a request for an enhancement, please create a [new issue](https://github.com/tristan-white/navfitx/issues) to track it.
+
 I'd like to see NAVFITX replace NAFIT98A in the fleet. I'm looking for user testimonials from anyone that's used NAVFIT98A or eNavFit in order to answer the "why is this important" when I make the pitch to current NAVFIT98 stakeholders within the Navy. If you have feedback on these programs, please provide it here:
 
 - [Provide feedback on NAVFIT98A](https://github.com/tristan-white/navfitx/discussions/1)
 - [Provide feedback on eNavFit](https://github.com/tristan-white/navfitx/discussions/2) (if you had the chance to use it before it was shut down)
-
-Also please consider giving this repo a ⭐ to help it gain visibility!
-
-<a href='https://ko-fi.com/Q5Q41PEEPR' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi5.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>

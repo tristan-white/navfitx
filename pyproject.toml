@@ -1,17 +1,15 @@
 [project]
 name = "navfitx"
-version = "0.0.1a1"
+version = "0.0.3a1"
 description = "it's like NAVFIT98 but better"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "pandas>=2.3.3",
     "pydantic>=2.12.3",
     "pymupdf>=1.26.6",
     "pyodbc>=5.2.0",
     "pyside6>=6.9.3",
     "reportlab>=4.4.4",
-    "sqlalchemy>=2.0.44",
     "sqlmodel>=0.0.27",
     "typer>=0.19.2",
 ]

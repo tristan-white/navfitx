@@ -27,6 +27,10 @@ from .fitrep import FitrepForm
 
 
 class Home(QMainWindow):
+    """
+    The main window for the NAVFITX GUI app (ie what is seen when the app is opened).
+    """
+
     def __init__(self):
         super().__init__()
 
@@ -160,6 +164,7 @@ class Home(QMainWindow):
             self.db = Path(filename)
             self.refresh_reports_table()
             self.new_submenu.setDisabled(False)
+            self.create_fitrep_btn.setDisabled(False)
 
     def create_db(self):
         filename, selected_filter = QFileDialog.getSaveFileName(self, "Create Database", "navfitx.db")
@@ -230,7 +235,10 @@ class Home(QMainWindow):
             return None
 
         row = item.row()
-        record_id_item = self.reports_table.item(row, 5)  # assuming Record ID is in column 5
+
+        # (Assumes Record ID is in column 5 of reports table)
+        record_id_item = self.reports_table.item(row, 5)
+
         assert record_id_item is not None
 
         record_id = int(record_id_item.text())
@@ -285,6 +293,7 @@ class Home(QMainWindow):
         col1_layout.addStretch(1)
 
         self.create_fitrep_btn = QPushButton("Create FitRep")
+        self.create_fitrep_btn.clicked.connect(self.open_fitrep_dialog)
         self.create_fitrep_btn.setDisabled(True)
         self.create_chief_eval_btn = QPushButton("Create Chief Eval")
         self.create_chief_eval_btn.setDisabled(True)
