@@ -1,0 +1,87 @@
+labels: [question]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your interest in NAVFITX!
+
+        Please follow these instructions, fill every question, and do every step. 🙏
+
+        Doing this helps save me a lot of time.
+
+        By asking questions in a structured way (following this) it will be much easier to help you.
+
+        And there's a chance that you will find the solution along the way and then you even have to submit it and wait for an answer.
+
+        If there are too many questions, I'll have to discard and close the incomplete ones. That will allow me to focus on helping people like you that follow the whole process and help me help you.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: First Check
+      description: Please confirm and check all the following options.
+      options:
+        - label: I added a very descriptive title here.
+          required: true
+        - label: I used the GitHub search to find a similar question and didn't find it.
+          required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: |
+        What is the problem, question, or error?
+
+        Write a short description telling me what you are doing, what you expect to happen, and what is currently happening.
+      placeholder: |
+        Example:
+          - I launched the NAVFITX GUI
+          - I created a new database
+          - I tried to create a FITREP with the "Create FitRep" button
+          - I expected a FITREP to be created, but I don't see the FITREP in the reports table.
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: What operating system are you on?
+      multiple: true
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: os-details
+    attributes:
+      label: Operating System Details
+      description: You can add more details about your operating system here, in particular if you chose "Other".
+  - type: input
+    id: navfitx-version
+    attributes:
+      label: NAVFITX Version
+      description: |
+        What NAVFITX version are you using?
+
+        You can find the NAVFITX version with:
+
+        ```bash
+        uvx navfitx --version
+        ```
+    validations:
+      required: true
+  - type: input
+    id: python-version
+    attributes:
+      label: Python Version
+      description: |
+        What Python version are you using?
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Add any additional context information or screenshots you think are useful.
