@@ -34,10 +34,7 @@ body:
         Write a short description telling me what you are doing, what you expect to happen, and what is currently happening.
       placeholder: |
         Example:
-          - I launched the NAVFITX GUI
-          - I created a new database
-          - I tried to create a FITREP with the "Create FitRep" button
-          - I expected a FITREP to be created, but I don't see the FITREP in the reports table.
+          - I launched the NAVFITX GUI, created a new database, then tried to create a FITREP with the "Create FitRep" button, but I don't see the FITREP in the reports table.
     validations:
       required: true
   - type: dropdown
