@@ -1,9 +1,13 @@
-import re
+import textwrap
 from datetime import date
 from enum import Enum, StrEnum
+from typing import Annotated
 
-from pydantic import field_validator
+from pydantic import StringConstraints, field_validator, model_validator
 from sqlmodel import Field, SQLModel
+
+# from sqlmodel import Field as SField
+# from sqlmodel import SQLModel
 
 
 class Report(SQLModel, table=True):
@@ -143,8 +147,8 @@ class Report(SQLModel, table=True):
     is_validated: str
 
 
-class SummaryGroup(Enum):
-    BLANK = ""
+class SummaryGroup(StrEnum):
+    # BLANK = ""
     ACT = "ACT"
     TAR = "TAR"
     INACT = "INACT"
@@ -152,7 +156,7 @@ class SummaryGroup(Enum):
 
 
 class PromotionStatus(StrEnum):
-    BLANK = ""
+    # BLANK = ""
     REGULAR = "REGULAR"
     FROCKED = "FROCKED"
     SELECTED = "SELECTED"
@@ -166,7 +170,7 @@ class PromotionStatus(StrEnum):
 
 
 class PhysicalReadiness(StrEnum):
-    BLANK = ""
+    # BLANK = ""
     PASS = "P"
     BCA_PASS = "B"
     FAIL = "F"
@@ -176,7 +180,7 @@ class PhysicalReadiness(StrEnum):
 
 
 class BilletSubcategory(StrEnum):
-    BLANK = ""
+    # BLANK = ""
     NA = "NA"
     BASIC = "BASIC"
     APPROVED = "APPROVED"
@@ -226,15 +230,25 @@ class PromotionRecommendation(Enum):
 
 
 class Fitrep(SQLModel, table=True):
+    """
+    Docstring for Fitrep
+
+    Note: I haven't dug into why, but the @field_validator decorator *must* come before the @classmethod decorator
+    on validator methods for them to trigger when calling `Fitrep.model_validate(some_fitrep.model_dump())`.
+
+    Args:
+        TODO
+    """
+
     id: int = Field(primary_key=True, default=None)
-    name: str = ""
-    grade: str = ""
-    desig: str = ""
-    ssn: str = ""
-    group: SummaryGroup = SummaryGroup.BLANK
-    uic: str = ""
-    station: str = ""
-    promotion_status: PromotionStatus = PromotionStatus.BLANK
+    name: Annotated[str, StringConstraints(max_length=27, min_length=1, strip_whitespace=True, to_upper=True)] = ""
+    grade: Annotated[str, StringConstraints(max_length=5, min_length=1, strip_whitespace=True)] = ""
+    desig: Annotated[str, StringConstraints(max_length=12, min_length=1, strip_whitespace=True)] = ""
+    ssn: Annotated[str, StringConstraints(strip_whitespace=True, pattern=r"^\d{3}-\d{2}-\d{4}$")] = ""
+    group: SummaryGroup | None = None
+    uic: Annotated[str, StringConstraints(max_length=5, min_length=1, strip_whitespace=True)] = ""
+    station: Annotated[str, StringConstraints(min_length=1, max_length=18, strip_whitespace=True)] = ""
+    promotion_status: PromotionStatus | None = None
     date_reported: date | None = None
     periodic: bool = False
     det_indiv: bool = False
@@ -246,106 +260,114 @@ class Fitrep(SQLModel, table=True):
     regular: bool = False
     concurrent: bool = False
     ops_cdr: bool = False
-    physical_readiness: PhysicalReadiness = PhysicalReadiness.BLANK
-    billet_subcategory: BilletSubcategory = BilletSubcategory.BLANK
-    senior_name: str = ""
-    senior_grade: str = ""
-    senior_desig: str = ""
-    senior_title: str = ""
-    senior_uic: str = ""
-    senior_ssn: str = ""
+    physical_readiness: PhysicalReadiness | None = None
+    billet_subcategory: BilletSubcategory | None = None
+    senior_name: Annotated[str, StringConstraints(min_length=1, max_length=27, strip_whitespace=True)] = ""
+    senior_grade: Annotated[str, StringConstraints(min_length=1, max_length=5, strip_whitespace=True)] = ""
+    senior_desig: Annotated[str, StringConstraints(min_length=1, max_length=5, strip_whitespace=True)] = ""
+    senior_title: Annotated[str, StringConstraints(min_length=1, max_length=14, strip_whitespace=True)] = ""
+    senior_uic: Annotated[str, StringConstraints(min_length=1, max_length=5, strip_whitespace=True)] = ""
+    senior_ssn: Annotated[str, StringConstraints(strip_whitespace=True, pattern=r"^\d{3}-\d{2}-\d{4}$")] = ""
     job: str = ""
-    duties_abbreviation: str = ""
-    duties_description: str = ""
+    duties_abbreviation: Annotated[str, StringConstraints(min_length=1, max_length=14)] = ""
+    duties_description: Annotated[str, StringConstraints(min_length=1, max_length=334)] = ""
     date_counseled: date | None = None
-    counselor: str = ""
-    pro_expertise: int | None = None
-    cmd_climate: int | None = None
-    bearing_and_character: int | None = None
-    teamwork: int | None = None
-    accomp_and_initiative: int | None = None
-    leadership: int | None = None
-    tactical_performance: int | None = None
-    career_rec_1: str = ""
-    career_rec_2: str = ""
-    comments: str = ""
-    indiv_promo_rec: int | None = None
-    # summary_promo_rec: int = Field(default_factory=list)
-    senior_address: str = ""
+    counselor: Annotated[str, StringConstraints(min_length=1, max_length=20)] = ""
+    pro_expertise: int | None = Field(None, ge=0, le=5)
+    cmd_climate: int | None = Field(None, ge=0, le=5)
+    bearing_and_character: int | None = Field(None, ge=0, le=5)
+    teamwork: int | None = Field(None, ge=0, le=5)
+    accomp_and_initiative: int | None = Field(None, ge=0, le=5)
+    leadership: int | None = Field(None, ge=0, le=5)
+    tactical_performance: int | None = Field(None, ge=0, le=5)
+    career_rec_1: Annotated[str, StringConstraints(min_length=1, max_length=20, strip_whitespace=True)] = ""
+    career_rec_2: Annotated[str, StringConstraints(min_length=1, max_length=20, strip_whitespace=True)] = ""
+    comments: Annotated[str, StringConstraints(min_length=1)] = ""
+    indiv_promo_rec: int | None = Field(None, ge=0, le=5)
+    senior_address: Annotated[str, StringConstraints(min_length=1, max_length=40)] = ""
 
-    @classmethod
-    @field_validator("name")
-    def validate_name(cls, name: str) -> str:
-        if len(name) > 27:
-            raise ValueError("Name must be 27 characters or less")
-        return name.upper()
-
-    @classmethod
-    @field_validator("grade")
-    def validate_grade(cls, grade: str) -> str:
-        if len(grade) > 5:
-            raise ValueError("Rate must be 5 characters or less")
-        return grade
-
-    @classmethod
-    @field_validator("desig")
-    def validate_desig(cls, desig: str) -> str:
-        if len(desig) > 12:
-            raise ValueError("Designator must be 12 characters or less")
-        return desig.upper()
-
-    @classmethod
-    @field_validator("ssn")
-    def validate_ssn(cls, ssn: str) -> str:
-        ssn = ssn.strip()
-        ssn_pattern = re.compile(r"^\d{3}-\d{2}-\d{4}$")
-        if not ssn_pattern.match(ssn):
-            raise ValueError("SSN must be in the format XXX-XX-XXXX")
-        return ssn
-
-    @classmethod
     @field_validator("group")
+    @classmethod
     def validate_group(cls, group: SummaryGroup | None) -> SummaryGroup:
         if group is None:
             raise ValueError("Summary Group must be specified.")
         return group
 
-    @classmethod
-    @field_validator("uic")
-    def validate_uic(cls, uic: str) -> str:
-        if len(uic) > 5:
-            raise ValueError("UIC must be 5 characters or less.")
-        if not uic.isalnum():
-            raise ValueError("UIC must be alphanumeric.")
-        return uic.upper()
-
-    @classmethod
     @field_validator("station")
+    @classmethod
     def validate_station(cls, station: str) -> str:
+        if len(station.strip()) == 0:
+            raise ValueError("Ship/Station cannot be blank.")
         if len(station) > 18:
-            raise ValueError("Station must be 18 characters or less.")
+            raise ValueError("Ship/Station must be 18 characters or less.")
         return station
 
-    @classmethod
     @field_validator("promotion_status")
+    @classmethod
     def validate_promotion_status(cls, promotion_status: PromotionStatus | None) -> PromotionStatus:
         if promotion_status is None:
             raise ValueError("Promotion Status must be specified.")
         return promotion_status
 
-    @classmethod
     @field_validator("billet_subcategory")
+    @classmethod
     def validate_billet_subcategory(cls, billet_subcategory: BilletSubcategory | None) -> BilletSubcategory:
         if billet_subcategory is None:
             raise ValueError("Billet Subcategory must be specified.")
         return billet_subcategory
 
-    @classmethod
     @field_validator("career_rec_2", "career_rec_1")
+    @classmethod
     def validate_career_rec(cls, career_rec: str) -> str:
         if len(career_rec) > 20:
             raise ValueError("Career Recommendation must be 20 characters or less (including whitespace).")
+
+        wrapped = cls.wrap_text(career_rec, 13)
+        length = len(wrapped.split())
+        if length > 2:
+            lines = wrapped.split("\n")
+            career_rec = "\n".join(lines[:2])
         return career_rec
+
+    @field_validator("comments")
+    @classmethod
+    def validate_comments(cls, comments: str) -> str:
+        wrapped = cls.wrap_text(comments, 92)
+        length = len(wrapped.split())
+        if length > 18:
+            # raise ValueError(f"Comments must be 18 lines or less (currently {length} lines).")
+
+            # trim comments to 18 lines
+            lines = wrapped.split("\n")
+            comments = "\n".join(lines[:18])
+        return comments
+
+    @model_validator(mode="after")
+    def check_dates(self):
+        if self.date_reported > self.period_start:
+            raise ValueError("Report date cannot be after the period of report start date.")
+        if self.date_reported > self.period_end:
+            raise ValueError("Report date cannot be after the period of report end date.")
+        if self.date_counseled < self.date_reported:
+            raise ValueError("Counseling date cannot be before the report date.")
+        if self.date_counseled < self.period_start:
+            raise ValueError("Counseling date cannot be before the period of report start date.")
+        if self.period_end < self.period_start:
+            raise ValueError("Period of report end date cannot be before the start date.")
+        return self
+
+    @model_validator(mode="after")
+    def check_type_of_report(self):
+        if self.ops_cdr and self.concurrent:
+            raise ValueError("OpsCdr and Concurrent cannot both be selected. [Ref: page 45 of NAVFIT98v30 User Guide]")
+
+    @model_validator(mode="after")
+    def check_occasion_for_report(self):
+        if self.special:
+            if self.det_indiv or self.det_rs or self.periodic:
+                raise ValueError(
+                    "Special Occasion reports cannot also be Detachment Individual, Detachment Reporting Senior, or Periodic reports."
+                )
 
     def member_trait_avg(self) -> str:
         traits = [
@@ -396,3 +418,27 @@ class Fitrep(SQLModel, table=True):
             date_counseled=self.date_counseled,
             counselor=self.counselor,
         )
+
+    @staticmethod
+    def wrap_text(txt: str, width: int) -> str:
+        """
+        Formats text so that no lines has more than 92 characters.
+
+        This is used for inserting newlines into text from long form text blocks to ensure the text
+        prints correctly on generated PDFs.
+
+        Note:
+            Soley using the wrap or fill function from the textwrap module to format the comments completely
+            isn't quite sufficient because it doesn't appropriately handle cases when users want
+            to add empty lines to the comments. The textwrap module by default eliminates newlines. This behavior
+            can be disabled, but then newlines are counted as characters that count towards the character limit
+            for each line. This function handles each situation appropriately.
+        """
+        parts = txt.split("\n")
+        all_lines: list[str] = []
+        for part in parts:
+            lines = textwrap.wrap(part, width=width)
+            if not lines:
+                lines = [""]
+            all_lines.extend(lines)
+        return "\n".join(all_lines)

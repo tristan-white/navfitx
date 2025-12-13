@@ -3,6 +3,7 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Callable
 
+from pydantic import ValidationError
 from PySide6.QtCore import QDate, Qt, Slot
 from PySide6.QtGui import QFont, QTextOption, QValidator
 from PySide6.QtWidgets import (
@@ -30,6 +31,7 @@ from navfitx.models import (
     PhysicalReadiness,
     PromotionRecommendation,
     PromotionStatus,
+    SummaryGroup,
 )
 from navfitx.overlay import create_fitrep_pdf
 
@@ -83,7 +85,6 @@ promotion_recs = {
 
 class FitrepForm(QWidget):
     def __init__(self, on_accept: Callable[[Fitrep], None], on_reject: Callable[[], None], fitrep: Fitrep | None):
-        print("creating fitrep form")
         super().__init__()
         self.fitrep = fitrep or Fitrep()
         self.on_accept = on_accept
@@ -130,7 +131,7 @@ class FitrepForm(QWidget):
         # AT/ADSW/265 does not match the ATADSW option in BUPERS, the NAVFIT98 user guide, nor
         # the NAVFIT98 .accdb database, but it is what is shown on paper reports themselves,
         # so it's used here to look the same as the form.
-        self.group.addItems(["ACT", "TAR", "INACT", "AT/ADSW/265"])
+        self.group.addItems([member.value for member in SummaryGroup])
         grid_layout.addWidget(QLabel("5. Group"), 2, 0)
         grid_layout.addWidget(self.group, 2, 1)
 
@@ -266,6 +267,7 @@ class FitrepForm(QWidget):
 
         self.senior_ssn = QLineEdit()
         self.senior_ssn.setText(self.fitrep.senior_ssn)
+        self.senior_ssn.setPlaceholderText("XXX-XX-XXXX")
         grid_layout.addWidget(QLabel("27. Reporting Senior SSN"), 11, 2)
         grid_layout.addWidget(self.senior_ssn, 11, 3)
 
@@ -355,6 +357,7 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(self.tactical_performance, 19, 1)
 
         self.career_rec_1 = QTextEdit(tabChangesFocus=True, lineWrapMode=QTextEdit.LineWrapMode.FixedColumnWidth)
+        self.career_rec_1.setToolTip("Maximum of 20 characters and two lines.")
         self.career_rec_1.setWordWrapMode(QTextOption.WrapMode.WrapAnywhere)
         self.career_rec_1.setText(self.fitrep.career_rec_1)
         self.career_rec_1.setLineWrapColumnOrWidth(13)
@@ -367,6 +370,7 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(self.career_rec_1, 20, 1)
 
         self.career_rec_2 = QTextEdit(tabChangesFocus=True, lineWrapMode=QTextEdit.LineWrapMode.FixedColumnWidth)
+        self.career_rec_2.setToolTip("Maximum of 20 characters and two lines.")
         self.career_rec_2.setWordWrapMode(QTextOption.WrapMode.WordWrap)
         self.career_rec_2.setText(self.fitrep.career_rec_2)
         self.career_rec_2.setLineWrapColumnOrWidth(13)
@@ -379,13 +383,26 @@ class FitrepForm(QWidget):
 
         self.comments = QTextEdit(tabChangesFocus=True, lineWrapMode=QTextEdit.LineWrapMode.FixedColumnWidth)
         self.comments.setText(self.fitrep.comments)
+        self.comments.setPlaceholderText("Maximum of 18 lines. Excess lines will be trimmed.")
         self.comments.setWordWrapMode(QTextOption.WrapMode.WordWrap)
-        self.comments.setLineWrapColumnOrWidth(91)
+        self.comments.setLineWrapColumnOrWidth(92)
         self.comments.setFont(QFont("Courier"))
         line_height = self.comments.fontMetrics().lineSpacing()
         self.comments.setFixedHeight(line_height * 18)
         self.comments.setFixedWidth(900)
-        grid_layout.addWidget(QLabel("Comments"), 22, 0)
+        # self.comments.textChanged.connect(self.validate_comments)
+
+        self.comments_label = QLabel(
+            f"Comments\n\nLine Count: ({len(Fitrep.wrap_text(self.comments.toPlainText(), 92).split())}/18)"
+        )
+        # num_lines = len(Fitrep.format_comments(self.comments.toPlainText()).split())
+        self.comments.textChanged.connect(
+            lambda: self.comments_label.setText(
+                f"Comments\n\nLine Count: ({len(Fitrep.wrap_text(self.comments.toPlainText(), 92).split())}/18)"
+            )
+        )
+
+        grid_layout.addWidget(self.comments_label, 22, 0)
         grid_layout.addWidget(self.comments, 22, 1, 1, 3)
 
         self.indiv_promo_rec = QComboBox()
@@ -430,6 +447,20 @@ class FitrepForm(QWidget):
         # Set the layout for the secondary window
         self.setLayout(main_layout)
 
+    # @Slot()
+    # def validate_comments(self):
+    #     text = self.comments.document().toPlainText()
+    #     wrapped = Fitrep.format_comments(text)
+    #     print(wrapped)
+    #     if len(wrapped) > 18:
+    #         QMessageBox.information(
+    #             self,
+    #             "Comments Validation",
+    #             "Comments may not exceed 18 lines. Excess lines will be trimmed on generated PDFs.",
+    #             QMessageBox.StandardButton.Ok,
+    #         )
+    #         self.comments.setText(allowed_text)
+
     @Slot()
     def validate_special(self, check_state: Qt.CheckState):
         if check_state == Qt.CheckState.Checked:
@@ -455,6 +486,7 @@ class FitrepForm(QWidget):
     @Slot()
     def validate_career_rec1(self):
         text = self.career_rec_1.document().toPlainText()
+        # width is 13 because that's what navfit98 allows on one line
         wrapped = textwrap.wrap(text, width=13)
         if len(text) > 20:
             QMessageBox.information(
@@ -533,7 +565,6 @@ class FitrepForm(QWidget):
     @Slot()
     def validate_uic(self):
         if len(self.uic.text()) > 5:
-            # QMessageBox.information(self, "UIC Validation", "UIC cannot be longer than 5 characters.", QMessageBox.StandardButton.Ok)
             QMessageBox.information(
                 self,
                 "Block 40 Validation",
@@ -573,15 +604,17 @@ class FitrepForm(QWidget):
         """
         Create a Fitrep class from the data input in the GUI Form.
         """
-        print("form saved")
         self.fitrep.name = self.name.text()
         self.fitrep.grade = self.grade.text()
         self.fitrep.desig = self.desig.text()
         self.fitrep.ssn = self.ssn.text()
-        self.fitrep.group = self.group.currentText()
+        group_text = self.group.currentText()
+        self.fitrep.group = None if group_text == "" else SummaryGroup(group_text)
         self.fitrep.uic = self.uic.text()
         self.fitrep.station = self.station.text()
-        self.fitrep.promotion_status = self.promotion_status.currentText()
+        self.fitrep.promotion_status = (
+            None if self.promotion_status.currentText() == "" else PromotionStatus(self.promotion_status.currentText())
+        )
         self.fitrep.date_reported = self.date_reported.date().toPython()
         self.fitrep.periodic = self.periodic.isChecked()
         self.fitrep.det_indiv = self.det_indiv.isChecked()
@@ -593,8 +626,17 @@ class FitrepForm(QWidget):
         self.fitrep.regular = self.regular.isChecked()
         self.fitrep.concurrent = self.concurrent.isChecked()
         self.fitrep.ops_cdr = self.ops_cdr.isChecked()
-        self.fitrep.physical_readiness = self.physical_readiness.currentText()
-        self.fitrep.billet_subcategory = self.billet_subcategory.currentText()
+
+        if self.physical_readiness.currentText() == "":
+            self.fitrep.physical_readiness = None
+        else:
+            self.fitrep.physical_readiness = PhysicalReadiness(self.physical_readiness.currentText())
+
+        if self.billet_subcategory.currentText() == "":
+            self.fitrep.billet_subcategory = None
+        else:
+            self.fitrep.billet_subcategory = BilletSubcategory(self.billet_subcategory.currentText())
+
         self.fitrep.senior_name = self.senior_name.text()
         self.fitrep.senior_grade = self.senior_grade.text()
         self.fitrep.senior_desig = self.senior_desig.text()
@@ -613,8 +655,13 @@ class FitrepForm(QWidget):
         self.fitrep.accomp_and_initiative = perf_traits[self.accomp_and_initiative.currentText()]
         self.fitrep.leadership = perf_traits[self.leadership.currentText()]
         self.fitrep.tactical_performance = perf_traits[self.tactical_performance.currentText()]
-        self.fitrep.career_rec_1 = self.career_rec_1.toPlainText()
+        self.fitrep.career_rec_1 = Fitrep.validate_career_rec(self.career_rec_1.toPlainText())
         self.fitrep.career_rec_2 = self.career_rec_2.toPlainText()
-        self.fitrep.comments = self.comments.toPlainText()
+        self.fitrep.comments = Fitrep.validate_comments(self.comments.toPlainText())
         self.fitrep.indiv_promo_rec = promotion_recs[self.indiv_promo_rec.currentText()]
         self.fitrep.senior_address = self.senior_address.toPlainText()
+
+        try:
+            Fitrep.model_validate(self.fitrep.model_dump())
+        except ValidationError as err:
+            print(err.json())

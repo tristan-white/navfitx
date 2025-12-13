@@ -1,11 +1,11 @@
 [project]
 name = "navfitx"
-version = "0.0.3a1"
+version = "0.0.3a2"
 description = "it's like NAVFIT98 but better"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "pydantic>=2.12.3",
+    "pydantic>=2.12",
     "pymupdf>=1.26.6",
     "pyodbc>=5.2.0",
     "pyside6>=6.9.3",
@@ -21,6 +21,7 @@ Homepage = "https://github.com/tristan-white/navfitx"
 dev = [
     "mypy>=1.18.2",
     "pre-commit>=4.3.0",
+    "pytest>=9.0.2",
     "ruff>=0.13.3",
 ]
 

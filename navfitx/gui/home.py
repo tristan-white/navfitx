@@ -130,7 +130,7 @@ class Home(QMainWindow):
         print_action = file_menu.addAction("Export as PDF")
         print_action.triggered.connect(self.fitrep_form.print)
         close_action = file_menu.addAction("Close")
-        close_action.triggered.connect(self.set_index_to_home)
+        close_action.triggered.connect(self.cancel_form)
 
         tools = self.menuBar().addMenu("Tools")
         validate_action = tools.addAction("Validate Report")
@@ -147,7 +147,7 @@ class Home(QMainWindow):
             self.setWindowTitle("FITREP Data Entry")
 
     def open_fitrep_dialog(self, fitrep: Fitrep | None = None):
-        self.fitrep_form = FitrepForm(self.submit_form, self.set_index_to_home, fitrep)
+        self.fitrep_form = FitrepForm(self.submit_form, self.cancel_form, fitrep)
 
         # Menu must be built after form is created so that actions can connect to it
         self.build_form_menu()
@@ -168,10 +168,17 @@ class Home(QMainWindow):
 
     def create_db(self):
         filename, selected_filter = QFileDialog.getSaveFileName(self, "Create Database", "navfitx.db")
-        engine = create_engine(f"sqlite:///{filename}")
+        if not filename:
+            return
+        path = Path(filename)
+        if path.exists():
+            path.unlink()
+        engine = create_engine(f"sqlite:///{path}")
         SQLModel.metadata.create_all(engine)
-        self.db = Path(filename)
+        self.db = path
         self.new_submenu.setDisabled(False)
+        self.create_fitrep_btn.setDisabled(False)
+        self.refresh_reports_table()
 
     def open_link(self, url: str):
         webbrowser.open(url)
@@ -184,14 +191,17 @@ class Home(QMainWindow):
         self.stack.setCurrentIndex(0)
         self.stack.removeWidget(self.stack.widget(i))
 
-    def set_index_to_home(self):
+    def cancel_form(self):
+        i = self.stack.currentIndex()
         self.stack.setCurrentIndex(0)
+        self.stack.removeWidget(self.stack.widget(i))
 
     def print_blank(self, report_type: str):
         filename, selected_filter = QFileDialog.getSaveFileName(
             self, f"Save Blank {report_type.upper()} Report", f"{report_type}.pdf"
         )
-
+        if not filename:
+            return
         report_path = get_blank_report_path(report_type)
         shutil.copy(report_path, filename)
 

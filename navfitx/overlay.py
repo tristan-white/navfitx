@@ -14,29 +14,6 @@ from .models import (
 )
 
 
-def format_comments(txt: str) -> str:
-    """
-    Format the Comments on Performance text so that it conforms to the constraints:
-    - Max of 92 chars per line (not including newlines)
-    - Max of 18 lines
-
-    Note:
-        Soley using the wrap or fill function from the textwrap module to format the comments completely
-        isn't quite sufficient because it doesn't appropriately handle cases when users want
-        to add empty lines to the comments. The textwrap module by default eliminates newlines. This behavior
-        can be disabled, but then newlines are counted as characters that count towards the character limit
-        for each line. This function handles each situation appropriately.
-    """
-    parts = txt.split("\n")
-    all_lines = []
-    for part in parts:
-        lines = textwrap.wrap(part, 92)
-        if not lines:
-            lines = [""]
-        all_lines.extend(lines)
-    return "\n".join(all_lines)
-
-
 def wrap_duty_desc(text: str) -> str:
     """
     The duties description is weird because the user manual says the constraint on this
@@ -284,7 +261,7 @@ def create_fitrep_pdf(fitrep: Fitrep, path: Path) -> None:
 
     back.insert_text(
         Point(34, 354),
-        format_comments(fitrep.comments),
+        Fitrep.wrap_text(fitrep.comments, 92),
         fontsize=9.2,
         fontname="Cour",
     )
