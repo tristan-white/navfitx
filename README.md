@@ -1,4 +1,4 @@
-> Note: NAVFITX is still in development
+> Note: NAVFITX is still in development. It may contain bugs, incomplete features, and/or breaking changes.
 
 # NAVFITX
 
@@ -21,11 +21,11 @@ See [here](./docs/navfitx.pdf) for more information about why NAVFIT98 needs to 
 The quickest way to use navfitx is to use uv:
 
 1. [Install uv](https://docs.astral.sh/uv/getting-started/installation/):
-2. Run `uvx navfitx gui`
+2. Run `uvx navfitx gui`. NAVFITX is now running!
 
-> NOTE for Linux :
+<!-- > NOTE for Linux:
 > f you see the error `This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.`, do a `sudo apt install libxcb-cursor0`, then run again.
-> If you see the error `ImportError: libodbc.so.2: cannot open shared object file: No such file or directory`, install unixodbc: `sudo apt install unixodbc`.
+> If you see the error `ImportError: libodbc.so.2: cannot open shared object file: No such file or directory`, install unixodbc: `sudo apt install unixodbc`. -->
 
 ## Help NAVFITX Succeed
 
