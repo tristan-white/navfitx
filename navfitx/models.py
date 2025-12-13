@@ -321,9 +321,12 @@ class Fitrep(SQLModel, table=True):
     def validate_career_rec(cls, career_rec: str) -> str:
         if len(career_rec) > 20:
             raise ValueError("Career Recommendation must be 20 characters or less (including whitespace).")
-        length = len(cls.wrap_text(career_rec, 13).split())
+
+        wrapped = cls.wrap_text(career_rec, 13)
+        length = len(wrapped.split())
         if length > 2:
-            raise ValueError("Career Recommendation must be 2 lines or less.")
+            lines = wrapped.split("\n")
+            career_rec = "\n".join(lines[:2])
         return career_rec
 
     @field_validator("comments")

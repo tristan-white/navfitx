@@ -357,6 +357,7 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(self.tactical_performance, 19, 1)
 
         self.career_rec_1 = QTextEdit(tabChangesFocus=True, lineWrapMode=QTextEdit.LineWrapMode.FixedColumnWidth)
+        self.career_rec_1.setToolTip("Maximum of 20 characters and two lines.")
         self.career_rec_1.setWordWrapMode(QTextOption.WrapMode.WrapAnywhere)
         self.career_rec_1.setText(self.fitrep.career_rec_1)
         self.career_rec_1.setLineWrapColumnOrWidth(13)
@@ -369,6 +370,7 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(self.career_rec_1, 20, 1)
 
         self.career_rec_2 = QTextEdit(tabChangesFocus=True, lineWrapMode=QTextEdit.LineWrapMode.FixedColumnWidth)
+        self.career_rec_2.setToolTip("Maximum of 20 characters and two lines.")
         self.career_rec_2.setWordWrapMode(QTextOption.WrapMode.WordWrap)
         self.career_rec_2.setText(self.fitrep.career_rec_2)
         self.career_rec_2.setLineWrapColumnOrWidth(13)
@@ -624,16 +626,17 @@ class FitrepForm(QWidget):
         self.fitrep.regular = self.regular.isChecked()
         self.fitrep.concurrent = self.concurrent.isChecked()
         self.fitrep.ops_cdr = self.ops_cdr.isChecked()
-        self.fitrep.physical_readiness = (
-            None
-            if self.physical_readiness.currentText() == ""
-            else PhysicalReadiness(self.physical_readiness.currentText())
-        )
-        self.fitrep.billet_subcategory = (
-            None
-            if self.billet_subcategory.currentText() == ""
-            else BilletSubcategory(self.billet_subcategory.currentText())
-        )
+
+        if self.physical_readiness.currentText() == "":
+            self.fitrep.physical_readiness = None
+        else:
+            self.fitrep.physical_readiness = PhysicalReadiness(self.physical_readiness.currentText())
+
+        if self.billet_subcategory.currentText() == "":
+            self.fitrep.billet_subcategory = None
+        else:
+            self.fitrep.billet_subcategory = BilletSubcategory(self.billet_subcategory.currentText())
+
         self.fitrep.senior_name = self.senior_name.text()
         self.fitrep.senior_grade = self.senior_grade.text()
         self.fitrep.senior_desig = self.senior_desig.text()
@@ -652,7 +655,7 @@ class FitrepForm(QWidget):
         self.fitrep.accomp_and_initiative = perf_traits[self.accomp_and_initiative.currentText()]
         self.fitrep.leadership = perf_traits[self.leadership.currentText()]
         self.fitrep.tactical_performance = perf_traits[self.tactical_performance.currentText()]
-        self.fitrep.career_rec_1 = self.career_rec_1.toPlainText()
+        self.fitrep.career_rec_1 = Fitrep.validate_career_rec(self.career_rec_1.toPlainText())
         self.fitrep.career_rec_2 = self.career_rec_2.toPlainText()
         self.fitrep.comments = Fitrep.validate_comments(self.comments.toPlainText())
         self.fitrep.indiv_promo_rec = promotion_recs[self.indiv_promo_rec.currentText()]
