@@ -5,7 +5,7 @@ description = "it's like NAVFIT98 but better"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "pydantic>=2.12",
+    "pydantic<2.12", # <2.12 because of this issue: https://github.com/fastapi/sqlmodel/issues/1623
     "pymupdf>=1.26.6",
     "pyodbc>=5.2.0",
     "pyside6>=6.9.3",
