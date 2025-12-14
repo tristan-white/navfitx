@@ -149,7 +149,9 @@ class FitrepForm(QWidget):
 
         self.promotion_status = QComboBox(currentText=self.fitrep.promotion_status)
         self.promotion_status.addItems([member.value for member in PromotionStatus])
-        self.promotion_status.setCurrentIndex(get_idx_for_str_enum(PromotionStatus, self.fitrep.promotion_status) or 0)
+        self.promotion_status.setCurrentIndex(
+            get_idx_for_str_enum(PromotionStatus, self.fitrep.promotion_status.value) or 0
+        )
         grid_layout.addWidget(QLabel("8. Promotion Status"), 3, 2)
         grid_layout.addWidget(self.promotion_status, 3, 3)
 
@@ -226,7 +228,7 @@ class FitrepForm(QWidget):
         self.physical_readiness = QComboBox()
         self.physical_readiness.addItems([member.value for member in PhysicalReadiness])
         self.physical_readiness.setCurrentIndex(
-            get_idx_for_str_enum(PhysicalReadiness, self.fitrep.physical_readiness) or 0
+            get_idx_for_str_enum(PhysicalReadiness, self.fitrep.physical_readiness.value) or 0
         )
         grid_layout.addWidget(QLabel("20. Physical Readiness"), 8, 0)
         grid_layout.addWidget(self.physical_readiness, 8, 1)
@@ -234,7 +236,7 @@ class FitrepForm(QWidget):
         self.billet_subcategory = QComboBox()
         self.billet_subcategory.addItems([member.value for member in BilletSubcategory])
         self.billet_subcategory.setCurrentIndex(
-            get_idx_for_str_enum(BilletSubcategory, self.fitrep.billet_subcategory) or 0
+            get_idx_for_str_enum(BilletSubcategory, self.fitrep.billet_subcategory.value) or 0
         )
         grid_layout.addWidget(QLabel("21. Billet Subcategory"), 8, 2)
         grid_layout.addWidget(self.billet_subcategory, 8, 3)
@@ -393,12 +395,12 @@ class FitrepForm(QWidget):
         # self.comments.textChanged.connect(self.validate_comments)
 
         self.comments_label = QLabel(
-            f"Comments\n\nLine Count: ({len(Fitrep.wrap_text(self.comments.toPlainText(), 92).split())}/18)"
+            f"Comments\n\nLine Count: ({len(Fitrep.wrap_text(self.comments.toPlainText(), 92).split('\n'))}/18)"
         )
         # num_lines = len(Fitrep.format_comments(self.comments.toPlainText()).split())
         self.comments.textChanged.connect(
             lambda: self.comments_label.setText(
-                f"Comments\n\nLine Count: ({len(Fitrep.wrap_text(self.comments.toPlainText(), 92).split())}/18)"
+                f"Comments\n\nLine Count: ({len(Fitrep.wrap_text(self.comments.toPlainText(), 92).split('\n'))}/18)"
             )
         )
 
@@ -406,7 +408,7 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(self.comments, 22, 1, 1, 3)
 
         self.indiv_promo_rec = QComboBox()
-        self.indiv_promo_rec.addItems(promotion_recs.keys())
+        self.indiv_promo_rec.addItems([k for k in promotion_recs.keys()])
         if self.fitrep.indiv_promo_rec is not None:
             self.indiv_promo_rec.setCurrentIndex(self.fitrep.indiv_promo_rec + 1)
         grid_layout.addWidget(QLabel("Promotion Reccomendation"), 23, 0)

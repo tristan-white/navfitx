@@ -441,4 +441,5 @@ class Fitrep(SQLModel, table=True):
             if not lines:
                 lines = [""]
             all_lines.extend(lines)
-        return "\n".join(all_lines)
+        ret = "\n".join(all_lines)
+        return ret

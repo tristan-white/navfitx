@@ -34,3 +34,7 @@ Now any time you commit your code, the pre-commit hooks will run and preform lin
 Access Database files (.accdb) can be read by installing MDBTools:
 
 `sudo apt install mdbtools`
+
+<!-- > NOTE for Linux:
+> f you see the error `This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.`, do a `sudo apt install libxcb-cursor0`, then run again.
+> If you see the error `ImportError: libodbc.so.2: cannot open shared object file: No such file or directory`, install unixodbc: `sudo apt install unixodbc`. -->

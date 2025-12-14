@@ -65,7 +65,7 @@ def update_group_inact(fitrep: Fitrep, comp: Checkbox) -> None:
 
 
 def update_group_at_adsw_265(fitrep: Fitrep, comp: Checkbox) -> None:
-    comp.checked = fitrep.group == SummaryGroup.AT_ADOS
+    comp.checked = fitrep.group == SummaryGroup.ATADSW
 
 
 def update_uic(fitrep: Fitrep, comp: String) -> None:
