@@ -17,15 +17,15 @@ NAVFITX is a drop-in replacement for NAVFIT98A.
 
 ## Installation
 
-The quickest way to install/use NAVFITX is to use [uv](https://docs.astral.sh/uv/).
+The quickest way to install and use NAVFITX is to use [uv](https://docs.astral.sh/uv/).
 
-This can be done in three simple steps: copying/pasting two commands into powershell (Windows) or the terminal (MacOS and Linux).
+This can be done in three simple steps:
 
 1. Copy/paste the command to install uv into powershell (if on Windows) or Terminal (if on MacOS or linux):
    - Windows: `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`
    - MacOS or linux: `curl -LsSf https://astral.sh/uv/install.sh | sh`
-2. Close Powershell/Terminal, then relaunch it.
-3. Run the following command: `uvx navfitx`
+2. After uv finishes installing, close Powershell/Terminal, then reopen it.
+3. Run the following command to install and launch NAVFITX: `uvx navfitx`
 
 Done!
 
