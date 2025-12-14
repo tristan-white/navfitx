@@ -344,6 +344,13 @@ class Fitrep(SQLModel, table=True):
 
     @model_validator(mode="after")
     def check_dates(self):
+        if (
+            self.date_reported is None
+            or self.period_start is None
+            or self.period_end is None
+            or self.date_counseled is None
+        ):
+            raise ValueError("All date fields must be set.")
         if self.date_reported > self.period_start:
             raise ValueError("Report date cannot be after the period of report start date.")
         if self.date_reported > self.period_end:

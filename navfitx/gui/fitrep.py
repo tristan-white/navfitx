@@ -1,11 +1,10 @@
 import textwrap
-from enum import StrEnum
+from enum import Enum
 from pathlib import Path
 from typing import Callable
 
-from pydantic import ValidationError
 from PySide6.QtCore import QDate, Qt, Slot
-from PySide6.QtGui import QFont, QTextOption, QValidator
+from PySide6.QtGui import QFont, QTextOption
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -36,54 +35,37 @@ from navfitx.models import (
 from navfitx.overlay import create_fitrep_pdf
 
 
-def get_idx_for_str_enum(strenum_cls: type[StrEnum], value: str) -> int | None:
-    for i, s in enumerate(strenum_cls):
-        if s.value == value:
-            return i
-    return None
-
-
 class NoScrollComboBox(QComboBox):
     def wheelEvent(self, event):
         event.ignore()
 
 
-class ExampleValidator(QValidator):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-
-    def validate(self, input_str: str, pos: int):
-        for char in input_str:
-            if char != char.upper():
-                return QValidator.State.Invalid, input_str, pos
-        return QValidator.State.Acceptable, input_str, pos
-
-    def fixup(self, input_str: str) -> str:
-        return input_str.upper()
-
-
-perf_traits = {
-    "": None,
-    "Not Observed": 0,
-    "1 - Below Standards": 1,
-    "2 - Progressing": 2,
-    "3 - Meets Standards": 3,
-    "4 - Above Standards": 4,
-    "5 - Greatly Exceeds Standards": 5,
-}
-
-promotion_recs = {
-    "": None,
-    "NOB": PromotionRecommendation.NOB.value,
-    "Significant Problems": PromotionRecommendation.SIGNIFICANT_PROBLEMS.value,
-    "Progressing": PromotionRecommendation.PROGRESSING.value,
-    "Promotable": PromotionRecommendation.PROMOTABLE.value,
-    "Must Promote": PromotionRecommendation.MUST_PROMOTE.value,
-    "Early Promote": PromotionRecommendation.EARLY_PROMOTE.value,
-}
+# promotion_recs is moved into FitrepForm as a class attribute (see below)
 
 
 class FitrepForm(QWidget):
+    # Performance trait mapping used by multiple combo boxes. Kept as a class
+    # attribute so instances can reference it as `self.perf_traits`.
+    perf_traits = {
+        "": None,
+        "Not Observed": 0,
+        "1 - Below Standards": 1,
+        "2 - Progressing": 2,
+        "3 - Meets Standards": 3,
+        "4 - Above Standards": 4,
+        "5 - Greatly Exceeds Standards": 5,
+    }
+    # Promotion recommendation mapping used by the promotion combo in the form.
+    promotion_recs = {
+        "": None,
+        "NOB": PromotionRecommendation.NOB.value,
+        "Significant Problems": PromotionRecommendation.SIGNIFICANT_PROBLEMS.value,
+        "Progressing": PromotionRecommendation.PROGRESSING.value,
+        "Promotable": PromotionRecommendation.PROMOTABLE.value,
+        "Must Promote": PromotionRecommendation.MUST_PROMOTE.value,
+        "Early Promote": PromotionRecommendation.EARLY_PROMOTE.value,
+    }
+
     def __init__(self, on_accept: Callable[[Fitrep], None], on_reject: Callable[[], None], fitrep: Fitrep | None):
         super().__init__()
         self.fitrep = fitrep or Fitrep()
@@ -131,6 +113,7 @@ class FitrepForm(QWidget):
         # AT/ADSW/265 does not match the ATADSW option in BUPERS, the NAVFIT98 user guide, nor
         # the NAVFIT98 .accdb database, but it is what is shown on paper reports themselves,
         # so it's used here to look the same as the form.
+        self.group.addItem("")
         self.group.addItems([member.value for member in SummaryGroup])
         grid_layout.addWidget(QLabel("5. Group"), 2, 0)
         grid_layout.addWidget(self.group, 2, 1)
@@ -148,15 +131,14 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(self.station, 3, 1)
 
         self.promotion_status = QComboBox(currentText=self.fitrep.promotion_status)
+        self.promotion_status.addItem("")
         self.promotion_status.addItems([member.value for member in PromotionStatus])
-        self.promotion_status.setCurrentIndex(
-            get_idx_for_str_enum(PromotionStatus, self.fitrep.promotion_status.value) or 0
-        )
+        self.promotion_status.setCurrentIndex(self.get_idx_for_enum(self.fitrep.promotion_status))
         grid_layout.addWidget(QLabel("8. Promotion Status"), 3, 2)
         grid_layout.addWidget(self.promotion_status, 3, 3)
 
         # Move Date Reported so it appears before Type of Report in the grid
-        self.date_reported = QDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")
+        self.date_reported = QDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")  # type: ignore[call-overload]
         if self.fitrep.date_reported is not None:
             y = self.fitrep.date_reported.year
             m = self.fitrep.date_reported.month
@@ -186,7 +168,7 @@ class FitrepForm(QWidget):
         group_box.setLayout(vbox)
         grid_layout.addWidget(group_box, 4, 2, 1, 2)
 
-        self.period_start = QDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")
+        self.period_start = QDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")  # type: ignore[call-overload]
         if self.fitrep.period_start:
             y = self.fitrep.period_start.year
             m = self.fitrep.period_start.month
@@ -195,7 +177,7 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(QLabel("14. Period Start"), 6, 0)
         grid_layout.addWidget(self.period_start, 6, 1)
 
-        self.period_end = QDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")
+        self.period_end = QDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")  # type: ignore[call-overload]
         if self.fitrep.period_end:
             y = self.fitrep.period_end.year
             m = self.fitrep.period_end.month
@@ -226,18 +208,16 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(group_box, 7, 2, 1, 2)
 
         self.physical_readiness = QComboBox()
+        self.physical_readiness.addItem("")
         self.physical_readiness.addItems([member.value for member in PhysicalReadiness])
-        self.physical_readiness.setCurrentIndex(
-            get_idx_for_str_enum(PhysicalReadiness, self.fitrep.physical_readiness.value) or 0
-        )
+        self.physical_readiness.setCurrentIndex(self.get_idx_for_enum(self.fitrep.physical_readiness))
         grid_layout.addWidget(QLabel("20. Physical Readiness"), 8, 0)
         grid_layout.addWidget(self.physical_readiness, 8, 1)
 
         self.billet_subcategory = QComboBox()
+        self.billet_subcategory.addItem("")
         self.billet_subcategory.addItems([member.value for member in BilletSubcategory])
-        self.billet_subcategory.setCurrentIndex(
-            get_idx_for_str_enum(BilletSubcategory, self.fitrep.billet_subcategory.value) or 0
-        )
+        self.billet_subcategory.setCurrentIndex(self.get_idx_for_enum(self.fitrep.billet_subcategory))
         grid_layout.addWidget(QLabel("21. Billet Subcategory"), 8, 2)
         grid_layout.addWidget(self.billet_subcategory, 8, 3)
 
@@ -291,7 +271,7 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(QLabel("Primary/Collateral/Watchstanding Duties"), 13, 2)
         grid_layout.addWidget(self.duties_description, 13, 3)
 
-        self.date_counseled = QDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")
+        self.date_counseled = QDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")  # type: ignore[call-overload]
         if self.fitrep.date_counseled:
             y = self.fitrep.date_counseled.year
             m = self.fitrep.date_counseled.month
@@ -310,49 +290,49 @@ class FitrepForm(QWidget):
         # grid_layout.addItem(QSpacerItem(0, h), 13, 0)
 
         self.pro_expertise = QComboBox()
-        self.pro_expertise.addItems([p for p in perf_traits.keys()])
+        self.pro_expertise.addItems([p for p in self.perf_traits.keys()])
         if self.fitrep.pro_expertise is not None:
             self.pro_expertise.setCurrentIndex(self.fitrep.pro_expertise + 1)
         grid_layout.addWidget(QLabel("Professional Expertise"), 16, 0)
         grid_layout.addWidget(self.pro_expertise, 16, 1)
 
         self.cmd_climate = QComboBox()
-        self.cmd_climate.addItems([p for p in perf_traits.keys()])
+        self.cmd_climate.addItems([p for p in self.perf_traits.keys()])
         if self.fitrep.cmd_climate is not None:
             self.cmd_climate.setCurrentIndex(self.fitrep.cmd_climate + 1)
         grid_layout.addWidget(QLabel("Command or Organizational Climate"), 16, 2)
         grid_layout.addWidget(self.cmd_climate, 16, 3)
 
         self.bearing_and_character = QComboBox()
-        self.bearing_and_character.addItems([p for p in perf_traits.keys()])
+        self.bearing_and_character.addItems([p for p in self.perf_traits.keys()])
         if self.fitrep.bearing_and_character is not None:
             self.bearing_and_character.setCurrentIndex(self.fitrep.bearing_and_character + 1)
         grid_layout.addWidget(QLabel("Military Bearing/Character"), 17, 0)
         grid_layout.addWidget(self.bearing_and_character, 17, 1)
 
         self.teamwork = QComboBox()
-        self.teamwork.addItems([p for p in perf_traits.keys()])
+        self.teamwork.addItems([p for p in self.perf_traits.keys()])
         if self.fitrep.teamwork is not None:
             self.teamwork.setCurrentIndex(self.fitrep.teamwork + 1)
         grid_layout.addWidget(QLabel("Teamwork"), 17, 2)
         grid_layout.addWidget(self.teamwork, 17, 3)
 
         self.accomp_and_initiative = QComboBox()
-        self.accomp_and_initiative.addItems([p for p in perf_traits.keys()])
+        self.accomp_and_initiative.addItems([p for p in self.perf_traits.keys()])
         if self.fitrep.accomp_and_initiative is not None:
             self.accomp_and_initiative.setCurrentIndex(self.fitrep.accomp_and_initiative + 1)
         grid_layout.addWidget(QLabel("Mission Accomplishment and Initiative"), 18, 0)
         grid_layout.addWidget(self.accomp_and_initiative, 18, 1)
 
         self.leadership = QComboBox()
-        self.leadership.addItems([p for p in perf_traits.keys()])
+        self.leadership.addItems([p for p in self.perf_traits.keys()])
         if self.fitrep.leadership is not None:
             self.leadership.setCurrentIndex(self.fitrep.leadership + 1)
         grid_layout.addWidget(QLabel("Leadership"), 18, 2)
         grid_layout.addWidget(self.leadership, 18, 3)
 
         self.tactical_performance = QComboBox()
-        self.tactical_performance.addItems([p for p in perf_traits.keys()])
+        self.tactical_performance.addItems([p for p in self.perf_traits.keys()])
         if self.fitrep.tactical_performance is not None:
             self.tactical_performance.setCurrentIndex(self.fitrep.tactical_performance + 1)
         grid_layout.addWidget(QLabel("Tactical Performance"), 19, 0)
@@ -408,7 +388,7 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(self.comments, 22, 1, 1, 3)
 
         self.indiv_promo_rec = QComboBox()
-        self.indiv_promo_rec.addItems([k for k in promotion_recs.keys()])
+        self.indiv_promo_rec.addItems([k for k in self.promotion_recs.keys()])
         if self.fitrep.indiv_promo_rec is not None:
             self.indiv_promo_rec.setCurrentIndex(self.fitrep.indiv_promo_rec + 1)
         grid_layout.addWidget(QLabel("Promotion Reccomendation"), 23, 0)
@@ -449,19 +429,16 @@ class FitrepForm(QWidget):
         # Set the layout for the secondary window
         self.setLayout(main_layout)
 
-    # @Slot()
-    # def validate_comments(self):
-    #     text = self.comments.document().toPlainText()
-    #     wrapped = Fitrep.format_comments(text)
-    #     print(wrapped)
-    #     if len(wrapped) > 18:
-    #         QMessageBox.information(
-    #             self,
-    #             "Comments Validation",
-    #             "Comments may not exceed 18 lines. Excess lines will be trimmed on generated PDFs.",
-    #             QMessageBox.StandardButton.Ok,
-    #         )
-    #         self.comments.setText(allowed_text)
+    @staticmethod
+    def get_idx_for_enum(member: Enum | None) -> int:
+        """
+        Return 1-based index of the enum member within its enum class, or 0 if None/not found.
+
+        Useful for setting QComboBox current index based on enum member.
+        """
+        if member is None:
+            return 0
+        return list(type(member).__members__).index(member.name) + 1
 
     @Slot()
     def validate_special(self, check_state: Qt.CheckState):
@@ -549,6 +526,7 @@ class FitrepForm(QWidget):
 
     @Slot()
     def validate_ssn(self):
+        self.ssn.setText(self.ssn.text().strip())
         ssn_text = self.ssn.text()
         if len(ssn_text) != 11 or ssn_text[3] != "-" or ssn_text[6] != "-":
             QMessageBox.information(
@@ -602,7 +580,7 @@ class FitrepForm(QWidget):
         self.save_form()
         self.on_accept(self.fitrep)
 
-    def save_form(self) -> Fitrep:
+    def save_form(self):
         """
         Create a Fitrep class from the data input in the GUI Form.
         """
@@ -650,20 +628,20 @@ class FitrepForm(QWidget):
         self.fitrep.job = self.job.toPlainText()
         self.fitrep.date_counseled = self.date_counseled.date().toPython()
         self.fitrep.counselor = self.counselor.text()
-        self.fitrep.pro_expertise = perf_traits[self.pro_expertise.currentText()]
-        self.fitrep.cmd_climate = perf_traits[self.cmd_climate.currentText()]
-        self.fitrep.bearing_and_character = perf_traits[self.bearing_and_character.currentText()]
-        self.fitrep.teamwork = perf_traits[self.teamwork.currentText()]
-        self.fitrep.accomp_and_initiative = perf_traits[self.accomp_and_initiative.currentText()]
-        self.fitrep.leadership = perf_traits[self.leadership.currentText()]
-        self.fitrep.tactical_performance = perf_traits[self.tactical_performance.currentText()]
+        self.fitrep.pro_expertise = self.perf_traits[self.pro_expertise.currentText()]
+        self.fitrep.cmd_climate = self.perf_traits[self.cmd_climate.currentText()]
+        self.fitrep.bearing_and_character = self.perf_traits[self.bearing_and_character.currentText()]
+        self.fitrep.teamwork = self.perf_traits[self.teamwork.currentText()]
+        self.fitrep.accomp_and_initiative = self.perf_traits[self.accomp_and_initiative.currentText()]
+        self.fitrep.leadership = self.perf_traits[self.leadership.currentText()]
+        self.fitrep.tactical_performance = self.perf_traits[self.tactical_performance.currentText()]
         self.fitrep.career_rec_1 = Fitrep.validate_career_rec(self.career_rec_1.toPlainText())
         self.fitrep.career_rec_2 = self.career_rec_2.toPlainText()
         self.fitrep.comments = Fitrep.validate_comments(self.comments.toPlainText())
-        self.fitrep.indiv_promo_rec = promotion_recs[self.indiv_promo_rec.currentText()]
+        self.fitrep.indiv_promo_rec = self.promotion_recs[self.indiv_promo_rec.currentText()]
         self.fitrep.senior_address = self.senior_address.toPlainText()
 
-        try:
-            Fitrep.model_validate(self.fitrep.model_dump())
-        except ValidationError as err:
-            print(err.json())
+        # try:
+        #     Fitrep.model_validate(self.fitrep.model_dump())
+        # except ValidationError as err:
+        #     print(err.json())

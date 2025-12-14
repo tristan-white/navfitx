@@ -1,7 +1,9 @@
+import json
 import shutil
 import webbrowser
 from pathlib import Path
 
+from platformdirs import user_config_dir
 from PySide6.QtWidgets import (
     QFileDialog,
     QGroupBox,
@@ -19,7 +21,7 @@ from PySide6.QtWidgets import (
 )
 from sqlmodel import Session, SQLModel, create_engine, select
 
-from navfitx.constants import BUPERSINST_URL, GITHUB_URL
+from navfitx.constants import APP_AUTHOR, APP_NAME, BUPERSINST_URL, GITHUB_URL
 from navfitx.models import Fitrep
 from navfitx.utils import add_fitrep_to_db, get_blank_report_path
 
@@ -51,6 +53,18 @@ class Home(QMainWindow):
         # create home widget via method (moved from former HomeWidget class)
         self.stack.addWidget(self.create_home_widget())
         self.setCentralWidget(self.stack)
+
+        # Load last-used database path from previous session (if any)
+        self.load_last_db()
+        if self.db:
+            # refresh table and enable create button if DB was restored
+            try:
+                self.refresh_reports_table()
+            except Exception:
+                # Avoid crashing the UI if the restored DB is invalid/missing
+                pass
+            if hasattr(self, "create_fitrep_btn"):
+                self.create_fitrep_btn.setDisabled(False)
 
     def build_home_menu(self):
         self.menuBar().clear()
@@ -162,6 +176,11 @@ class Home(QMainWindow):
         # TODO: validate that selected file is a valid navfitx database
         if filename:
             self.db = Path(filename)
+            # persist selection for next session
+            try:
+                self.save_last_db(self.db)
+            except Exception:
+                pass
             self.refresh_reports_table()
             self.new_submenu.setDisabled(False)
             self.create_fitrep_btn.setDisabled(False)
@@ -176,9 +195,58 @@ class Home(QMainWindow):
         engine = create_engine(f"sqlite:///{path}")
         SQLModel.metadata.create_all(engine)
         self.db = path
+        # persist new database location
+        try:
+            self.save_last_db(self.db)
+        except Exception:
+            pass
         self.new_submenu.setDisabled(False)
         self.create_fitrep_btn.setDisabled(False)
         self.refresh_reports_table()
+
+    # --- persistence helpers for remembering last-opened DB using platformdirs ---
+    def _state_file(self) -> Path:
+        """Return the path to the per-user state file used to persist simple UI state.
+
+        Uses platformdirs.user_config_dir so state lives in the OS-appropriate location.
+        """
+        data_dir = Path(user_config_dir(APP_NAME, APP_AUTHOR))
+        data_dir.mkdir(parents=True, exist_ok=True)
+        return data_dir / "state.json"
+
+    def load_last_db(self) -> None:
+        """Load the last-used database path from the state file (if present).
+
+        Sets self.db to a Path if the file exists and the path is valid; otherwise leaves it None.
+        """
+        state_file = self._state_file()
+        if not state_file.exists():
+            return
+        try:
+            data = json.loads(state_file.read_text(encoding="utf-8"))
+            last = data.get("last_db")
+            if last:
+                p = Path(last)
+                if p.exists():
+                    self.db = p
+        except Exception:
+            # Corrupt/invalid state should not break the app; ignore and continue
+            return
+
+    def save_last_db(self, db_path: Path | None) -> None:
+        """Persist the provided database path to the state file. If db_path is None the state
+        file will be removed.
+        """
+        state_file = self._state_file()
+        if db_path is None:
+            try:
+                if state_file.exists():
+                    state_file.unlink()
+            except Exception:
+                pass
+            return
+        payload = {"last_db": str(db_path)}
+        state_file.write_text(json.dumps(payload), encoding="utf-8")
 
     def open_link(self, url: str):
         webbrowser.open(url)
@@ -237,7 +305,7 @@ class Home(QMainWindow):
         folder_tree.insertTopLevelItem(0, root)
         return folder_tree
 
-    def edit_fitrep_from_table(self, x: int, y: int) -> Fitrep | None:
+    def edit_fitrep_from_table(self, x: int, y: int):
         item = self.reports_table.item(x, y)
         assert item is not None
 
