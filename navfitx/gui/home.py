@@ -135,39 +135,23 @@ class Home(QMainWindow):
         instruction = help_menu.addAction("Instructions (BUPERSINST 1610.10H)")
         instruction.triggered.connect(lambda: self.open_link(BUPERSINST_URL))
 
-    def build_form_menu(self):
-        self.menuBar().clear()
-        file_menu = self.menuBar().addMenu("File")
-        # save_action = file_menu.addAction("Save")
-        # save_action.triggered.connect(self.submit_form)
+    def open_fitrep_dialog(self, fitrep: Fitrep | None = None):
+        self.fitrep_form = FitrepForm(self, self.submit_form, self.cancel_form, fitrep)
 
-        print_action = file_menu.addAction("Export as PDF")
-        print_action.triggered.connect(self.fitrep_form.print)
-        close_action = file_menu.addAction("Close")
-        close_action.triggered.connect(self.cancel_form)
+        # Menu must be built by the FitrepForm now (moved from Home)
+        # self.build_form_menu()
 
-        tools = self.menuBar().addMenu("Tools")
-        validate_action = tools.addAction("Validate Report")
-        validate_action.setDisabled(True)  # not implemented yet
-        spell_check_action = tools.addAction("Spell Check")
-        spell_check_action.setDisabled(True)  # not implemented yet
+        self.stack.addWidget(self.fitrep_form)
+        self.stack.setCurrentIndex(1)
 
     def on_stack_index_changed(self, index: int):
+        """Handle stack index changes: restore home menu on index 0, set form title on index 1."""
         if index == 0:
             self.setWindowTitle("NAVFITX")
             self.build_home_menu()
         elif index == 1:
-            self.build_form_menu()
+            # FitrepForm constructs its own menu when created.
             self.setWindowTitle("FITREP Data Entry")
-
-    def open_fitrep_dialog(self, fitrep: Fitrep | None = None):
-        self.fitrep_form = FitrepForm(self.submit_form, self.cancel_form, fitrep)
-
-        # Menu must be built after form is created so that actions can connect to it
-        self.build_form_menu()
-
-        self.stack.addWidget(self.fitrep_form)
-        self.stack.setCurrentIndex(1)
 
     def open_db(self):
         filename, selected_filter = QFileDialog.getOpenFileName(

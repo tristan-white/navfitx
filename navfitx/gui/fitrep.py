@@ -1,8 +1,10 @@
+import json
 import textwrap
 from enum import Enum
 from pathlib import Path
 from typing import Callable
 
+from pydantic import ValidationError
 from PySide6.QtCore import QDate, Qt, Slot
 from PySide6.QtGui import QFont, QTextOption
 from PySide6.QtWidgets import (
@@ -17,6 +19,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QLayout,
     QLineEdit,
+    QMainWindow,
     QMessageBox,
     QScrollArea,
     QTextEdit,
@@ -35,17 +38,21 @@ from navfitx.models import (
 from navfitx.overlay import create_fitrep_pdf
 
 
-class NoScrollComboBox(QComboBox):
+class NoScrollDateEdit(QDateEdit):
+    """This is a normal QDateEdit that ignores wheel events to prevent accidental changes when scrolling."""
+
     def wheelEvent(self, event):
         event.ignore()
 
 
-# promotion_recs is moved into FitrepForm as a class attribute (see below)
+class NoScrollComboBox(QComboBox):
+    """This is a normal QComboBox that ignores wheel events to prevent accidental changes when scrolling."""
+
+    def wheelEvent(self, event):
+        event.ignore()
 
 
 class FitrepForm(QWidget):
-    # Performance trait mapping used by multiple combo boxes. Kept as a class
-    # attribute so instances can reference it as `self.perf_traits`.
     perf_traits = {
         "": None,
         "Not Observed": 0,
@@ -55,7 +62,6 @@ class FitrepForm(QWidget):
         "4 - Above Standards": 4,
         "5 - Greatly Exceeds Standards": 5,
     }
-    # Promotion recommendation mapping used by the promotion combo in the form.
     promotion_recs = {
         "": None,
         "NOB": PromotionRecommendation.NOB.value,
@@ -66,7 +72,13 @@ class FitrepForm(QWidget):
         "Early Promote": PromotionRecommendation.EARLY_PROMOTE.value,
     }
 
-    def __init__(self, on_accept: Callable[[Fitrep], None], on_reject: Callable[[], None], fitrep: Fitrep | None):
+    def __init__(
+        self,
+        main: QMainWindow,
+        on_accept: Callable[[Fitrep], None],
+        on_reject: Callable[[], None],
+        fitrep: Fitrep | None,
+    ):
         super().__init__()
         self.fitrep = fitrep or Fitrep()
         self.on_accept = on_accept
@@ -130,7 +142,7 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(QLabel("7. Ship/Station"), 3, 0)
         grid_layout.addWidget(self.station, 3, 1)
 
-        self.promotion_status = QComboBox(currentText=self.fitrep.promotion_status)
+        self.promotion_status = NoScrollComboBox(currentText=self.fitrep.promotion_status)
         self.promotion_status.addItem("")
         self.promotion_status.addItems([member.value for member in PromotionStatus])
         self.promotion_status.setCurrentIndex(self.get_idx_for_enum(self.fitrep.promotion_status))
@@ -138,7 +150,7 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(self.promotion_status, 3, 3)
 
         # Move Date Reported so it appears before Type of Report in the grid
-        self.date_reported = QDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")  # type: ignore[call-overload]
+        self.date_reported = NoScrollDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")  # type: ignore[call-overload]
         if self.fitrep.date_reported is not None:
             y = self.fitrep.date_reported.year
             m = self.fitrep.date_reported.month
@@ -168,7 +180,7 @@ class FitrepForm(QWidget):
         group_box.setLayout(vbox)
         grid_layout.addWidget(group_box, 4, 2, 1, 2)
 
-        self.period_start = QDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")  # type: ignore[call-overload]
+        self.period_start = NoScrollDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")  # type: ignore[call-overload]
         if self.fitrep.period_start:
             y = self.fitrep.period_start.year
             m = self.fitrep.period_start.month
@@ -177,7 +189,7 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(QLabel("14. Period Start"), 6, 0)
         grid_layout.addWidget(self.period_start, 6, 1)
 
-        self.period_end = QDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")  # type: ignore[call-overload]
+        self.period_end = NoScrollDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")  # type: ignore[call-overload]
         if self.fitrep.period_end:
             y = self.fitrep.period_end.year
             m = self.fitrep.period_end.month
@@ -207,14 +219,14 @@ class FitrepForm(QWidget):
         group_box.setLayout(hbox)
         grid_layout.addWidget(group_box, 7, 2, 1, 2)
 
-        self.physical_readiness = QComboBox()
+        self.physical_readiness = NoScrollComboBox()
         self.physical_readiness.addItem("")
         self.physical_readiness.addItems([member.value for member in PhysicalReadiness])
         self.physical_readiness.setCurrentIndex(self.get_idx_for_enum(self.fitrep.physical_readiness))
         grid_layout.addWidget(QLabel("20. Physical Readiness"), 8, 0)
         grid_layout.addWidget(self.physical_readiness, 8, 1)
 
-        self.billet_subcategory = QComboBox()
+        self.billet_subcategory = NoScrollComboBox()
         self.billet_subcategory.addItem("")
         self.billet_subcategory.addItems([member.value for member in BilletSubcategory])
         self.billet_subcategory.setCurrentIndex(self.get_idx_for_enum(self.fitrep.billet_subcategory))
@@ -266,72 +278,85 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(QLabel("Primary Duty Abbreviation"), 13, 0)
         grid_layout.addWidget(self.duties_abbreviation, 13, 1)
 
-        self.duties_description = QLineEdit()
-        self.duties_description.setText(self.fitrep.duties_description)
-        grid_layout.addWidget(QLabel("Primary/Collateral/Watchstanding Duties"), 13, 2)
-        grid_layout.addWidget(self.duties_description, 13, 3)
+        # self.duties_description = QLineEdit()
+        # self.duties_description.setText(self.fitrep.duties_description)
+        # grid_layout.addWidget(QLabel("Primary/Collateral/Watchstanding Duties"), 13, 2)
+        # grid_layout.addWidget(self.duties_description, 13, 3)
 
-        self.date_counseled = QDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")  # type: ignore[call-overload]
+        self.duties_description = QTextEdit(tabChangesFocus=True, lineWrapMode=QTextEdit.LineWrapMode.FixedColumnWidth)
+        self.duties_description.setText(self.fitrep.duties_description)
+        # self.duties_description.setPlaceholderText("")
+        self.duties_description.setWordWrapMode(QTextOption.WrapMode.WordWrap)
+        self.duties_description.setLineWrapColumnOrWidth(92)
+        self.duties_description.setFont(QFont("Courier"))
+        line_height = self.duties_description.fontMetrics().lineSpacing()
+        self.duties_description.setFixedHeight(line_height * 3)
+        self.duties_description.setFixedWidth(900)
+
+        grid_layout.addWidget(QLabel("Primary/Collateral/Watchstanding Duties"), 14, 0)
+        grid_layout.addWidget(self.duties_description, 14, 1, 1, 3)
+
+        self.date_counseled = NoScrollDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")  # type: ignore[call-overload]
         if self.fitrep.date_counseled:
             y = self.fitrep.date_counseled.year
             m = self.fitrep.date_counseled.month
             d = self.fitrep.date_counseled.day
             self.date_counseled.setDate(QDate(y, m, d))
-        grid_layout.addWidget(QLabel("Date Counseled"), 14, 0)
-        grid_layout.addWidget(self.date_counseled, 14, 1)
+        grid_layout.addWidget(QLabel("Date Counseled"), 15, 0)
+        grid_layout.addWidget(self.date_counseled, 15, 1)
 
         self.counselor = QLineEdit()
         self.counselor.setText(self.fitrep.counselor)
-        grid_layout.addWidget(QLabel("Counselor"), 14, 2)
-        grid_layout.addWidget(self.counselor, 14, 3)
+        grid_layout.addWidget(QLabel("Counselor"), 15, 2)
+        grid_layout.addWidget(self.counselor, 15, 3)
 
         # h = self.counselor.sizeHint().height()
         # w = self.counselor.sizeHint().width()
         # grid_layout.addItem(QSpacerItem(0, h), 13, 0)
 
-        self.pro_expertise = QComboBox()
+        self.pro_expertise = NoScrollComboBox()
         self.pro_expertise.addItems([p for p in self.perf_traits.keys()])
         if self.fitrep.pro_expertise is not None:
             self.pro_expertise.setCurrentIndex(self.fitrep.pro_expertise + 1)
         grid_layout.addWidget(QLabel("Professional Expertise"), 16, 0)
         grid_layout.addWidget(self.pro_expertise, 16, 1)
 
-        self.cmd_climate = QComboBox()
+        self.cmd_climate = NoScrollComboBox()
         self.cmd_climate.addItems([p for p in self.perf_traits.keys()])
         if self.fitrep.cmd_climate is not None:
             self.cmd_climate.setCurrentIndex(self.fitrep.cmd_climate + 1)
         grid_layout.addWidget(QLabel("Command or Organizational Climate"), 16, 2)
         grid_layout.addWidget(self.cmd_climate, 16, 3)
 
-        self.bearing_and_character = QComboBox()
+        self.bearing_and_character = NoScrollComboBox()
         self.bearing_and_character.addItems([p for p in self.perf_traits.keys()])
         if self.fitrep.bearing_and_character is not None:
             self.bearing_and_character.setCurrentIndex(self.fitrep.bearing_and_character + 1)
         grid_layout.addWidget(QLabel("Military Bearing/Character"), 17, 0)
         grid_layout.addWidget(self.bearing_and_character, 17, 1)
 
-        self.teamwork = QComboBox()
+        self.teamwork = NoScrollComboBox()
         self.teamwork.addItems([p for p in self.perf_traits.keys()])
         if self.fitrep.teamwork is not None:
             self.teamwork.setCurrentIndex(self.fitrep.teamwork + 1)
         grid_layout.addWidget(QLabel("Teamwork"), 17, 2)
         grid_layout.addWidget(self.teamwork, 17, 3)
 
-        self.accomp_and_initiative = QComboBox()
+        self.accomp_and_initiative = NoScrollComboBox()
         self.accomp_and_initiative.addItems([p for p in self.perf_traits.keys()])
         if self.fitrep.accomp_and_initiative is not None:
             self.accomp_and_initiative.setCurrentIndex(self.fitrep.accomp_and_initiative + 1)
         grid_layout.addWidget(QLabel("Mission Accomplishment and Initiative"), 18, 0)
         grid_layout.addWidget(self.accomp_and_initiative, 18, 1)
 
-        self.leadership = QComboBox()
+        self.leadership = NoScrollComboBox()
         self.leadership.addItems([p for p in self.perf_traits.keys()])
         if self.fitrep.leadership is not None:
             self.leadership.setCurrentIndex(self.fitrep.leadership + 1)
         grid_layout.addWidget(QLabel("Leadership"), 18, 2)
         grid_layout.addWidget(self.leadership, 18, 3)
 
-        self.tactical_performance = QComboBox()
+        self.tactical_performance = NoScrollComboBox()
         self.tactical_performance.addItems([p for p in self.perf_traits.keys()])
         if self.fitrep.tactical_performance is not None:
             self.tactical_performance.setCurrentIndex(self.fitrep.tactical_performance + 1)
@@ -387,7 +412,7 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(self.comments_label, 22, 0)
         grid_layout.addWidget(self.comments, 22, 1, 1, 3)
 
-        self.indiv_promo_rec = QComboBox()
+        self.indiv_promo_rec = NoScrollComboBox()
         self.indiv_promo_rec.addItems([k for k in self.promotion_recs.keys()])
         if self.fitrep.indiv_promo_rec is not None:
             self.indiv_promo_rec.setCurrentIndex(self.fitrep.indiv_promo_rec + 1)
@@ -428,6 +453,54 @@ class FitrepForm(QWidget):
 
         # Set the layout for the secondary window
         self.setLayout(main_layout)
+
+        # Build the form-specific menu on the provided main window
+        # (moved from Home.build_form_menu)
+        self.build_menu(main)
+
+    def build_menu(self, main: QMainWindow) -> None:
+        """Attach form-specific menu items to the main window's menu bar."""
+        menu_bar = main.menuBar()
+        menu_bar.clear()
+
+        file_menu = menu_bar.addMenu("File")
+        print_action = file_menu.addAction("Export as PDF")
+        print_action.triggered.connect(self.print)
+        close_action = file_menu.addAction("Close")
+        # Connect close to the provided on_reject callback so Home can handle stack cleanup
+        close_action.triggered.connect(self.on_reject)
+
+        tools = menu_bar.addMenu("Tools")
+        validate_action = tools.addAction("Validate Report")
+        validate_action.triggered.connect(self.validate_report)
+        # validate_action.setDisabled(True)  # not implemented yet
+        spell_check_action = tools.addAction("Spell Check")
+        spell_check_action.setDisabled(True)  # not implemented yet
+
+    def validate_report(self):
+        """Perform validation on all fields in the form."""
+        try:
+            Fitrep.model_validate(self.fitrep.model_dump())
+        except ValidationError as err:
+            errors = json.loads(err.json())
+            # show a list of all validation errors
+            error_messages = "\n".join([f"{error['loc'][0]}: {error['msg']}" for error in errors])
+
+            test = QMessageBox()
+            test.setWindowModality(Qt.WindowModality.NonModal)
+            test.information(self, "Validation", error_messages)
+            # test.show()
+
+            # msg = QMessageBox(self)
+            # msg.setIcon(QMessageBox.Critical)
+            # msg.setWindowTitle("FITREP Validation Errors")
+            # msg.setText("The following validation errors were found:")
+            # msg.setDetailedText(error_messages)
+            # msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+            # msg.setModal(False)               # non-blocking
+            # msg.setWindowFlag(Qt.Window)     # make it a separate top-level window (draggable)
+            # msg.setAttribute(Qt.WA_DeleteOnClose)
+            # msg.show()
 
     @staticmethod
     def get_idx_for_enum(member: Enum | None) -> int:
@@ -624,7 +697,7 @@ class FitrepForm(QWidget):
         self.fitrep.senior_uic = self.senior_uic.text()
         self.fitrep.senior_ssn = self.senior_ssn.text()
         self.fitrep.duties_abbreviation = self.duties_abbreviation.text()
-        self.fitrep.duties_description = self.duties_description.text()
+        self.fitrep.duties_description = self.duties_description.toPlainText()
         self.fitrep.job = self.job.toPlainText()
         self.fitrep.date_counseled = self.date_counseled.date().toPython()
         self.fitrep.counselor = self.counselor.text()

@@ -1,13 +1,9 @@
 import importlib.resources as resources
 from pathlib import Path
 
-import pyodbc
-import typer
-from rich import print
-
+# import pyodbc
 # from pydantic import BaseModel, Field
-from sqlmodel import Session, SQLModel, create_engine
-from typing_extensions import Annotated
+from sqlmodel import Session, create_engine
 
 from .models import Fitrep, Report
 
@@ -35,6 +31,28 @@ def get_icon_path() -> Path:
         return icon_path
 
 
+def add_report_to_db(db_path: Path, report: Report):
+    # TODO: confirm that db_path is to a sqlite database with appropriate schema
+    engine = create_engine(f"sqlite:///{db_path}")
+    with Session(engine) as session:
+        session.add(report)
+        session.commit()
+
+
+def add_fitrep_to_db(db_path: Path, fitrep: Fitrep):
+    engine = create_engine(f"sqlite:///{db_path}")
+    with Session(engine) as session:
+        # if fitrep.id is not None:
+        #     db_fitrep = session.get(Fitrep, fitrep.id)
+        #     for key, value in fitrep.model_dump().items():
+        #         setattr(db_fitrep, key, value)
+        #     session.add(db_fitrep)
+        # else:
+        session.add(fitrep)
+        session.commit()
+
+
+"""
 def get_reports_from_accdb(db: Path) -> list[Report]:
     conn_str = (
         r"DRIVER={MDBTools};"
@@ -133,30 +151,7 @@ def convert_accdb_to_sqlite(accdb: Path, sqlite: Path):
             session.add(report)
         session.commit()
 
-
-def add_report_to_db(db_path: Path, report: Report):
-    # TODO: confirm that db_path is to a sqlite database with appropriate schema
-    engine = create_engine(f"sqlite:///{db_path}")
-    with Session(engine) as session:
-        session.add(report)
-        session.commit()
-
-
-def add_fitrep_to_db(db_path: Path, fitrep: Fitrep):
-    engine = create_engine(f"sqlite:///{db_path}")
-    with Session(engine) as session:
-        # if fitrep.id is not None:
-        #     db_fitrep = session.get(Fitrep, fitrep.id)
-        #     for key, value in fitrep.model_dump().items():
-        #         setattr(db_fitrep, key, value)
-        #     session.add(db_fitrep)
-        # else:
-        session.add(fitrep)
-        session.commit()
-
-
 app = typer.Typer(add_completion=False, no_args_is_help=True)
-
 
 @app.command(no_args_is_help=True)
 def print_accdb(
@@ -172,7 +167,6 @@ def print_accdb(
     reports = get_reports_from_accdb(file)
     for report in reports:
         print(report)
-
 
 @app.command(no_args_is_help=True)
 def convert_accdb(
@@ -196,9 +190,10 @@ def convert_accdb(
         ),
     ],
 ):
-    """
+    '''
     Convert a Microsoft Access Database file (.accdb) from NAVFIT98 to a sqlite database for NAVFITX.
-    """
+    '''
     assert not output.exists()
     convert_accdb_to_sqlite(accdb, output)
     print(f"[green]Converted database written to {output}")
+"""
