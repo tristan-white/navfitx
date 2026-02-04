@@ -1,5 +1,7 @@
 # NAVFITX
 
+![PyPI - Version](https://img.shields.io/pypi/v/navfitx)
+
 NAVFITX is a drop-in replacement for NAVFIT98A.
 
 > Note: NAVFITX is still in development. It may contain bugs, incomplete features, and/or breaking changes.
