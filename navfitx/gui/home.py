@@ -33,7 +33,7 @@ class Home(QMainWindow):
     The main window for the NAVFITX GUI app (ie what is seen when the app is opened).
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.db: Path | None = None
