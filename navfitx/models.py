@@ -3,6 +3,7 @@ SQLModels for each type of report.
 """
 
 import textwrap
+from abc import abstractmethod
 from datetime import date
 from enum import Enum, StrEnum
 from typing import Annotated
@@ -13,7 +14,8 @@ from sqlmodel import Field, SQLModel
 
 class N98Report(SQLModel, table=True):
     """
-    A SQLModel that closely mirrors the 'Reports' table in NAVFIT98A Access db files.
+    A SQLModel that mirrors the 'Reports' table in NAVFIT98A Access db files. This is used to convert
+    NAVFIT98A Access db files (.accdb) to NAVFITX SQLite db files and vice versa.
 
     Args:
         report_id (int): Primary key for the report record.
@@ -356,11 +358,46 @@ class PromotionRecommendation(Enum):
 
 class Report(SQLModel):
     """
-    Docstring for Fitrep
+    A class that encapsulates the fields common to every type of report (FitRep, Eval, and ChiefEval).
+    Each type of report inherits this class and adds any additional fields specific to that report type.
 
-    Note: I haven't dug into why, but the @field_validator decorator *must* come before the @classmethod decorator
-    on validator methods for them to trigger when calling `Fitrep.model_validate(some_fitrep.model_dump())`.
+    Note:
+        I haven't dug into why, but the @field_validator decorator *must* come before the @classmethod decorator
+        on validator methods for them to trigger when calling `Fitrep.model_validate(some_fitrep.model_dump())`.
 
+    Args:
+        id (int): Primary key for the report record.
+        name (str): Full name of the subject.
+        desig (str): Designator code.
+        ssn (str): Social Security Number (format: XXX-XX-XXXX).
+        group (SummaryGroup): Summary group category.
+        uic (str): Unit Identification Code.
+        station (str): Ship or station name.
+        promotion_status (PromotionStatus): Promotion status category.
+        date_reported (date): Date the report was filed.
+        periodic (bool): 'Periodic' checkbox.
+        det_indiv (bool): 'Detachment of Individual' checkbox.
+        special (bool): Special occasion report checkbox.
+        period_start (date): Start date of reporting period.
+        period_end (date): End date of reporting period.
+        not_observed (bool): 'Not Observed' checkbox.
+        regular (bool): 'Regular' report checkbox.
+        concurrent (bool): 'Concurrent' checkbox.
+        billet_subcategory (BilletSubcategory): Billet subcategory code.
+        senior_name (str): Reporting senior full name.
+        senior_grade (str): Reporting senior grade.
+        senior_desig (str): Reporting senior designator code.
+        senior_title (str): Reporting senior title.
+        senior_uic (str): Reporting senior UIC.
+        senior_ssn (str): Reporting senior SSN (format: XXX-XX-XXXX).
+        job (str): Job title or description.
+        duties_abbreviation (str): Abbreviated duties description.
+        duties_description (str): Full duties description text.
+        date_counseled (date): Date counseled by reporting senior.
+        counselor (str): Counselor full name.
+        career_rec_1 (str): First career recommendation text field.
+        career_rec_2 (str): Second career recommendation text field.
+        comments (str): Comments text field with a minimum length of 1 character and no maximum length constraint. This field is required and cannot be blank. It is used to provide detailed comments about the subject's performance, achievements, or any other relevant information that the reporting senior wishes to include in the report. The comments should be comprehensive and informative, offering insights into the subject's strengths, areas for improvement, and overall contributions during the reporting period. The content of this field can vary widely based on the specific circumstances and performance of the subject being evaluated, but it must always contain meaningful information that adds value to the report and assists in
     """
 
     id: int = Field(primary_key=True, default=None)
@@ -488,16 +525,9 @@ class Report(SQLModel):
                     "Special Occasion reports cannot also be Detachment Individual, Detachment Reporting Senior, or Periodic reports."
                 )
 
-    def member_trait_avg(self) -> str:
-        traits = [
-            self.pro_expertise,
-            self.cmd_climate,
-            self.bearing_and_character,
-            self.teamwork,
-            self.accomp_and_initiative,
-            self.leadership,
-            self.tactical_performance,
-        ]
+    def average_traits(self, traits: list[int | None]) -> str:
+        if len(traits) != 7:
+            raise ValueError("Traits list must contain exactly 7 trait scores.")
         observed = 0
         total = 0
         for trait in traits:
@@ -508,6 +538,10 @@ class Report(SQLModel):
             avg = total / observed
             return f"{avg:.2f}"
         return "0.00"
+
+    @abstractmethod
+    def member_trait_avg(self) -> str:
+        pass
 
     def summary_group_avg(self) -> str:
         """
@@ -566,12 +600,32 @@ class Report(SQLModel):
 
 class Fitrep(Report, table=True):
     """
+    A SQLModel to represent FITREP reports.
+
     Args:
         grade (str):
             Grade of the fitrep.
         det_rs (bool):
-            Detachment reporting senior flag. This is for the 'Occaision for Report' block.
-            This particular checkbox does not appear in EVALs.
+            'Detachment Reporting Senior' checkbox. This particular checkbox does not appear in EVALs.
+        ops_cdr (bool):
+            'Ops Commander' checkbox. This particular checkbox does not appear in EVALs.
+        physical_readiness (PhysicalReadiness | None):
+            Physical readiness code.
+        pro_expertise (int | None):
+            Professional expertise score (0-5).
+        cmd_climate (int | None):
+            Command or Organizational Climate score (0-5).
+        bearing_and_character (int | None):
+            Military Bearing / Character score (0-5).
+        teamwork (int | None):
+            Teamwork score (0-5).
+        accomp_and_initiative (int | None):
+            Mission Accomplishment and Initiative score (0-5).
+        leadership (int | None):
+            Leadership score (0-5).
+        tactical_performance (int | None):
+            Tactical Performance score (0-5).
+
     """
 
     grade: Annotated[str, StringConstraints(max_length=5, min_length=1, strip_whitespace=True)] = ""
@@ -586,9 +640,23 @@ class Fitrep(Report, table=True):
     leadership: int | None = Field(None, ge=0, le=5)
     tactical_performance: int | None = Field(None, ge=0, le=5)
 
+    def member_trait_avg(self) -> str:
+        traits = [
+            self.pro_expertise,
+            self.cmd_climate,
+            self.bearing_and_character,
+            self.teamwork,
+            self.accomp_and_initiative,
+            self.leadership,
+            self.tactical_performance,
+        ]
+        return self.average_traits(traits)
+
 
 class Eval(Report, table=True):
     """
+    A SQLModel to represent EVAL reports.
+
     Args:
         rate (str):
             Rate/rating of the eval subject.
@@ -611,8 +679,24 @@ class Eval(Report, table=True):
     achievements: Annotated[str, StringConstraints(min_length=1, max_length=182)] = Field("")
     retain: bool | None = Field(None)
 
+    def member_trait_avg(self) -> str:
+        traits = [
+            self.prof_knowledge,
+            self.quality_of_work,
+            self.cmd_climate,
+            self.bearing_and_character,
+            self.initiative,
+            self.teamwork,
+            self.leadership,
+        ]
+        return self.average_traits(traits)
+
 
 class ChiefEval(Report, table=True):
+    """
+    A SQLModel to represent Chief EVAL reports.
+    """
+
     rate: str | None = None
     det_rs: bool = False
     ops_cdr: bool = False
@@ -624,3 +708,15 @@ class ChiefEval(Report, table=True):
     accountability: int | None = Field(None, ge=0, le=5)
     leadership: int | None = Field(None, ge=0, le=5)
     teamwork: int | None = Field(None, ge=0, le=5)
+
+    def member_trait_avg(self) -> str:
+        traits = [
+            self.technical_mastery,
+            self.expertise,
+            self.professionalism,
+            self.integrity,
+            self.accountability,
+            self.leadership,
+            self.teamwork,
+        ]
+        return self.average_traits(traits)
