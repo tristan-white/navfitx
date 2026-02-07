@@ -401,13 +401,23 @@ class Report(SQLModel):
     """
 
     id: int = Field(primary_key=True, default=None)
-    name: Annotated[str, StringConstraints(max_length=27, min_length=1, strip_whitespace=True, to_upper=True)] = ""
-    desig: Annotated[str, StringConstraints(max_length=12, min_length=1, strip_whitespace=True)] = ""
-    ssn: Annotated[str, StringConstraints(strip_whitespace=True, pattern=r"^\d{3}-\d{2}-\d{4}$")] = ""
-    group: SummaryGroup | None = None
-    uic: Annotated[str, StringConstraints(max_length=5, min_length=1, strip_whitespace=True)] = ""
-    station: Annotated[str, StringConstraints(min_length=1, max_length=18, strip_whitespace=True)] = ""
-    promotion_status: PromotionStatus | None = None
+    name: Annotated[str, StringConstraints(max_length=27, min_length=1, strip_whitespace=True, to_upper=True)] = Field(
+        title="Name", default=""
+    )
+    desig: Annotated[str, StringConstraints(max_length=12, min_length=1, strip_whitespace=True)] = Field(
+        title="Designator", default=""
+    )
+    ssn: Annotated[str, StringConstraints(strip_whitespace=True, pattern=r"^\d{3}-\d{2}-\d{4}$")] = Field(
+        title="SSN", default=""
+    )
+    group: SummaryGroup | None = Field(title="Group", default=None)
+    uic: Annotated[str, StringConstraints(max_length=5, min_length=1, strip_whitespace=True)] = Field(
+        title="UIC", default=""
+    )
+    station: Annotated[str, StringConstraints(min_length=1, max_length=18, strip_whitespace=True)] = Field(
+        title="Ship/Station", default=""
+    )
+    promotion_status: PromotionStatus | None = Field(title="Promotion Status", default=None)
     date_reported: date | None = None
     periodic: bool = False
     det_indiv: bool = False

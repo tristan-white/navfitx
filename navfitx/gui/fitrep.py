@@ -98,6 +98,7 @@ class FitrepForm(QWidget):
 
         self.name = QLineEdit()
         self.name.setText(self.fitrep.name)
+        self.name.setFont(QFont("Courier"))
         self.name.setPlaceholderText("LAST, FIRST MI Suffix")
         self.name.editingFinished.connect(self.validate_name)
         grid_layout.addWidget(QLabel("1. Name"), 0, 0)
@@ -105,16 +106,19 @@ class FitrepForm(QWidget):
 
         self.grade = QLineEdit()
         self.grade.setText(self.fitrep.grade)
+        self.grade.setFont(QFont("Courier"))
         self.grade.editingFinished.connect(self.validate_grade)
         grid_layout.addWidget(QLabel("2. Rank"), 0, 2)
         grid_layout.addWidget(self.grade, 0, 3)
 
         self.desig = QLineEdit()
+        self.desig.setFont(QFont("Courier"))
         self.desig.setText(self.fitrep.desig)
         grid_layout.addWidget(QLabel("3. Designator"), 1, 0)
         grid_layout.addWidget(self.desig, 1, 1)
 
         self.ssn = QLineEdit()
+        self.ssn.setFont(QFont("Courier"))
         self.ssn.setText(self.fitrep.ssn)
         self.ssn.setPlaceholderText("XXX-XX-XXXX")
         self.ssn.editingFinished.connect(self.validate_ssn)
@@ -131,6 +135,7 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(self.group, 2, 1)
 
         self.uic = QLineEdit()
+        self.uic.setFont(QFont("Courier"))
         self.uic.setText(self.fitrep.uic)
         self.uic.editingFinished.connect(self.validate_uic)
         grid_layout.addWidget(QLabel("6. UIC"), 2, 2)
@@ -138,6 +143,7 @@ class FitrepForm(QWidget):
 
         self.station = QLineEdit()
         self.station.setText(self.fitrep.station)
+        self.station.setFont(QFont("Courier"))
         self.station.editingFinished.connect(self.validate_ship_station)
         grid_layout.addWidget(QLabel("7. Ship/Station"), 3, 0)
         grid_layout.addWidget(self.station, 3, 1)
@@ -206,9 +212,11 @@ class FitrepForm(QWidget):
         group_box = QGroupBox("Type of Report")
         self.regular = QCheckBox("17. Regular")
         self.regular.setChecked(self.fitrep.regular)
+
         self.concurrent = QCheckBox("18. Concurrent")
         self.concurrent.setChecked(self.fitrep.concurrent)
         self.concurrent.checkStateChanged.connect(self.validate_concurrent)
+
         self.ops_cdr = QCheckBox("19. OpsCdr")
         self.ops_cdr.setChecked(self.fitrep.ops_cdr)
         self.ops_cdr.checkStateChanged.connect(self.validate_ops_cdr)
@@ -234,43 +242,53 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(self.billet_subcategory, 8, 3)
 
         self.senior_name = QLineEdit()
+        self.senior_name.setFont(QFont("Courier"))
         self.senior_name.setText(self.fitrep.senior_name)
         self.senior_name.setPlaceholderText("LAST, FI MI")
         grid_layout.addWidget(QLabel("22. Reporting Senior Name"), 9, 0)
         grid_layout.addWidget(self.senior_name, 9, 1)
 
         self.senior_grade = QLineEdit()
+        self.senior_grade.setFont(QFont("Courier"))
         self.senior_grade.setText(self.fitrep.senior_grade)
         grid_layout.addWidget(QLabel("23. Reporting Senior Grade"), 9, 2)
         grid_layout.addWidget(self.senior_grade, 9, 3)
 
         self.senior_desig = QLineEdit()
+        self.senior_desig.setFont(QFont("Courier"))
         self.senior_desig.setText(self.fitrep.senior_desig)
         grid_layout.addWidget(QLabel("24. Reporting Senior Designator"), 10, 0)
         grid_layout.addWidget(self.senior_desig, 10, 1)
 
         self.senior_title = QLineEdit()
+        self.senior_title.setFont(QFont("Courier"))
         self.senior_title.setText(self.fitrep.senior_title)
         grid_layout.addWidget(QLabel("25. Reporting Senior Title"), 10, 2)
         grid_layout.addWidget(self.senior_title, 10, 3)
 
         self.senior_uic = QLineEdit()
+        self.senior_uic.setFont(QFont("Courier"))
         self.senior_uic.setText(self.fitrep.senior_uic)
         grid_layout.addWidget(QLabel("26. Reporting Senior UIC"), 11, 0)
         grid_layout.addWidget(self.senior_uic, 11, 1)
 
         self.senior_ssn = QLineEdit()
+        self.senior_ssn.setFont(QFont("Courier"))
         self.senior_ssn.setText(self.fitrep.senior_ssn)
         self.senior_ssn.setPlaceholderText("XXX-XX-XXXX")
         grid_layout.addWidget(QLabel("27. Reporting Senior SSN"), 11, 2)
         grid_layout.addWidget(self.senior_ssn, 11, 3)
 
-        self.job = QTextEdit()
+        self.job = QTextEdit(tabChangesFocus=True, lineWrapMode=QTextEdit.LineWrapMode.FixedColumnWidth)
+        self.job.setFont(QFont("Courier"))
+        self.job.setWordWrapMode(QTextOption.WrapMode.WordWrap)
+        self.job.setLineWrapColumnOrWidth(92)
         self.job.setText(self.fitrep.job)
         grid_layout.addWidget(QLabel("28. Command Employment and\nCommand Achievements"), 12, 0)
         grid_layout.addWidget(self.job, 12, 1, 1, 3)
 
         self.duties_abbreviation = QLineEdit()
+        self.duties_abbreviation.setFont(QFont("Courier"))
         self.duties_abbreviation.setPlaceholderText("(14 characters max)")
         self.duties_abbreviation.setMaxLength(14)
         self.duties_abbreviation.setText(self.fitrep.duties_abbreviation)
@@ -284,6 +302,7 @@ class FitrepForm(QWidget):
         # grid_layout.addWidget(self.duties_description, 13, 3)
 
         self.duties_description = QTextEdit(tabChangesFocus=True, lineWrapMode=QTextEdit.LineWrapMode.FixedColumnWidth)
+        self.duties_description.setFont(QFont("Courier"))
         self.duties_description.setText(self.fitrep.duties_description)
         # self.duties_description.setPlaceholderText("")
         self.duties_description.setWordWrapMode(QTextOption.WrapMode.WordWrap)
@@ -306,6 +325,7 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(self.date_counseled, 15, 1)
 
         self.counselor = QLineEdit()
+        self.counselor.setFont(QFont("Courier"))
         self.counselor.setText(self.fitrep.counselor)
         grid_layout.addWidget(QLabel("Counselor"), 15, 2)
         grid_layout.addWidget(self.counselor, 15, 3)
