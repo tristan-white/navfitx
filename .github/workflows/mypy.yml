@@ -1,3 +1,5 @@
+name: mypy
+on [ push, pull_request ]
 jobs:
   mypy:
     name: python
@@ -5,19 +7,19 @@ jobs:
 
     steps:
 
-    # https://docs.astral.sh/uv/guides/integration/github/
-    - uses: actions/checkout@v6
+      # https://docs.astral.sh/uv/guides/integration/github/
+      - uses: actions/checkout@v6
 
-    - name: "Set up Python"
-      uses: actions/setup-python@v6
-      with:
-        python-version-file: "pyproject.toml"
+      - name: "Set up Python"
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: "pyproject.toml"
 
-    - name: Install uv
-      uses: astral-sh/setup-uv@v7
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
     
-    - name: Install dependencies
-      run: uv sync --locked --dev
+      - name: Install dependencies
+        run: uv sync --locked --dev
     
-    - name: Run mypy
-      run: uv run mypy navfitx
+      - name: Run mypy
+        run: uv run mypy navfitx
