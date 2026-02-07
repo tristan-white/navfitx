@@ -1,0 +1,36 @@
+site_name: NAVFITX
+site_url: https://tristan-white.github.io/navfitx/
+# repo_url: https://github.com/tristan-white/navfitx
+# repo_name: tristan-white/nmap-script-tutorial
+theme:
+  name: material
+  icon:
+    logo: material/clipboard-edit
+  palette: 
+    scheme: slate
+    primary: indigo
+  features:
+    # - navigation.tabs
+    - content.code.copy
+plugins:
+  - termynal:
+  - search
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.details
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/tristan-white/navftix
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/navfitx/
