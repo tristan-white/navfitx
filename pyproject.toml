@@ -19,6 +19,7 @@ Homepage = "https://github.com/tristan-white/navfitx"
 
 [dependency-groups]
 dev = [
+    "mkdocs-material>=9.7.1",
     "mypy>=1.18.2",
     "pre-commit>=4.3.0",
     "pytest>=9.0.2",
