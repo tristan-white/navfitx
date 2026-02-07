@@ -5,25 +5,13 @@ from pathlib import Path
 import pymupdf
 from pymupdf import Point
 
-from navfitx.utils import get_blank_report_path
+from navfitx.utils import get_blank_report_path, wrap_duty_desc
 
 from .models import (
     Fitrep,
     PromotionRecommendation,
     SummaryGroup,
 )
-
-
-def wrap_duty_desc(text: str) -> str:
-    """
-    The duties description is weird because the user manual says the constraint on this
-    box is "up to 334 alhphanumeric characters without spaces".
-    In practice, there are 4 lines. The first can have up to 69 characters (not including newline),
-    and the next three can have up to 91 charaters (not including newline).
-    """
-    text = 22 * " " + text
-    text = textwrap.fill(text, width=91)
-    return text
 
 
 def format_job(text: str) -> str:
