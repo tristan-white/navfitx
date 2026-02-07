@@ -27,6 +27,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from navfitx.constants import DUTIES_DESC_SPACE_FOR_ABBREV
 from navfitx.models import (
     BilletSubcategory,
     Fitrep,
@@ -98,27 +99,31 @@ class FitrepForm(QWidget):
 
         self.name = QLineEdit()
         self.name.setText(self.fitrep.name)
+        self.name.setFont(QFont("Courier"))
         self.name.setPlaceholderText("LAST, FIRST MI Suffix")
         self.name.editingFinished.connect(self.validate_name)
-        grid_layout.addWidget(QLabel("1. Name"), 0, 0)
+        grid_layout.addWidget(QLabel("Name"), 0, 0)
         grid_layout.addWidget(self.name, 0, 1)
 
         self.grade = QLineEdit()
         self.grade.setText(self.fitrep.grade)
+        self.grade.setFont(QFont("Courier"))
         self.grade.editingFinished.connect(self.validate_grade)
-        grid_layout.addWidget(QLabel("2. Rank"), 0, 2)
+        grid_layout.addWidget(QLabel("Rank"), 0, 2)
         grid_layout.addWidget(self.grade, 0, 3)
 
         self.desig = QLineEdit()
+        self.desig.setFont(QFont("Courier"))
         self.desig.setText(self.fitrep.desig)
-        grid_layout.addWidget(QLabel("3. Designator"), 1, 0)
+        grid_layout.addWidget(QLabel("Designator"), 1, 0)
         grid_layout.addWidget(self.desig, 1, 1)
 
         self.ssn = QLineEdit()
+        self.ssn.setFont(QFont("Courier"))
         self.ssn.setText(self.fitrep.ssn)
         self.ssn.setPlaceholderText("XXX-XX-XXXX")
         self.ssn.editingFinished.connect(self.validate_ssn)
-        grid_layout.addWidget(QLabel("4. SSN"), 1, 2)
+        grid_layout.addWidget(QLabel("SSN"), 1, 2)
         grid_layout.addWidget(self.ssn, 1, 3)
 
         self.group = NoScrollComboBox()
@@ -127,26 +132,28 @@ class FitrepForm(QWidget):
         # so it's used here to look the same as the form.
         self.group.addItem("")
         self.group.addItems([member.value for member in SummaryGroup])
-        grid_layout.addWidget(QLabel("5. Group"), 2, 0)
+        grid_layout.addWidget(QLabel("Group"), 2, 0)
         grid_layout.addWidget(self.group, 2, 1)
 
         self.uic = QLineEdit()
+        self.uic.setFont(QFont("Courier"))
         self.uic.setText(self.fitrep.uic)
         self.uic.editingFinished.connect(self.validate_uic)
-        grid_layout.addWidget(QLabel("6. UIC"), 2, 2)
+        grid_layout.addWidget(QLabel("UIC"), 2, 2)
         grid_layout.addWidget(self.uic, 2, 3)
 
         self.station = QLineEdit()
         self.station.setText(self.fitrep.station)
+        self.station.setFont(QFont("Courier"))
         self.station.editingFinished.connect(self.validate_ship_station)
-        grid_layout.addWidget(QLabel("7. Ship/Station"), 3, 0)
+        grid_layout.addWidget(QLabel("Ship/Station"), 3, 0)
         grid_layout.addWidget(self.station, 3, 1)
 
         self.promotion_status = NoScrollComboBox(currentText=self.fitrep.promotion_status)
         self.promotion_status.addItem("")
         self.promotion_status.addItems([member.value for member in PromotionStatus])
         self.promotion_status.setCurrentIndex(self.get_idx_for_enum(self.fitrep.promotion_status))
-        grid_layout.addWidget(QLabel("8. Promotion Status"), 3, 2)
+        grid_layout.addWidget(QLabel("Promotion Status"), 3, 2)
         grid_layout.addWidget(self.promotion_status, 3, 3)
 
         # Move Date Reported so it appears before Type of Report in the grid
@@ -156,20 +163,20 @@ class FitrepForm(QWidget):
             m = self.fitrep.date_reported.month
             d = self.fitrep.date_reported.day
             self.date_reported.setDate(QDate(y, m, d))
-        grid_layout.addWidget(QLabel("9. Date Reported"), 4, 0)
+        grid_layout.addWidget(QLabel("Date Reported"), 4, 0)
         grid_layout.addWidget(self.date_reported, 4, 1)
 
         group_box = QGroupBox("Occasion for Report")
-        self.periodic = QCheckBox("10. Periodic")
+        self.periodic = QCheckBox("Periodic")
         self.periodic.setChecked(self.fitrep.periodic)
         self.periodic.checkStateChanged.connect(self.validate_occasion)
-        self.det_indiv = QCheckBox("11. Detachment of Individual")
+        self.det_indiv = QCheckBox("Detachment of Individual")
         self.det_indiv.setChecked(self.fitrep.det_indiv)
         self.det_indiv.checkStateChanged.connect(self.validate_occasion)
-        self.det_rs = QCheckBox("12. Detachment of Reporting Senior")
+        self.det_rs = QCheckBox("Detachment of Reporting Senior")
         self.det_rs.setChecked(self.fitrep.det_rs)
         self.det_rs.checkStateChanged.connect(self.validate_occasion)
-        self.special = QCheckBox("13. Special")
+        self.special = QCheckBox("Special")
         self.special.setChecked(self.fitrep.special)
         self.special.checkStateChanged.connect(self.validate_special)
         vbox = QHBoxLayout()
@@ -186,7 +193,7 @@ class FitrepForm(QWidget):
             m = self.fitrep.period_start.month
             d = self.fitrep.period_start.day
             self.period_start.setDate(QDate(y, m, d))
-        grid_layout.addWidget(QLabel("14. Period Start"), 6, 0)
+        grid_layout.addWidget(QLabel("Period Start"), 6, 0)
         grid_layout.addWidget(self.period_start, 6, 1)
 
         self.period_end = NoScrollDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")  # type: ignore[call-overload]
@@ -195,21 +202,23 @@ class FitrepForm(QWidget):
             m = self.fitrep.period_end.month
             d = self.fitrep.period_end.day
             self.period_end.setDate(QDate(y, m, d))
-        grid_layout.addWidget(QLabel("15. Period End"), 6, 2)
+        grid_layout.addWidget(QLabel("Period End"), 6, 2)
         grid_layout.addWidget(self.period_end, 6, 3)
 
         self.not_observed = QCheckBox()
         self.not_observed.setChecked(self.fitrep.not_observed)
-        grid_layout.addWidget(QLabel("16. Not Observed Report"), 7, 0)
+        grid_layout.addWidget(QLabel("Not Observed Report"), 7, 0)
         grid_layout.addWidget(self.not_observed, 7, 1)
 
         group_box = QGroupBox("Type of Report")
-        self.regular = QCheckBox("17. Regular")
+        self.regular = QCheckBox("Regular")
         self.regular.setChecked(self.fitrep.regular)
-        self.concurrent = QCheckBox("18. Concurrent")
+
+        self.concurrent = QCheckBox("Concurrent")
         self.concurrent.setChecked(self.fitrep.concurrent)
         self.concurrent.checkStateChanged.connect(self.validate_concurrent)
-        self.ops_cdr = QCheckBox("19. OpsCdr")
+
+        self.ops_cdr = QCheckBox("OpsCdr")
         self.ops_cdr.setChecked(self.fitrep.ops_cdr)
         self.ops_cdr.checkStateChanged.connect(self.validate_ops_cdr)
         hbox = QHBoxLayout()
@@ -223,77 +232,110 @@ class FitrepForm(QWidget):
         self.physical_readiness.addItem("")
         self.physical_readiness.addItems([member.value for member in PhysicalReadiness])
         self.physical_readiness.setCurrentIndex(self.get_idx_for_enum(self.fitrep.physical_readiness))
-        grid_layout.addWidget(QLabel("20. Physical Readiness"), 8, 0)
+        grid_layout.addWidget(QLabel("Physical Readiness"), 8, 0)
         grid_layout.addWidget(self.physical_readiness, 8, 1)
 
         self.billet_subcategory = NoScrollComboBox()
         self.billet_subcategory.addItem("")
         self.billet_subcategory.addItems([member.value for member in BilletSubcategory])
         self.billet_subcategory.setCurrentIndex(self.get_idx_for_enum(self.fitrep.billet_subcategory))
-        grid_layout.addWidget(QLabel("21. Billet Subcategory"), 8, 2)
+        grid_layout.addWidget(QLabel("Billet Subcategory"), 8, 2)
         grid_layout.addWidget(self.billet_subcategory, 8, 3)
 
         self.senior_name = QLineEdit()
+        self.senior_name.setFont(QFont("Courier"))
         self.senior_name.setText(self.fitrep.senior_name)
         self.senior_name.setPlaceholderText("LAST, FI MI")
-        grid_layout.addWidget(QLabel("22. Reporting Senior Name"), 9, 0)
+        grid_layout.addWidget(QLabel("Reporting Senior Name"), 9, 0)
         grid_layout.addWidget(self.senior_name, 9, 1)
 
         self.senior_grade = QLineEdit()
+        self.senior_grade.setFont(QFont("Courier"))
         self.senior_grade.setText(self.fitrep.senior_grade)
-        grid_layout.addWidget(QLabel("23. Reporting Senior Grade"), 9, 2)
+        grid_layout.addWidget(QLabel("Reporting Senior Grade"), 9, 2)
         grid_layout.addWidget(self.senior_grade, 9, 3)
 
         self.senior_desig = QLineEdit()
+        self.senior_desig.setFont(QFont("Courier"))
         self.senior_desig.setText(self.fitrep.senior_desig)
-        grid_layout.addWidget(QLabel("24. Reporting Senior Designator"), 10, 0)
+        grid_layout.addWidget(QLabel("Reporting Senior Designator"), 10, 0)
         grid_layout.addWidget(self.senior_desig, 10, 1)
 
         self.senior_title = QLineEdit()
+        self.senior_title.setFont(QFont("Courier"))
         self.senior_title.setText(self.fitrep.senior_title)
-        grid_layout.addWidget(QLabel("25. Reporting Senior Title"), 10, 2)
+        grid_layout.addWidget(QLabel("Reporting Senior Title"), 10, 2)
         grid_layout.addWidget(self.senior_title, 10, 3)
 
         self.senior_uic = QLineEdit()
+        self.senior_uic.setFont(QFont("Courier"))
         self.senior_uic.setText(self.fitrep.senior_uic)
-        grid_layout.addWidget(QLabel("26. Reporting Senior UIC"), 11, 0)
+        grid_layout.addWidget(QLabel("Reporting Senior UIC"), 11, 0)
         grid_layout.addWidget(self.senior_uic, 11, 1)
 
         self.senior_ssn = QLineEdit()
+        self.senior_ssn.setFont(QFont("Courier"))
         self.senior_ssn.setText(self.fitrep.senior_ssn)
         self.senior_ssn.setPlaceholderText("XXX-XX-XXXX")
-        grid_layout.addWidget(QLabel("27. Reporting Senior SSN"), 11, 2)
+        grid_layout.addWidget(QLabel("Reporting Senior SSN"), 11, 2)
         grid_layout.addWidget(self.senior_ssn, 11, 3)
 
-        self.job = QTextEdit()
+        self.job = QTextEdit(tabChangesFocus=True, lineWrapMode=QTextEdit.LineWrapMode.FixedColumnWidth)
+        self.job.setFont(QFont("Courier"))
+        self.job.setPlaceholderText("Maximum of 3 lines. Excess lines will be trimmed.")
+        self.job.setWordWrapMode(QTextOption.WrapMode.WordWrap)
+        self.job.setLineWrapColumnOrWidth(92)
         self.job.setText(self.fitrep.job)
-        grid_layout.addWidget(QLabel("28. Command Employment and\nCommand Achievements"), 12, 0)
+        line_height = self.job.fontMetrics().lineSpacing()
+        self.job.setFixedHeight(int(line_height * 3.6))  # I don't know why, but 4 isn't quite tall enough.
+        self.job.setFixedWidth(900)
+
+        self.job_label = QLabel(
+            f"Command Employment and\nCommand Achievements\n"
+            f"(Line Count: {len(Fitrep.wrap_text(self.job.toPlainText(), 92).split('\n'))}/3)"
+        )
+        # num_lines = len(Fitrep.format_comments(self.comments.toPlainText()).split())
+        self.job.textChanged.connect(
+            lambda: self.job_label.setText(
+                f"Command Employment and\nCommand Achievements\n"
+                f"(Line Count: {len(Fitrep.wrap_text(self.job.toPlainText(), 92).split('\n'))}/3)"
+            )
+        )
+
+        # grid_layout.addWidget(QLabel("Command Employment and\nCommand Achievements"), 12, 0)
+        grid_layout.addWidget(self.job_label, 12, 0)
         grid_layout.addWidget(self.job, 12, 1, 1, 3)
 
         self.duties_abbreviation = QLineEdit()
+        self.duties_abbreviation.setFont(QFont("Courier"))
         self.duties_abbreviation.setPlaceholderText("(14 characters max)")
         self.duties_abbreviation.setMaxLength(14)
+        self.duties_abbreviation.setFixedWidth(180)
         self.duties_abbreviation.setText(self.fitrep.duties_abbreviation)
-        # self.duties_abbreviation.editingFinished.connect(self.validate_duties_abbreviation)
         grid_layout.addWidget(QLabel("Primary Duty Abbreviation"), 13, 0)
         grid_layout.addWidget(self.duties_abbreviation, 13, 1)
 
-        # self.duties_description = QLineEdit()
-        # self.duties_description.setText(self.fitrep.duties_description)
-        # grid_layout.addWidget(QLabel("Primary/Collateral/Watchstanding Duties"), 13, 2)
-        # grid_layout.addWidget(self.duties_description, 13, 3)
-
         self.duties_description = QTextEdit(tabChangesFocus=True, lineWrapMode=QTextEdit.LineWrapMode.FixedColumnWidth)
-        self.duties_description.setText(self.fitrep.duties_description)
-        # self.duties_description.setPlaceholderText("")
-        self.duties_description.setWordWrapMode(QTextOption.WrapMode.WordWrap)
-        self.duties_description.setLineWrapColumnOrWidth(92)
         self.duties_description.setFont(QFont("Courier"))
+        self.duties_description.setWordWrapMode(QTextOption.WrapMode.WordWrap)
+        if self.duties_description == "":
+            self.duties_description.setText(" " * DUTIES_DESC_SPACE_FOR_ABBREV)
+        else:
+            self.duties_description.setText(f"{' ' * DUTIES_DESC_SPACE_FOR_ABBREV}{self.fitrep.duties_description}")
+        self.duties_description.setLineWrapColumnOrWidth(91)
         line_height = self.duties_description.fontMetrics().lineSpacing()
-        self.duties_description.setFixedHeight(line_height * 3)
+        self.duties_description.setFixedHeight(
+            int(line_height * 4.6)
+        )  # I don't know why, but 4 isn't quite tall enough.
         self.duties_description.setFixedWidth(900)
+        self.duties_description.setPlaceholderText("Maximum of 4 lines. Excess lines will be trimmed.")
+        # self.duties_description.selectionChanged.connect(self.validate_duties_description)
 
-        grid_layout.addWidget(QLabel("Primary/Collateral/Watchstanding Duties"), 14, 0)
+        duties_desc_label = QLabel("Primary/Collateral/Watchstanding Duties")
+        duties_desc_label.setToolTip(
+            "Maximum of 4 lines, but first line must have 21 leading spaces to leave room for the duties abbreviation box."
+        )
+        grid_layout.addWidget(duties_desc_label, 14, 0)
         grid_layout.addWidget(self.duties_description, 14, 1, 1, 3)
 
         self.date_counseled = NoScrollDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")  # type: ignore[call-overload]
@@ -306,6 +348,7 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(self.date_counseled, 15, 1)
 
         self.counselor = QLineEdit()
+        self.counselor.setFont(QFont("Courier"))
         self.counselor.setText(self.fitrep.counselor)
         grid_layout.addWidget(QLabel("Counselor"), 15, 2)
         grid_layout.addWidget(self.counselor, 15, 3)
@@ -370,7 +413,7 @@ class FitrepForm(QWidget):
         self.career_rec_1.setLineWrapColumnOrWidth(13)
         self.career_rec_1.setFont(QFont("Courier"))
         line_spacing = self.career_rec_1.fontMetrics().lineSpacing()
-        self.career_rec_1.setFixedHeight(line_spacing * 2)
+        self.career_rec_1.setFixedHeight(int(line_spacing * 2.6))
         # self.career_rec_1.setFixedWidth(900)
         self.career_rec_1.textChanged.connect(self.validate_career_rec1)
         grid_layout.addWidget(QLabel("Career Recommendation 1"), 20, 0)
@@ -383,7 +426,7 @@ class FitrepForm(QWidget):
         self.career_rec_2.setLineWrapColumnOrWidth(13)
         self.career_rec_2.setFont(QFont("Courier"))
         line_height = self.career_rec_2.fontMetrics().lineSpacing()
-        self.career_rec_2.setFixedHeight(line_height * 2)
+        self.career_rec_2.setFixedHeight(int(line_height * 2.6))
         # self.career_rec_2.setFixedWidth(900)
         grid_layout.addWidget(QLabel("Career Recommendation 2"), 20, 2)
         grid_layout.addWidget(self.career_rec_2, 20, 3)
@@ -395,17 +438,17 @@ class FitrepForm(QWidget):
         self.comments.setLineWrapColumnOrWidth(92)
         self.comments.setFont(QFont("Courier"))
         line_height = self.comments.fontMetrics().lineSpacing()
-        self.comments.setFixedHeight(line_height * 18)
+        self.comments.setFixedHeight(int(line_height * 18))
         self.comments.setFixedWidth(900)
         # self.comments.textChanged.connect(self.validate_comments)
 
         self.comments_label = QLabel(
-            f"Comments\n\nLine Count: ({len(Fitrep.wrap_text(self.comments.toPlainText(), 92).split('\n'))}/18)"
+            f"Comments\n\n(Line Count: {len(Fitrep.wrap_text(self.comments.toPlainText(), 92).split('\n'))}/18)"
         )
         # num_lines = len(Fitrep.format_comments(self.comments.toPlainText()).split())
         self.comments.textChanged.connect(
             lambda: self.comments_label.setText(
-                f"Comments\n\nLine Count: ({len(Fitrep.wrap_text(self.comments.toPlainText(), 92).split('\n'))}/18)"
+                f"Comments\n\n(Line Count: {len(Fitrep.wrap_text(self.comments.toPlainText(), 92).split('\n'))}/18)"
             )
         )
 
@@ -643,6 +686,19 @@ class FitrepForm(QWidget):
                 QMessageBox.StandardButton.Ok,
             )
 
+    @Slot()
+    def validate_duties_description(self):
+        """
+        This block is funky because of the duteis abbreviation block, which takes up some space on the first line.
+        I think the best solution that makes for an acceptable UX is to initialize the box with spaces. However,
+        the user may delete these, in which case they should be added back so the user sees and accurate line
+        count. This function, therefore, is not used to validate the length, but rather strip the text of
+        leading/trailing whitespace, then re-add the spaces to the beginning to ensure the line count is accurate.
+        """
+        self.duties_description.setText(
+            f"{' ' * DUTIES_DESC_SPACE_FOR_ABBREV}{self.duties_description.toPlainText().strip()}"
+        )
+
     def print(self):
         self.save_form()
         filename, selected_filter = QFileDialog.getSaveFileName(self, "Export FITREP PDF", "fitrep.pdf")
@@ -697,7 +753,7 @@ class FitrepForm(QWidget):
         self.fitrep.senior_uic = self.senior_uic.text()
         self.fitrep.senior_ssn = self.senior_ssn.text()
         self.fitrep.duties_abbreviation = self.duties_abbreviation.text()
-        self.fitrep.duties_description = self.duties_description.toPlainText()
+        self.fitrep.duties_description = self.duties_description.toPlainText().strip()
         self.fitrep.job = self.job.toPlainText()
         self.fitrep.date_counseled = self.date_counseled.date().toPython()
         self.fitrep.counselor = self.counselor.text()

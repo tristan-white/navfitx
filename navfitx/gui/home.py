@@ -22,8 +22,9 @@ from PySide6.QtWidgets import (
 from sqlmodel import Session, SQLModel, create_engine, select
 
 from navfitx.constants import APP_AUTHOR, APP_NAME, BUPERSINST_URL, GITHUB_URL
+from navfitx.db import add_fitrep_to_db
 from navfitx.models import Fitrep
-from navfitx.utils import add_fitrep_to_db, get_blank_report_path
+from navfitx.utils import get_blank_report_path
 
 from .fitrep import FitrepForm
 
@@ -38,6 +39,8 @@ class Home(QMainWindow):
 
         self.db: Path | None = None
         self.reports_table: QTableWidget = QTableWidget()
+        # show a tooltip when hovering over the reports table
+        self.reports_table.setToolTip("Double click a Report to edit it.")
         headers = ["Rank/Rate", "Full Name", "SSN", "Report", "To Date", "Record ID", "Validated"]
         self.reports_table.setRowCount(0)
         self.reports_table.setColumnCount(len(headers))
@@ -83,7 +86,8 @@ class Home(QMainWindow):
         fitness_report_action = self.new_submenu.addAction("Fitness Report")
         fitness_report_action.triggered.connect(lambda: self.open_fitrep_dialog(None))
 
-        self.new_submenu.addAction("Folder")
+        folder_action = self.new_submenu.addAction("Folder")
+        folder_action.setDisabled(True)  # not implemented yet
         create_db_action = file_menu.addAction("Create Database")
         create_db_action.triggered.connect(self.create_db)
         open_db_action = file_menu.addAction("Open Database")

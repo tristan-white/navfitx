@@ -11,6 +11,8 @@ from typing import Annotated
 from pydantic import StringConstraints, field_validator, model_validator
 from sqlmodel import Field, SQLModel
 
+from navfitx.utils import wrap_duty_desc
+
 
 class N98Report(SQLModel, table=True):
     """
@@ -401,13 +403,23 @@ class Report(SQLModel):
     """
 
     id: int = Field(primary_key=True, default=None)
-    name: Annotated[str, StringConstraints(max_length=27, min_length=1, strip_whitespace=True, to_upper=True)] = ""
-    desig: Annotated[str, StringConstraints(max_length=12, min_length=1, strip_whitespace=True)] = ""
-    ssn: Annotated[str, StringConstraints(strip_whitespace=True, pattern=r"^\d{3}-\d{2}-\d{4}$")] = ""
-    group: SummaryGroup | None = None
-    uic: Annotated[str, StringConstraints(max_length=5, min_length=1, strip_whitespace=True)] = ""
-    station: Annotated[str, StringConstraints(min_length=1, max_length=18, strip_whitespace=True)] = ""
-    promotion_status: PromotionStatus | None = None
+    name: Annotated[str, StringConstraints(max_length=27, min_length=1, strip_whitespace=True, to_upper=True)] = Field(
+        title="Name", default=""
+    )
+    desig: Annotated[str, StringConstraints(max_length=12, min_length=1, strip_whitespace=True)] = Field(
+        title="Designator", default=""
+    )
+    ssn: Annotated[str, StringConstraints(strip_whitespace=True, pattern=r"^\d{3}-\d{2}-\d{4}$")] = Field(
+        title="SSN", default=""
+    )
+    group: SummaryGroup | None = Field(title="Group", default=None)
+    uic: Annotated[str, StringConstraints(max_length=5, min_length=1, strip_whitespace=True)] = Field(
+        title="UIC", default=""
+    )
+    station: Annotated[str, StringConstraints(min_length=1, max_length=18, strip_whitespace=True)] = Field(
+        title="Ship/Station", default=""
+    )
+    promotion_status: PromotionStatus | None = Field(title="Promotion Status", default=None)
     date_reported: date | None = None
     periodic: bool = False
     det_indiv: bool = False
@@ -426,7 +438,8 @@ class Report(SQLModel):
     senior_ssn: Annotated[str, StringConstraints(strip_whitespace=True, pattern=r"^\d{3}-\d{2}-\d{4}$")] = ""
     job: str = ""
     duties_abbreviation: Annotated[str, StringConstraints(min_length=1, max_length=14)] = ""
-    duties_description: Annotated[str, StringConstraints(min_length=1, max_length=334)] = ""
+    # duties_description: Annotated[str, StringConstraints(min_length=1, max_length=334)] = ""
+    duties_description: str = ""
     date_counseled: date | None = None
     counselor: Annotated[str, StringConstraints(min_length=1, max_length=20)] = ""
     career_rec_1: Annotated[str, StringConstraints(min_length=1, max_length=20, strip_whitespace=True)] = ""
@@ -490,6 +503,21 @@ class Report(SQLModel):
             lines = wrapped.split("\n")
             comments = "\n".join(lines[:18])
         return comments
+
+    @field_validator("duties_description")
+    @classmethod
+    def validate_duties_description(cls, duties_description: str) -> str:
+        """
+        The duties description field technically has a max character limit according to the NAVFIT98v30 User Guide,
+        but it is ignored by the NAVFIT98 v33 app, which will allow as much text as can fit into the field. This gets
+        weird because of the small box within the block that holds the duties abbreviation. The account for the space
+        this block takes, spaces can be prepended to the description text before counting its lines.
+        """
+        duties_description = wrap_duty_desc(duties_description)
+        num_lines = len(duties_description.split("\n"))
+        if num_lines > 4:
+            raise ValueError(f"Duties description must be 4 lines or less (currently {num_lines} lines).")
+        return duties_description
 
     @model_validator(mode="after")
     def check_dates(self):
@@ -575,7 +603,7 @@ class Report(SQLModel):
     @staticmethod
     def wrap_text(txt: str, width: int) -> str:
         """
-        Formats text so that no lines has more than 92 characters.
+        Formats text so that no lines has more than `width` characters.
 
         This is used for inserting newlines into text from long form text blocks to ensure the text
         prints correctly on generated PDFs.

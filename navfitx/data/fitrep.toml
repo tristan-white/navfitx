@@ -1,6 +1,6 @@
-# Template .toml file for NAVPERS 1610/2 (aka FITREP).
-# This file can be converted into a NAVPERS 1610/2 PDF via NAVFITX.
-# Link: https://github.com/tristan-white/navfitx
+# Template .toml file for NAVPERS 1610/2 (FITREP).
+# This file can be converted into a NAVPERS 1610/2 PDF with the NAVFITX app:
+# https://github.com/tristan-white/navfitx
 
 [report]
 # Date service member reported to command.
@@ -10,8 +10,8 @@ date_reported = "2022-09-09"
 # If this is a wholly Not Observed report, change to true.
 not_observed_report = false
 
-counselor_name = "DOE, J"
-date_counseled = "2024-08-14"
+counselor_name = "LAST, FI"
+date_counseled = "YYYY-MM-DD"
 
 [report.type]
 regular = false
@@ -27,8 +27,8 @@ detachment_of_reporting_senior = false
 special = false
 
 [report.period]
-from = "2024-05-27"
-to = "2025-02-28"
+from = "YYYY-MM-DD"
+to = "YYYY-MM-DD"
 
 [member]
 # Enter the member's last name, first name, middle initial, and suffix (if any)
@@ -55,7 +55,7 @@ grade_or_rate = "LTJG"
 designator = "1840"
 
 # Format: "XXX-XX-XXX"
-ssn = "000-00-0000"
+ssn = "XXX-XX-XXXX"
 
 uic = ""
 
@@ -80,8 +80,7 @@ grade = ""
 designator = ""
 title = ""
 uic = 12345
-# Format: "XXX-XX-XXX"
-ssn = ""
+ssn = "XXX-XX-XXXX"
 
 [performance_traits]
 # Set each category 1 through 5, or 0 for Not Observed.
