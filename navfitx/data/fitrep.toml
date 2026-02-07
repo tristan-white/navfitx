@@ -3,15 +3,14 @@
 # https://github.com/tristan-white/navfitx
 
 [report]
-# Date service member reported to command.
 # Format: YYYY-MM-DD
-date_reported = "2022-09-09"
+date_reported = ""
 
-# If this is a wholly Not Observed report, change to true.
 not_observed_report = false
 
-counselor_name = "LAST, FI"
-date_counseled = "YYYY-MM-DD"
+# LAST, FIRST MI
+counselor_name = ""
+date_counseled = ""
 
 [report.type]
 regular = false
@@ -27,35 +26,20 @@ detachment_of_reporting_senior = false
 special = false
 
 [report.period]
-from = "YYYY-MM-DD"
-to = "YYYY-MM-DD"
+# Format: "YYYY-MM-DD"
+from = ""
+to = ""
 
 [member]
-# Enter the member's last name, first name, middle initial, and suffix (if any)
-# separated by spaces. Place a comma after the last name. Omit spaces and punctuation within a
-# name (e.g., Denney, John A; STJohn, Melvin J II; Walters, J Arthur; Obrien, Mary S; Martin,
-# Paul T JR; SmithJones, Ann.). The full middle name is acceptable but not required. NMN may
-# be used if member does not have a middle name.
-name = "DOE, JOHN A"
+# LAST, FIRST M
+name = ""
 
-# Enter the grade or rate the Service member is actually wearing on the ending date of the report.
-# Enlisted: Use standard rate abbreviations (e.g., SA, ADAN, CS2, BM1, LNC, EMCS, PSCM, etc.).
-# Officers: Use standard grade abbreviations (e.g., CAPT, CDR, LCDR, LT, LTJG, ENS, CWO5, CWO4, CWO3, CWO2, WO1 etc.).
-# Note 1: This field is used for summary group comparison.
-# Note 2: The CHIEFEVAL identifies this block as “Rating.” Standard abbreviations remain as the required information
-# and the rate/rating the member is currently wearing should be entered here.
-grade_or_rate = "LTJG"
+grade_or_rate = ""
 
-# Enter officer designator or enlisted warfare qualification designation.
-# Enlisted: Enter up to two enlisted warfare/qualification designators. If two designators are
-# entered, separate with a slash. Do not leave spaces (e.g., AW, AW/PJ, SS/DV etc.) (if none,
-# leave blank).
-# Officers: Enter the four-digit officer designator as of the ending date of report. Do not use an
-# alpha character for a numerical character.
-designator = "1840"
+designator = ""
 
 # Format: "XXX-XX-XXX"
-ssn = "XXX-XX-XXXX"
+ssn = ""
 
 uic = ""
 
@@ -63,7 +47,7 @@ activity = ""
 
 promotion_status = ""
 
-# Can be either "P", "B", "F", "M", "W", or "N"
+# Set to either "P", "B", "F", "M", "W", or "N"
 physical_readiness = ""
 
 billet_subcategory = ""

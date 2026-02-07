@@ -509,6 +509,13 @@ class FitrepForm(QWidget):
         file_menu = menu_bar.addMenu("File")
         print_action = file_menu.addAction("Export as PDF")
         print_action.triggered.connect(self.print)
+
+        toml_export_action = file_menu.addAction("Export as TOML")
+        toml_export_action.triggered.connect(self.export_toml)
+
+        json_export_action = file_menu.addAction("Export as JSON")
+        json_export_action.triggered.connect(self.export_json)
+
         close_action = file_menu.addAction("Close")
         # Connect close to the provided on_reject callback so Home can handle stack cleanup
         close_action.triggered.connect(self.on_reject)
@@ -704,6 +711,22 @@ class FitrepForm(QWidget):
         filename, selected_filter = QFileDialog.getSaveFileName(self, "Export FITREP PDF", "fitrep.pdf")
         if filename:
             create_fitrep_pdf(self.fitrep, Path(filename))
+
+    def export_json(self):
+        self.save_form()
+        filename, selected_filter = QFileDialog.getSaveFileName(self, "Export FITREP JSON", "fitrep.json")
+        if filename:
+            json_str = self.fitrep.model_dump_json(indent=4)
+            with open(filename, "w") as f:
+                f.write(json_str)
+
+    def export_toml(self):
+        self.save_form()
+        filename, selected_filter = QFileDialog.getSaveFileName(self, "Export FITREP TOML", "fitrep.toml")
+        if filename:
+            toml_str = self.fitrep.model_dump_toml()
+            with open(filename, "w") as f:
+                f.write(toml_str)
 
     def submit(self):
         self.save_form()

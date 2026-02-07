@@ -10,7 +10,9 @@ dependencies = [
     "pymupdf>=1.26.6",
     "pyside6>=6.9.3",
     "reportlab>=4.4.4",
+    "rich>=14.1.0",
     "sqlmodel>=0.0.27",
+    "tomlkit>=0.14.0",
     "typer>=0.19.2",
 ]
 
