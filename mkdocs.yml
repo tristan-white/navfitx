@@ -33,7 +33,7 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Why: why.md
-  - Docs: docs.md
+  # - Docs: docs.md
 extra:
   social:
     - icon: fontawesome/brands/github
