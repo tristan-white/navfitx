@@ -13,6 +13,7 @@ theme:
     # - navigation.tabs
     - content.code.copy
     - content.footnote.tooltips
+    - content.tabs.link
     - navigation.indexes
     - navigation.tabs
     - navigation.sections
@@ -32,8 +33,9 @@ markdown_extensions:
   - footnotes
 nav:
   - Home: index.md
+  - Docs: docs.md
   - Why: why.md
-  # - Docs: docs.md
+  # - FAQs: faqs.md
 extra:
   social:
     - icon: fontawesome/brands/github

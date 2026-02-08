@@ -1,14 +1,12 @@
 # Documentation
 
-The policy and procedures for the Navy Performance Evaluation System are completely laid out in [BUPERSINT 1610.10](https://www.mynavyhr.navy.mil/Portals/55/Reference/Instructions/BUPERS/BUPERSINST%201610.10.pdf?ver=g42WV7fkucvkkZolLrWseA%3d%3d), which is the authority on the correct procedures for completing reports. This page contains notes for reference, but [BUPERSINT 1610.10](https://www.mynavyhr.navy.mil/Portals/55/Reference/Instructions/BUPERS/BUPERSINST%201610.10.pdf?ver=g42WV7fkucvkkZolLrWseA%3d%3d) should always be consulted as the ultimate authority.
+Note: Information form this page is derived from [BUPERSINST 1610.10](https://www.mynavyhr.navy.mil/Portals/55/Reference/Instructions/BUPERS/BUPERSINST%201610.10.pdf?ver=g42WV7fkucvkkZolLrWseA%3d%3d) which alone is the authority for Navy Performance Evaluation System policy and procedures.
 
-## Summary Groups
-
-What are Promotion Recommendation Summary Groups? 
+## What are Summary Groups? 
 
 Enlisted summary groups generally consist of all Service members in the same paygrade (regardless of rating) and same promotion status who receive the same type of report from the same reporting senior, on the same ending date. The unit identification code is also a breakout for enlisted summary groups. Officer summary groups are similar but are further subdivided by competitive category (unrestricted line officers, limited duty officers (LDO), each designator within the restricted line, and each designator within the Staff Corps). Certain other criteria also apply, as detailed in the EVALMAN, chapter 1, instructions for the summary group block. Each group of reports must be mailed to PERS-32 with a summary letter marked “Controlled Unclassified Information,” which includes the names, SSNs or DoD identifications (ID), member trait averages, summary group average, and distribution of promotion recommendations for that group. It is mandatory to verify or handwrite the reporting senior’s e-mail address and telephone number on the bottom of the summary letter in the blocks provided. If there is an error on a report in a batch, it will help PERS-32 to expedite corrections.
 
-### Summary Group Officers (W-1 through O-6)
+### Officer Summary Groups (W-1 through O-6)
 
 | Block | Block Label | Remarks<br>(Group officer reports that share **all** the following characteristics.) | 
 |:-----:|-------------|---------|
@@ -22,7 +20,9 @@ Enlisted summary groups generally consist of all Service members in the same pay
 | 22 | Reporting Senior | Group by reporting senior. "Dual- hatted" commanders may group by command, if block 26 displays a separate UIC for each command. On Dual- hatted reports, blocks 6 and 26 must match. Dual- hatted defines a flag officer specifically identified in OPNAVINST 5400.45A Standard Naval Distribution List (SNDL) with two or more separate organizations as opposed to having one command with multiple UICs. |
 | 42 | Promotion Recommendation | Must have Observed promotion recommendation.  Do not include NOB promotion recommendations in a summary group. |
 
-Officer Competitive Categories. Convert block 3 entry into competitive designator categories as detailed below. Each category consists of all designators within the parentheses. Where a category consists of more than one designator, that block on the summary letter is left blank. Do not use this code on the report itself. Note: Active, TAR, and INACT officers are separated in different summary groups by the entry in block 5.
+#### Officer Competitive Categories
+
+Convert block 3 entry into competitive designator categories as detailed below. Each category consists of all designators within the parentheses. Where a category consists of more than one designator, that block on the summary letter is left blank. Do not use this code on the report itself. Note: Active, TAR, and INACT officers are separated in different summary groups by the entry in block 5.
 
 [Manual of Navy Officer Manpower and Personnel Classifications](https://www.mynavyhr.navy.mil/References/NOOCS-Manual/NOOCS-VOL-1/), Part A contains the official list of officer designator codes.
 
@@ -90,7 +90,7 @@ Officer Competitive Categories. Convert block 3 entry into competitive designato
 - Unmanned Aerial Vehicle (UAV) (7371)
 - Information Warfare Community (78xx)
 
-### Summary Group Enlisted (E-1 through E-9)
+#### Enlisted Summary Groups (E-1 through E-9)
 
 | Block | Block | Label Remarks<br>(Group enlisted reports that share all the following characteristics.)|
 |:-----:|-------|----------------------------------------------------------------------------------------|
@@ -103,3 +103,17 @@ Officer Competitive Categories. Convert block 3 entry into competitive designato
 | 21 | Billet | Group by entry in this block. |
 | 22 | Reporting Senior | Group by reporting senior. |
 | 45EV<br>48CE | Promotion Recommendation | Must have Observed promotion recommendation. Do not include NOB promotion recommendations in a summary group. |
+
+### Summary Letters
+
+!!! note
+    NAVFITX currently does generate summary letters, though this feature is coming soon.
+
+When reports are submitted to NAVPERSCOM, each summary group is required to be submitted with a [summary letter](https://github.com/tristan-white/navfitx/blob/main/navfitx/data/blank_summary.pdf) (even if the summary group consists of only one report).
+
+As the name implies, summary letters contains a summary of reports in a summary group (a blank summary letter can be viewed [here](https://github.com/tristan-white/navfitx/blob/main/navfitx/data/blank_summary.pdf)).
+
+Summary letters for Not Observed reports will be identified by “NOB” in the Trait Average column and the promotion recommendation breakout will be blank. The summary letter must be prepared and wet-signed using black or blue-black ink on a preprinted NAVPERS 1610/1 FITREP/EVAL Summary Letter and mailed.
+
+!!! warning 
+    Summary letters **must** be signed using blue or black ink.
