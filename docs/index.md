@@ -24,13 +24,9 @@ NAVFITX is a drop-in replacement for NAVFIT98A.
 
 ## Usage
 
-### Launch the GUI
+Launch the Graphic User Interface: `uvx navfitx`
 
-`uvx navfitx`
-
-### Use the CLI
-
-`uvx navfitx --help`
+Use the CLI: `uvx navfitx --help`
 
 ## Help NAVFITX Succeed
 

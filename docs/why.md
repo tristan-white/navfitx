@@ -38,11 +38,22 @@ The motivation behind creating eNavFit was good, but ultimately it failed to get
 
 ### What went wrong?
 
-- **Poor Software Requirements.** eNavFit was built as an online-first app; i.e., it assumed offline usage would be an edge case, and that being offline would not be part of any command’s standard operating procedure. The offline version was very buggy and prone to hanging or crashing. This assumption made its adoption impossible for platforms that routinely have no internet connection (eg submarines).
+- **Poor offline functionality.** eNavFit didn't work well when it wasn't interent connected. This made is a non-starter for many users at sea.
 - **Lack of Training.** Sailors reported that eNavFit was unnecessarily complicated and they didn’t receive adequate training to use it.
 - **Poor Feedback Loops.** Sailors did not have a good mechanism for giving feed back on eNavFit deficiencies, and updates to fix bugs were very slow to be released.
 
-# Further Reading
+## The Way Forward
+
+To avoid the issues faced by eNavFit, a next generation NAVFIT app should have the following features:
+
+- **Offline Capability.** This is non-negotionable.
+    - NAVFITX works great offline!
+- **Intuitive to Use.** It shouldn't be necessary to receive training just to create a peformance evaluation report. The user experience should be intuitive and easy to use.
+    - NAVFITX purposefully mimics the NAVFIT98A graphic user interface (GUI) so that NAVFIT98 users will find its use and intuitive.
+- **Short Feedback Loop.** eNavFit didn't have a good mechanism for users to submit feedback, resulting in bugs that were evident to users but not always the developers. The next NAVFIT app should provide users and accessible way to let developers know about issues so that patches and updates can be rolled out quickly.
+    - NAVFITX is open source. Any user can [submit issues](https://github.com/tristan-white/navfitx/issues) to the project, or even submit code to fix/add features.
+
+## Further Reading
 
 - [Successful Practices for Employee Performance Evaluations](https://apps.dtic.mil/sti/citations/AD1114373)
 - [Improving the Navy’s Performance Evaluation System with Successful Practices](https://dair.nps.edu/handle/123456789/4730)
