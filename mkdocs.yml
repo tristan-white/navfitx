@@ -12,6 +12,7 @@ theme:
   features:
     # - navigation.tabs
     - content.code.copy
+    - content.footnote.tooltips
 plugins:
   # - termynal:
   - search
@@ -25,8 +26,10 @@ markdown_extensions:
   - pymdownx.snippets
   - pymdownx.superfences
   - pymdownx.details
+  - footnotes
 nav:
   - Home: index.md
+  - Why: why.md
 extra:
   social:
     - icon: fontawesome/brands/github

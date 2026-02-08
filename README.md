@@ -4,32 +4,33 @@
 
 NAVFITX is a drop-in replacement for NAVFIT98A.
 
-> Note: NAVFITX is still in development. It may contain bugs, incomplete features, and/or breaking changes.
-
 | Feature | NAVFIT98 v33 | NAVFITX | 
 |---------|---------------|---------|
 | Export Reports as PDF | ✅ | ✅ |
 | Runs on Windows | ✅ | ✅ |
-| [Easy to install](https://github.com/tristan-white/navfitx#installation) | ❌ | ✅ |
+| Easy to install | ❌ | ✅ |
 | Runs on MacOS | ❌ | ✅ |
 | Runs on Linux | ❌ | ✅ |
 | Install & Use w/out Admin Privileges | ❌ | ✅ |
-| What-You-See-Is-What-You-Get (WYSIWYG)<br>when PDFs are generated from input text | ❌ | ✅ |
-| Export data as sqlite database | ❌ | ✅ |
+| Export reports in a sqlite database | ❌ | ✅ |
+| Export reports as JSON files | ❌ | ✅ |
+| Export reports as [TOML](https://toml.io/) files | ❌ | ✅ |
+| Export use via CLI | ❌ | ✅ |
 
 ## Installation
 
-The quickest way to install and use NAVFITX is to use [uv](https://docs.astral.sh/uv/).
+1. [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
+2. Run `uv tool install navfitx`.
 
-This can be done in three simple steps:
+## Usage
 
-1. Copy/paste the command to install uv into powershell (if on Windows) or Terminal (if on MacOS or linux):
-   - Windows: `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`
-   - MacOS or linux: `curl -LsSf https://astral.sh/uv/install.sh | sh`
-2. After uv finishes installing, close Powershell/Terminal, then reopen it.
-3. Run the following command to install and launch NAVFITX: `uvx navfitx`
+### Launch the GUI
 
-Done!
+`uvx navfitx`
+
+### Use the CLI
+
+`uvx navfitx --help`
 
 ## Help NAVFITX Succeed
 
