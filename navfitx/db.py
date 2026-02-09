@@ -32,6 +32,31 @@ def add_fitrep_to_db(db_path: Path, fitrep: Fitrep):
         session.commit()
 
 
+def get_fitrep_summary_groups(db_path: Path) -> list[list[Report]]:
+    """
+    Returns a list of lists of Reports, where each inner list is a summary group.
+
+    For more info on what constitutes a summary group, see EVALMAN
+    or the [NAVFITX docs](https://tristan-white.github.io/navfitx/docs/#what-are-summary-groups)
+    """
+    # summary_groups = []
+    # engine = create_engine(f"sqlite:///{db_path}")
+    # with Session(engine) as session:
+    #     fitreps: list[Fitrep] = session.exec(select(Fitrep)).all()
+    #     while fitreps:
+    # 1) Pop a fitrep from the list
+    # fitrep = fitreps.pop(0)
+    # cur_group = []
+
+    # # 2) Iterate through fitreps to find others in the same summary group
+    # for f in fitreps:
+
+    #     match fitrep:
+    #         case Fitrep(grade=fitrep.grade, desig=fitrep.desig, group=fitrep.group, promotion_status=fitrep.promotion_status, period_end=fitrep.period_end, regular=fitrep.regular, concurrent=fitrep.concurrent, ops_cdr=fitrep.ops_cdr, billet_subcategory=fitrep.billet_subcategory, senior_name=fitrep.senior_name):
+    #             if fitrep
+    return []
+
+
 """
 def get_reports_from_accdb(db: Path) -> list[Report]:
     conn_str = (

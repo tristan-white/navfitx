@@ -5,7 +5,7 @@
 NAVFITX is a drop-in replacement for NAVFIT98A.
 
 | Feature | NAVFIT98 v33 | NAVFITX | 
-|---------|---------------|---------|
+|---------|:-------------:|:-------:|
 | Export Reports as PDF | ✅ | ✅ |
 | Runs on Windows | ✅ | ✅ |
 | Easy to install | ❌ | ✅ |

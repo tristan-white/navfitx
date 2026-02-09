@@ -7,7 +7,7 @@ NAVFITX is a drop-in replacement for NAVFIT98A.
 It's faster, less buggy, cross-platform, and provides more validation to reduce the number of rejected reports.
 
 | Feature | NAVFIT98 v33 | NAVFITX | 
-|---------|---------------|---------|
+|---------|:-------------:|:-------:|
 | Export Reports as PDF | ✅ | ✅ |
 | Runs on Windows | ✅ | ✅ |
 | Easy to install | ❌ | ✅ |
