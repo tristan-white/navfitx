@@ -1,3 +1,4 @@
+import tomllib
 from pathlib import Path
 from typing import Annotated
 
@@ -17,16 +18,10 @@ def callback():
     pass
 
 
-@app.command()
-def dummy():
-    fitrep = Fitrep()
-    print(fitrep.model_dump_json(indent=2))
-
-
-@app.command()
+@app.command(no_args_is_help=True)
 def pdf(
     input: Annotated[
-        str,
+        Path,
         typer.Option(
             "--input",
             "-i",
@@ -37,7 +32,7 @@ def pdf(
         ),
     ],
     output: Annotated[
-        str,
+        Path,
         typer.Option(
             "--output",
             "-o",
@@ -45,15 +40,35 @@ def pdf(
             writable=True,
             dir_okay=False,
         ),
-    ] = "navfitx_report.pdf",
+    ] = Path("navfitx_report.pdf"),
+    validate: Annotated[
+        bool,
+        typer.Option(
+            help="Check that the toml file contains valid and complete FITREP data before generating the PDF."
+        ),
+    ] = True,
 ):
     """
     Generate a Performance Evaluation PDF from a .toml file.
     """
-    pass
+    # parse toml file
+    try:
+        with input.open("rb") as f:
+            toml_data = tomllib.load(f)
+    except Exception as e:
+        print(f"Error parsing TOML file; are you sure {input} is a valid TOML file?")
+        print(f"Error details: {e}")
+        raise typer.Exit(code=1)
+    _ = toml_data
+    # if validate:
+    #     fitrep = Fitrep.model_validate(toml_data)
+    # else:
+    #     print(toml_data)
+    # fitrep = Fitrep.model_construct(**toml_data)
+    # create_fitrep_pdf(fitrep, output)
 
 
-@app.command()
+@app.command(no_args_is_help=True)
 def template(
     type_of_report: Annotated[
         str,
@@ -84,7 +99,6 @@ def template(
             print("Not yet implemented.")
         case "fitrep":
             fitrep = Fitrep()
-            print(fitrep.model_json_schema())
             with outfile.open("w") as f:
                 for field in fitrep.model_dump(exclude={"id"}):
                     f.write(f"[{field}]\n\n")
