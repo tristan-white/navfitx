@@ -4,8 +4,6 @@
 
 NAVFITX is a drop-in replacement for NAVFIT98A.
 
-It's faster, less buggy, cross-platform, and provides more validation to reduce the number of rejected reports.
-
 | Feature | NAVFIT98 v33 | NAVFITX | 
 |---------|---------------|---------|
 | Export Reports as PDF | ✅ | ✅ |
@@ -26,13 +24,9 @@ It's faster, less buggy, cross-platform, and provides more validation to reduce 
 
 ## Usage
 
-### Launch the GUI
+Launch the Graphic User Interface: `uvx navfitx`
 
-`uvx navfitx`
-
-### Use the CLI
-
-`uvx navfitx --help`
+Use the CLI: `uvx navfitx --help`
 
 ## Help NAVFITX Succeed
 
