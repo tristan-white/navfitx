@@ -36,7 +36,6 @@ from navfitx.models import (
     PromotionStatus,
     SummaryGroup,
 )
-from navfitx.overlay import create_fitrep_pdf
 
 
 class NoScrollDateEdit(QDateEdit):
@@ -703,7 +702,8 @@ class FitrepForm(QWidget):
         self.save_form()
         filename, selected_filter = QFileDialog.getSaveFileName(self, "Export FITREP PDF", "fitrep.pdf")
         if filename:
-            create_fitrep_pdf(self.fitrep, Path(filename))
+            # create_fitrep_pdf(self.fitrep, Path(filename))
+            self.fitrep.create_pdf(Path(filename))
 
     def submit(self):
         self.save_form()
