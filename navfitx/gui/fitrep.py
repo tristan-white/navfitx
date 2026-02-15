@@ -105,7 +105,7 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(self.name, 0, 1)
 
         self.grade = QLineEdit()
-        self.grade.setText(self.fitrep.grade)
+        self.grade.setText(self.fitrep.rate)
         self.grade.setFont(QFont("Courier"))
         self.grade.editingFinished.connect(self.validate_grade)
         grid_layout.addWidget(QLabel("Rank"), 0, 2)
@@ -575,7 +575,7 @@ class FitrepForm(QWidget):
     @Slot()
     def validate_concurrent(self, check_state: Qt.CheckState):
         if check_state == Qt.CheckState.Checked:
-            self.ops_cdr.setChecked(False)
+            self.concurrent.setChecked(False)
 
     @Slot()
     def validate_career_rec1(self):
