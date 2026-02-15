@@ -1,7 +1,6 @@
 site_name: NAVFITX
-site_url: https://tristan-white.github.io/navfitx/
-# repo_url: https://github.com/tristan-white/navfitx
-# repo_name: tristan-white/nmap-script-tutorial
+site_url: https://navfitx.com
+repo_url: https://github.com/tristan-white/navfitx
 theme:
   name: material
   icon:
@@ -42,3 +41,10 @@ extra:
       link: https://github.com/tristan-white/navftix
     - icon: fontawesome/brands/python
       link: https://pypi.org/project/navfitx/
+
+markdown_extensions:
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format

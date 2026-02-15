@@ -2,6 +2,39 @@
 
 **Why build NAVFITX?**
 
+
+
+```mermaid
+flowchart LR
+
+    %% Inputs
+    subgraph Input
+        Desktop["Desktop GUI"]
+        CLI["CLI Tool"]
+        Web["Web App"]
+    end
+
+    %% Core
+    BL["NAVFITX"]
+
+    %% Output
+    subgraph Output
+        Text["Text/TOML/JSON"]
+        PDF["PDF"]
+        DB["SQLite DB"]
+    end
+
+    %% Connections
+    Desktop -- Python API --> BL
+    Web -- REST API --> BL
+    CLI -- CLI API --> BL
+
+    BL --> Text
+    BL --> PDF
+    BL --> DB
+    
+```
+
 Since 1998, the Navy has been using an Visual Basic app called NAVFIT98 to create performance evaluation reports for all its service members. 
 
 It's slow, buggy, and only exports reports as PDFs.

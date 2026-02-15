@@ -326,7 +326,7 @@ class Home(QMainWindow):
             results = list(session.exec(stmt))
             self.reports_table.setRowCount(len(results))
             for i, fitrep in enumerate(results):
-                self.reports_table.setItem(i, 0, QTableWidgetItem(fitrep.grade))
+                self.reports_table.setItem(i, 0, QTableWidgetItem(fitrep.rate))
                 self.reports_table.setItem(i, 1, QTableWidgetItem(fitrep.name))
                 self.reports_table.setItem(i, 2, QTableWidgetItem(fitrep.ssn))
                 self.reports_table.setItem(i, 3, QTableWidgetItem("FitRep"))

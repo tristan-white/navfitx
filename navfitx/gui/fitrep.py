@@ -104,12 +104,12 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(QLabel("Name"), 0, 0)
         grid_layout.addWidget(self.name, 0, 1)
 
-        self.grade = QLineEdit()
-        self.grade.setText(self.fitrep.rate)
-        self.grade.setFont(QFont("Courier"))
-        self.grade.editingFinished.connect(self.validate_grade)
+        self.rate = QLineEdit()
+        self.rate.setText(self.fitrep.rate)
+        self.rate.setFont(QFont("Courier"))
+        self.rate.editingFinished.connect(self.validate_grade)
         grid_layout.addWidget(QLabel("Rank"), 0, 2)
-        grid_layout.addWidget(self.grade, 0, 3)
+        grid_layout.addWidget(self.rate, 0, 3)
 
         self.desig = QLineEdit()
         self.desig.setFont(QFont("Courier"))
@@ -617,12 +617,12 @@ class FitrepForm(QWidget):
 
     @Slot()
     def validate_grade(self):
-        if len(self.grade.text()) > 5:
+        if len(self.rate.text()) > 5:
             QMessageBox.information(
                 self, "Grade Validation", "Rank/Grade cannot be more than 5 characters.", QMessageBox.StandardButton.Ok
             )
             return
-        for char in self.grade.text():
+        for char in self.rate.text():
             if not char.isalpha():
                 QMessageBox.information(
                     self, "Grade Validation", "Rank/Grade may only contain letters.", QMessageBox.StandardButton.Ok
@@ -714,7 +714,7 @@ class FitrepForm(QWidget):
         Create a Fitrep class from the data input in the GUI Form.
         """
         self.fitrep.name = self.name.text()
-        self.fitrep.grade = self.grade.text()
+        self.fitrep.rate = self.rate.text()
         self.fitrep.desig = self.desig.text()
         self.fitrep.ssn = self.ssn.text()
         group_text = self.group.currentText()
