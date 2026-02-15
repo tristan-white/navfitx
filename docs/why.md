@@ -2,39 +2,6 @@
 
 **Why build NAVFITX?**
 
-
-
-```mermaid
-flowchart LR
-
-    %% Inputs
-    subgraph Input
-        Desktop["Desktop GUI"]
-        CLI["CLI Tool"]
-        Web["Web App"]
-    end
-
-    %% Core
-    BL["NAVFITX"]
-
-    %% Output
-    subgraph Output
-        Text["Text/TOML/JSON"]
-        PDF["PDF"]
-        DB["SQLite DB"]
-    end
-
-    %% Connections
-    Desktop -- Python API --> BL
-    Web -- REST API --> BL
-    CLI -- CLI API --> BL
-
-    BL --> Text
-    BL --> PDF
-    BL --> DB
-    
-```
-
 Since 1998, the Navy has been using an Visual Basic app called NAVFIT98 to create performance evaluation reports for all its service members. 
 
 It's slow, buggy, and only exports reports as PDFs.
@@ -53,7 +20,8 @@ But efficiency aside, there's a larger problem: since the from service members' 
 
 In November 2021, the [NAVADMIN 267/21](https://www.mynavyhr.navy.mil/Portals/55/Messages/NAVADMIN/NAV2021/NAV21267.txt?ver=1m0Z1uYm9eRwZT2jHTVQLw%3D%3D) was realeased. It recognized the shortcomings of NAVFIT98 in its opening paragraph:
 
-> “Dominance of the maritime domain requires innovation and forward thinking. With investments in platforms, weapons and technologies to meet evolving operational conditions, it is imperative that we invest in our most essential warfighting asset, our people. Talent management and modern development approaches are required to attract, develop, train and retain the best and fully qualified Sailors in our Navy.”
+!!! quote "NAVADMIN 267/21"
+    Dominance of the maritime domain requires innovation and forward thinking. With investments in platforms, weapons and technologies to meet evolving operational conditions, it is imperative that we invest in our most essential warfighting asset, our people. Talent management and modern development approaches are required to attract, develop, train and retain the best and fully qualified Sailors in our Navy.
 
 It then anounced eNavFit: a web-app intended to replace NAVFIT98.
 
