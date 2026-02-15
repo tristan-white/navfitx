@@ -1,6 +1,6 @@
 [project]
 name = "navfitx"
-version = "0.0.3a4"
+version = "0.0.3a5"
 description = "it's like NAVFIT98 but better"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -19,7 +19,6 @@ Homepage = "https://github.com/tristan-white/navfitx"
 
 [dependency-groups]
 dev = [
-    "mkdocs-material>=9.7.1",
     "mypy>=1.18.2",
     "pre-commit>=4.3.0",
     "pytest>=9.0.2",
