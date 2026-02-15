@@ -36,7 +36,6 @@ from navfitx.models import (
     PromotionStatus,
     SummaryGroup,
 )
-from navfitx.overlay import create_fitrep_pdf
 
 
 class NoScrollDateEdit(QDateEdit):
@@ -106,7 +105,7 @@ class FitrepForm(QWidget):
         grid_layout.addWidget(self.name, 0, 1)
 
         self.grade = QLineEdit()
-        self.grade.setText(self.fitrep.grade)
+        self.grade.setText(self.fitrep.rate)
         self.grade.setFont(QFont("Courier"))
         self.grade.editingFinished.connect(self.validate_grade)
         grid_layout.addWidget(QLabel("Rank"), 0, 2)
@@ -576,7 +575,7 @@ class FitrepForm(QWidget):
     @Slot()
     def validate_concurrent(self, check_state: Qt.CheckState):
         if check_state == Qt.CheckState.Checked:
-            self.ops_cdr.setChecked(False)
+            self.concurrent.setChecked(False)
 
     @Slot()
     def validate_career_rec1(self):
@@ -703,7 +702,8 @@ class FitrepForm(QWidget):
         self.save_form()
         filename, selected_filter = QFileDialog.getSaveFileName(self, "Export FITREP PDF", "fitrep.pdf")
         if filename:
-            create_fitrep_pdf(self.fitrep, Path(filename))
+            # create_fitrep_pdf(self.fitrep, Path(filename))
+            self.fitrep.create_pdf(Path(filename))
 
     def submit(self):
         self.save_form()

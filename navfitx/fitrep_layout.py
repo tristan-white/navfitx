@@ -41,7 +41,7 @@ def update_name(fitrep: Fitrep, comp: String) -> None:
 
 
 def update_rate(fitrep: Fitrep, comp: String) -> None:
-    comp.text = fitrep.grade
+    comp.text = fitrep.rate
 
 
 def update_desig(fitrep: Fitrep, comp: String) -> None:
@@ -745,7 +745,7 @@ def test_make_fitrep(
 ):
     """Test FITREP PDF generation capabiilty."""
     fitrep = Fitrep(
-        name="WHITE, TRISTAN K",
+        name="JOHN, DOE A",
         rate="LTJG",
         desig="1840",
         ssn="000-00-0000",
