@@ -12,5 +12,3 @@ Summary letters for Not Observed reports will be identified by “NOB” in the 
 !!! warning 
     EVALMAN requires that summary letters signed using blue or black ink; digital signatures are not authorized.
 
-*[EVALMAN]: Navy Performance Evaluation System Manual
-*[NAVPERSCOM]: Navy Personnel Command

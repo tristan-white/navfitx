@@ -11,7 +11,7 @@ The slowness and bugs could be overlooked, but the ability to only export as a P
 The downstream effect of handling reports as physical PDFs is significant:
 
 - When reports arrive to NAVPERSCOM, they are **manually** validated
-- After validation, these reports are **manually** scanned and uploaded into a service member's Official Military Personnel File (OMPF)
+- After validation, these reports are **manually** scanned and uploaded into a service member's OMPF.
 - If a report is invalid (which happens often), the report must be redone and resubmitted by the originating command, resulting in significant delays because the new report must be physically mailed
 
 But efficiency aside, there's a larger problem: since the from service members' reports is not queryable, there is no current method for analyzing past to draw conclusions about the effectiveness of the Navy's Performance Evaluation system.[^1]
