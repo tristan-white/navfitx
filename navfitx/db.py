@@ -8,7 +8,7 @@ from pathlib import Path
 
 from sqlmodel import Session, create_engine
 
-from .models import Fitrep, Report
+from .models import Report
 
 
 def add_report_to_db(db_path: Path, report: Report):
@@ -19,7 +19,7 @@ def add_report_to_db(db_path: Path, report: Report):
         session.commit()
 
 
-def add_fitrep_to_db(db_path: Path, fitrep: Fitrep):
+def add_fitrep_to_db(db_path: Path, report: Report):
     engine = create_engine(f"sqlite:///{db_path}")
     with Session(engine) as session:
         # if fitrep.id is not None:
@@ -28,7 +28,7 @@ def add_fitrep_to_db(db_path: Path, fitrep: Fitrep):
         #         setattr(db_fitrep, key, value)
         #     session.add(db_fitrep)
         # else:
-        session.add(fitrep)
+        session.add(report)
         session.commit()
 
 

@@ -1,4 +1,4 @@
-name: mypy
+name: ty
 on: [ push, pull_request ]
 jobs:
   mypy:

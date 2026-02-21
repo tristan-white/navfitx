@@ -31,7 +31,6 @@ from navfitx.constants import DUTIES_DESC_SPACE_FOR_ABBREV
 from navfitx.models import (
     BilletSubcategory,
     Eval,
-    Fitrep,
     PhysicalReadiness,
     PromotionRecommendation,
     PromotionStatus,
@@ -76,7 +75,7 @@ class EvalForm(QWidget):
     def __init__(
         self,
         main: QMainWindow,
-        on_accept: Callable[[Fitrep], None],
+        on_accept: Callable[[Eval], None],
         on_reject: Callable[[], None],
         eval: Eval | None,
     ):
@@ -109,13 +108,13 @@ class EvalForm(QWidget):
         self.grade.setText(self.eval.rate)
         self.grade.setFont(QFont("Courier"))
         self.grade.editingFinished.connect(self.validate_grade)
-        grid_layout.addWidget(QLabel("Rank"), 0, 2)
+        grid_layout.addWidget(QLabel("Rate/Rating"), 0, 2)
         grid_layout.addWidget(self.grade, 0, 3)
 
         self.desig = QLineEdit()
         self.desig.setFont(QFont("Courier"))
         self.desig.setText(self.eval.desig)
-        grid_layout.addWidget(QLabel("Designator"), 1, 0)
+        grid_layout.addWidget(QLabel("Desig"), 1, 0)
         grid_layout.addWidget(self.desig, 1, 1)
 
         self.ssn = QLineEdit()
@@ -221,12 +220,12 @@ class EvalForm(QWidget):
         # self.ops_cdr = QCheckBox("OpsCdr")
         # self.ops_cdr.setChecked(self.eval.ops_cdr)
         # self.ops_cdr.checkStateChanged.connect(self.validate_ops_cdr)
-        # hbox = QHBoxLayout()
-        # hbox.addWidget(self.regular)
-        # hbox.addWidget(self.concurrent)
+        hbox = QHBoxLayout()
+        hbox.addWidget(self.regular)
+        hbox.addWidget(self.concurrent)
         # hbox.addWidget(self.ops_cdr)
-        # group_box.setLayout(hbox)
-        # grid_layout.addWidget(group_box, 7, 2, 1, 2)
+        group_box.setLayout(hbox)
+        grid_layout.addWidget(group_box, 7, 2, 1, 2)
 
         self.physical_readiness = NoScrollComboBox()
         self.physical_readiness.addItem("")
@@ -438,12 +437,12 @@ class EvalForm(QWidget):
         # self.comments.textChanged.connect(self.validate_comments)
 
         self.comments_label = QLabel(
-            f"Comments\n\n(Line Count: {len(Fitrep.wrap_text(self.comments.toPlainText(), 92).split('\n'))}/18)"
+            f"Comments\n\n(Line Count: {len(Eval.wrap_text(self.comments.toPlainText(), 92).split('\n'))}/18)"
         )
         # num_lines = len(Fitrep.format_comments(self.comments.toPlainText()).split())
         self.comments.textChanged.connect(
             lambda: self.comments_label.setText(
-                f"Comments\n\n(Line Count: {len(Fitrep.wrap_text(self.comments.toPlainText(), 92).split('\n'))}/18)"
+                f"Comments\n\n(Line Count: {len(Eval.wrap_text(self.comments.toPlainText(), 92).split('\n'))}/18)"
             )
         )
 
@@ -517,7 +516,7 @@ class EvalForm(QWidget):
     def validate_report(self):
         """Perform validation on all fields in the form."""
         try:
-            Fitrep.model_validate(self.fitrep.model_dump())
+            Eval.model_validate(self.eval.model_dump())
         except ValidationError as err:
             errors = json.loads(err.json())
             # show a list of all validation errors
@@ -551,10 +550,10 @@ class EvalForm(QWidget):
         if check_state == Qt.CheckState.Checked:
             self.special.setChecked(False)
 
-    @Slot()
-    def validate_ops_cdr(self, check_state: Qt.CheckState):
-        if check_state == Qt.CheckState.Checked:
-            self.concurrent.setChecked(False)
+    # @Slot()
+    # def validate_ops_cdr(self, check_state: Qt.CheckState):
+    #     if check_state == Qt.CheckState.Checked:
+    #         self.ops_cdr.setChecked(False)
 
     @Slot()
     def validate_concurrent(self, check_state: Qt.CheckState):
@@ -684,18 +683,17 @@ class EvalForm(QWidget):
 
     def print(self):
         self.save_form()
-        filename, selected_filter = QFileDialog.getSaveFileName(self, "Export FITREP PDF", "fitrep.pdf")
+        filename, selected_filter = QFileDialog.getSaveFileName(self, "Export Eval PDF", "eval.pdf")
         if filename:
-            # create_fitrep_pdf(self.fitrep, Path(filename))
             self.eval.create_pdf(Path(filename))
 
     def submit(self):
         self.save_form()
-        self.on_accept(self.fitrep)
+        self.on_accept(self.eval)
 
     def save_form(self):
         """
-        Create a Fitrep class from the data input in the GUI Form.
+        Create a Eval` class from the data input in the GUI Form.
         """
         self.eval.name = self.name.text()
         self.eval.rate = self.grade.text()
@@ -747,8 +745,8 @@ class EvalForm(QWidget):
         self.eval.initiative = self.perf_traits[self.initiative.currentText()]
         self.eval.teamwork = self.perf_traits[self.teamwork.currentText()]
         self.eval.leadership = self.perf_traits[self.leadership.currentText()]
-        self.eval.career_rec_1 = Fitrep.validate_career_rec(self.career_rec_1.toPlainText())
+        self.eval.career_rec_1 = Eval.validate_career_rec(self.career_rec_1.toPlainText())
         self.eval.career_rec_2 = self.career_rec_2.toPlainText()
-        self.eval.comments = Fitrep.validate_comments(self.comments.toPlainText())
+        self.eval.comments = Eval.validate_comments(self.comments.toPlainText())
         self.eval.indiv_promo_rec = self.promotion_recs[self.indiv_promo_rec.currentText()]
         self.eval.senior_address = self.senior_address.toPlainText()

@@ -550,18 +550,18 @@ class Report(SQLModel):
             raise ValueError("Period of report end date cannot be before the start date.")
         return self
 
-    @model_validator(mode="after")
-    def check_type_of_report(self):
-        if self.ops_cdr and self.concurrent:
-            raise ValueError("OpsCdr and Concurrent cannot both be selected. [Ref: page 45 of NAVFIT98v30 User Guide]")
+    # @model_validator(mode="after")
+    # def check_type_of_report(self):
+    #     if self.ops_cdr and self.concurrent:
+    #         raise ValueError("OpsCdr and Concurrent cannot both be selected. [Ref: page 45 of NAVFIT98v30 User Guide]")
 
-    @model_validator(mode="after")
-    def check_occasion_for_report(self):
-        if self.special:
-            if self.det_indiv or self.det_rs or self.periodic:
-                raise ValueError(
-                    "Special Occasion reports cannot also be Detachment Individual, Detachment Reporting Senior, or Periodic reports."
-                )
+    # @model_validator(mode="after")
+    # def check_occasion_for_report(self):
+    #     if self.special:
+    #         if self.det_indiv or self.det_rs or self.periodic:
+    #             raise ValueError(
+    #                 "Special Occasion reports cannot also be Detachment Individual, Detachment Reporting Senior, or Periodic reports."
+    #             )
 
     def average_traits(self, traits: list[int | None]) -> str:
         if len(traits) != 7:
@@ -899,9 +899,10 @@ class Fitrep(Report, table=True):
         """
         blank_fitrep = get_blank_report_path("fitrep")
         doc = pymupdf.open(str(blank_fitrep))
-        meta = doc.metadata
-        meta["title"] = f"{self.doc_type.upper()} for {self.name}"
-        doc.set_metadata(meta)
+        if isinstance(doc.metadata, dict):
+            meta = doc.metadata
+            meta["title"] = f"{self.doc_type.upper()} for {self.name}"
+            doc.set_metadata(meta)
         front = doc[0]
         back = doc[1]
         front.insert_text(Point(22, 43), self.name, fontsize=12, fontname="cour")
@@ -1150,9 +1151,10 @@ class Eval(Report, table=True):
     def create_pdf(self, path: Path) -> None:
         blank_fitrep = get_blank_report_path("fitrep")
         doc = pymupdf.open(str(blank_fitrep))
-        meta = doc.metadata
-        meta["title"] = f"{self.doc_type.upper()} for {self.name}"
-        doc.set_metadata(meta)
+        if isinstance(doc.metadata, dict):
+            meta = doc.metadata
+            meta["title"] = f"{self.doc_type.upper()} for {self.name}"
+            doc.set_metadata(meta)
         front = doc[0]
         back = doc[1]
         front.insert_text(Point(22, 43), self.name, fontsize=12, fontname="cour")

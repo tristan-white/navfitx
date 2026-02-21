@@ -51,6 +51,8 @@ nav = [
     { "Summary Letter" = "concepts/summary_letters.md"},
   ]},
   { "Why?" = "why.md" },
+  # { "Blocks" = "blocks.md"},
+  # { "Signatures" = "signatures.md"},
 ]
 
 # With the "extra_css" option you can add your own CSS styling to customize
@@ -359,3 +361,6 @@ permalink = "⚓︎"
 logo = "material/clipboard-edit"
 
 [project.markdown_extensions.pymdownx.blocks.caption]
+[project.markdown_extensions.pymdownx.caret]
+[project.markdown_extensions.pymdownx.mark]
+[project.markdown_extensions.pymdownx.tilde]
