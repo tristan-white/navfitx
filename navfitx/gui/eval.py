@@ -156,7 +156,10 @@ class EvalForm(QWidget):
         grid_layout.addWidget(self.promotion_status, 3, 3)
 
         # Move Date Reported so it appears before Type of Report in the grid
-        self.date_reported = NoScrollDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")  # type: ignore[call-overload]
+        # self.date_reported = NoScrollDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")  # type: ignore[call-overload]
+        self.date_reported = NoScrollDateEdit()
+        self.date_reported.setCalendarPopup(True)
+        self.date_reported.setDisplayFormat("dd MMMM yyyy")
         if self.eval.date_reported is not None:
             y = self.eval.date_reported.year
             m = self.eval.date_reported.month
@@ -186,7 +189,10 @@ class EvalForm(QWidget):
         group_box.setLayout(vbox)
         grid_layout.addWidget(group_box, 4, 2, 1, 2)
 
-        self.period_start = NoScrollDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")  # type: ignore[call-overload]
+        # self.period_start = NoScrollDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")  # type: ignore[call-overload]
+        self.period_start = NoScrollDateEdit()
+        self.period_start.setCalendarPopup(True)
+        self.period_start.setDisplayFormat("dd MMMM yyyy")
         if self.eval.period_start:
             y = self.eval.period_start.year
             m = self.eval.period_start.month
@@ -195,7 +201,10 @@ class EvalForm(QWidget):
         grid_layout.addWidget(QLabel("Period Start"), 6, 0)
         grid_layout.addWidget(self.period_start, 6, 1)
 
-        self.period_end = NoScrollDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")  # type: ignore[call-overload]
+        # self.period_end = NoScrollDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")  # type: ignore[call-overload]
+        self.period_end = NoScrollDateEdit()
+        self.period_end.setCalendarPopup(True)
+        self.period_end.setDisplayFormat("dd MMMM yyyy")
         if self.eval.period_end:
             y = self.eval.period_end.year
             m = self.eval.period_end.month
@@ -336,7 +345,10 @@ class EvalForm(QWidget):
         grid_layout.addWidget(duties_desc_label, 14, 0)
         grid_layout.addWidget(self.duties_description, 14, 1, 1, 3)
 
-        self.date_counseled = NoScrollDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")  # type: ignore[call-overload]
+        # self.date_counseled = NoScrollDateEdit(calendarPopup=True, displayFormat="dd MMMM yyyy")  # type: ignore[call-overload]
+        self.date_counseled = NoScrollDateEdit()
+        self.date_counseled.setCalendarPopup(True)
+        self.date_counseled.setDisplayFormat("dd MMMM yyyy")
         if self.eval.date_counseled:
             y = self.eval.date_counseled.year
             m = self.eval.date_counseled.month
@@ -706,13 +718,13 @@ class EvalForm(QWidget):
         self.eval.promotion_status = (
             None if self.promotion_status.currentText() == "" else PromotionStatus(self.promotion_status.currentText())
         )
-        self.eval.date_reported = self.date_reported.date().toPython()
+        self.eval.date_reported = self.date_reported.date().toPython()  # ty: ignore[invalid-assignment]
         self.eval.periodic = self.periodic.isChecked()
         self.eval.det_indiv = self.det_indiv.isChecked()
         self.eval.prom_frock = self.prom_frock.isChecked()
         self.eval.special = self.special.isChecked()
-        self.eval.period_start = self.period_start.date().toPython()
-        self.eval.period_end = self.period_end.date().toPython()
+        self.eval.period_start = self.period_start.date().toPython()  # ty: ignore[invalid-assignment]
+        self.eval.period_end = self.period_end.date().toPython()  # ty: ignore[invalid-assignment]
         self.eval.not_observed = self.not_observed.isChecked()
         self.eval.regular = self.regular.isChecked()
         self.eval.concurrent = self.concurrent.isChecked()
@@ -736,7 +748,7 @@ class EvalForm(QWidget):
         self.eval.duties_abbreviation = self.duties_abbreviation.text()
         self.eval.duties_description = self.duties_description.toPlainText().strip()
         self.eval.job = self.job.toPlainText()
-        self.eval.date_counseled = self.date_counseled.date().toPython()
+        self.eval.date_counseled = self.date_counseled.date().toPython()  # ty: ignore[invalid-assignment]
         self.eval.counselor = self.counselor.text()
         self.eval.prof_knowledge = self.perf_traits[self.pro_knowledge.currentText()]
         self.eval.quality_of_work = self.perf_traits[self.quality_of_work.currentText()]

@@ -253,12 +253,17 @@ class Home(QMainWindow):
         self.refresh_reports_table()
         i = self.stack.currentIndex()
         self.stack.setCurrentIndex(0)
-        self.stack.removeWidget(self.stack.widget(i))
+        widget = self.stack.widget(i)
+        if widget is not None:
+            self.stack.removeWidget(widget)
 
     def cancel_form(self):
         i = self.stack.currentIndex()
         self.stack.setCurrentIndex(0)
-        self.stack.removeWidget(self.stack.widget(i))
+        w = self.stack.widget(i)
+        if w is None:
+            raise Exception("No widget found at current stack index during cancel_form")
+        self.stack.removeWidget(w)
 
     def print_blank(self, report_type: str):
         filename, selected_filter = QFileDialog.getSaveFileName(

@@ -12,6 +12,7 @@ dependencies = [
     "reportlab>=4.4.4",
     "sqlmodel>=0.0.27",
     "typer>=0.19.2",
+    "zensical>=0.0.23",
 ]
 
 [project.urls]
@@ -23,6 +24,7 @@ dev = [
     "pre-commit>=4.3.0",
     "pytest>=9.0.2",
     "ruff>=0.13.3",
+    "ty>=0.0.28",
     "zensical>=0.0.23",
 ]
 

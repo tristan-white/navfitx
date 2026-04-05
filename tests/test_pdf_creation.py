@@ -2,22 +2,22 @@ from pathlib import Path
 
 import pytest
 
-from navfitx.models import Eval, Fitrep
+from navfitx.models import BilletSubcategory, Eval, Fitrep, PhysicalReadiness, PromotionStatus
 
 fitrep = Fitrep(
     name="John Doe",
-    grade="O-3",
+    rate="O-2",
     desig="USN",
     ssn="123-45-6789",
     uic="12345",
     station="NAVSTA Norfolk",
-    promotion_status="Promotable",
+    promotion_status=PromotionStatus.REGULAR,
     date_reported=None,
     period_start=None,
     period_end=None,
     not_observed=False,
-    physical_readiness="P2",
-    billet_subcategory="Subcategory A",
+    physical_readiness=PhysicalReadiness.PASS,
+    billet_subcategory=BilletSubcategory.BASIC,
     senior_name="Jane Smith",
     senior_grade="O-4",
     senior_desig="USN",
@@ -31,18 +31,18 @@ fitrep = Fitrep(
 
 eval = Eval(
     name="John Doe",
-    grade="O-3",
+    rate="E-2",
     desig="USN",
     ssn="123-45-6789",
     uic="12345",
     station="NAVSTA Norfolk",
-    promotion_status="Promotable",
+    promotion_status=PromotionStatus.REGULAR,
     date_reported=None,
     period_start=None,
     period_end=None,
     not_observed=False,
-    physical_readiness="P2",
-    billet_subcategory="Subcategory A",
+    physical_readiness=PhysicalReadiness.PASS,
+    billet_subcategory=BilletSubcategory.BASIC,
     senior_name="Jane Smith",
     senior_grade="O-4",
     senior_desig="USN",

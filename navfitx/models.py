@@ -366,6 +366,7 @@ class Report(SQLModel):
 
     Args:
         id (int): Primary key for the report record.
+        doc_type (str): Type of report ('fitrep', 'eval', or 'chiefeval').
         name (str): Full name of the subject.
         desig (str): Designator code.
         ssn (str): Social Security Number (format: XXX-XX-XXXX).
@@ -399,8 +400,8 @@ class Report(SQLModel):
         comments (str): Comments text field with a minimum length of 1 character and no maximum length constraint. This field is required and cannot be blank. It is used to provide detailed comments about the subject's performance, achievements, or any other relevant information that the reporting senior wishes to include in the report. The comments should be comprehensive and informative, offering insights into the subject's strengths, areas for improvement, and overall contributions during the reporting period. The content of this field can vary widely based on the specific circumstances and performance of the subject being evaluated, but it must always contain meaningful information that adds value to the report and assists in
     """
 
-    doc_type: str
     id: int = Field(primary_key=True, default=None)
+    doc_type: str
     name: Annotated[str, StringConstraints(max_length=27, min_length=1, strip_whitespace=True, to_upper=True)] = Field(
         title="Name", default=""
     )
@@ -917,7 +918,7 @@ class Fitrep(Report, table=True):
             front.insert_text(group_point, "X", fontsize=12, fontname="Cour")
         front.insert_text(Point(170, 67), self.uic, fontsize=12, fontname="Cour")
         front.insert_text(Point(223, 67), self.station, fontsize=12, fontname="Cour")
-        front.insert_text(Point(416, 67), self.promotion_status, fontsize=12, fontname="Cour")
+        front.insert_text(Point(416, 67), str(self.promotion_status), fontsize=12, fontname="Cour")
         report_date_str = self.format_date(self.date_reported)
         front.insert_text(Point(496, 67), report_date_str, fontsize=12, fontname="Cour")
 
@@ -944,8 +945,8 @@ class Fitrep(Report, table=True):
         if self.ops_cdr:
             front.insert_text(Point(329, 112), "X", fontsize=12, fontname="Cour")
 
-        front.insert_text(Point(361, 115), self.physical_readiness, fontsize=12, fontname="Cour")
-        front.insert_text(Point(460, 115), self.billet_subcategory, fontsize=12, fontname="Cour")
+        front.insert_text(Point(361, 115), str(self.physical_readiness), fontsize=12, fontname="Cour")
+        front.insert_text(Point(460, 115), str(self.billet_subcategory), fontsize=12, fontname="Cour")
 
         front.insert_text(Point(22, 140), self.senior_name, fontsize=12, fontname="Cour")
         front.insert_text(Point(172, 140), self.senior_grade, fontsize=12, fontname="Cour")
@@ -1169,7 +1170,7 @@ class Eval(Report, table=True):
             front.insert_text(group_point, "X", fontsize=12, fontname="Cour")
         front.insert_text(Point(170, 67), self.uic, fontsize=12, fontname="Cour")
         front.insert_text(Point(223, 67), self.station, fontsize=12, fontname="Cour")
-        front.insert_text(Point(416, 67), self.promotion_status, fontsize=12, fontname="Cour")
+        front.insert_text(Point(416, 67), str(self.promotion_status), fontsize=12, fontname="Cour")
         report_date_str = self.format_date(self.date_reported)
         front.insert_text(Point(496, 67), report_date_str, fontsize=12, fontname="Cour")
 
@@ -1194,8 +1195,8 @@ class Eval(Report, table=True):
         if self.concurrent:
             front.insert_text(Point(250, 112), "X", fontsize=12, fontname="Cour")
 
-        front.insert_text(Point(361, 115), self.physical_readiness, fontsize=12, fontname="Cour")
-        front.insert_text(Point(460, 115), self.billet_subcategory, fontsize=12, fontname="Cour")
+        front.insert_text(Point(361, 115), str(self.physical_readiness), fontsize=12, fontname="Cour")
+        front.insert_text(Point(460, 115), str(self.billet_subcategory), fontsize=12, fontname="Cour")
 
         front.insert_text(Point(22, 140), self.senior_name, fontsize=12, fontname="Cour")
         front.insert_text(Point(172, 140), self.senior_grade, fontsize=12, fontname="Cour")
