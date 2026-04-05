@@ -48,7 +48,7 @@ class Home(QMainWindow):
         self.reports_table.setHorizontalHeaderLabels(headers)
         self.reports_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
 
-        # self.reports_table.cellDoubleClicked.connect(self.edit_fitrep_from_table)
+        self.reports_table.cellDoubleClicked.connect(self.edit_report_from_table)
 
         self.setWindowTitle("NAVFITX")
 
@@ -145,8 +145,9 @@ class Home(QMainWindow):
 
     def open_eval_dialog(self, eval: Eval | None = None):
         self.eval_form = EvalForm(self, self.submit_form, self.cancel_form, eval)
-        test = self.stack.addWidget(self.eval_form)
-        self.stack.setCurrentIndex(test)
+        idx = self.stack.addWidget(self.eval_form)
+        self.stack.setCurrentIndex(idx)
+        self.setWindowTitle("eval")
 
     def open_fitrep_dialog(self, fitrep: Fitrep | None = None):
         self.fitrep_form = FitrepForm(self, self.submit_form, self.cancel_form, fitrep)
@@ -307,15 +308,28 @@ class Home(QMainWindow):
             return None
         row = item.row()
 
-        # (Assumes Record ID is in column 5 of reports table)
+        # Assumes Record ID is col 5 and type is row 3
         record_id_item = self.reports_table.item(row, 5)
         assert record_id_item is not None
+
+        report_type_item = self.reports_table.item(row, 3)
+        assert report_type_item is not None
+
         record_id = int(record_id_item.text())
+        report_type = report_type_item.text()
+
         engine = create_engine(f"sqlite:///{self.db}")
         with Session(engine) as session:
-            stmt = select(Fitrep).where(Fitrep.id == record_id)
-            fitrep = session.exec(stmt).first()
-        self.open_fitrep_dialog(fitrep)
+            match report_type.lower():
+                case "fitrep":
+                    stmt = select(Fitrep).where(Fitrep.id == record_id)
+                case "eval":
+                    stmt = select(Fitrep).where(Fitrep.id == record_id)
+                case _:
+                    print("unknown report type")
+                    return
+            report = session.exec(stmt).first()
+        self.open_fitrep_dialog(report)
 
     def refresh_reports_table(self):
         if not self.db:
@@ -326,7 +340,7 @@ class Home(QMainWindow):
         engine = create_engine(f"sqlite:///{self.db}")
         with Session(engine) as session:
             stmt = select(Fitrep)
-            results = list(session.exec(stmt))
+            results: list[Report] = list(session.exec(stmt))
             stmt = select(Eval)
             results.extend(list(session.exec(stmt)))
             self.reports_table.setRowCount(len(results))

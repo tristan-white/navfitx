@@ -2,11 +2,11 @@
 
 **Why build NAVFITX?**
 
-Since 1998, the Navy has been using an Visual Basic app called NAVFIT98 to create performance evaluation reports for all its service members. 
+Since 1998, the Navy has been using an Visual Basic app called NAVFIT98 to create performance evaluation reports for all its service members. NAVFIT98 was a great step forward and made creating the performance evaluation reporting process more efficient.
 
-It's slow, buggy, and only exports reports as PDFs.
+But in 2026, it's become slow, buggy, and a roadblock to digitizing report data in databases.
 
-The slowness and bugs could be overlooked, but the ability to only export as a PDF is very constraining. Due to this limitation, the only method to submit reports to the Navy Personnel Command is to *physically mail it* (often taking much longer than typical mail since many reports originate from a ship or submarine).
+NAVFIT98 does not support many export formats (currently only PDF and Microsoft Access Database files). Thus, the only authorized method to submit reports to the Navy Personnel Command is to *physically mail it* (often taking much longer than typical mail since many reports originate from a ship or submarine).
 
 The downstream effect of handling reports as physical PDFs is significant:
 
@@ -14,7 +14,7 @@ The downstream effect of handling reports as physical PDFs is significant:
 - After validation, these reports are **manually** scanned and uploaded into a service member's OMPF.
 - If a report is invalid (which happens often), the report must be redone and resubmitted by the originating command, resulting in significant delays because the new report must be physically mailed
 
-But efficiency aside, there's a larger problem: since the from service members' reports is not queryable, there is no current method for analyzing past to draw conclusions about the effectiveness of the Navy's Performance Evaluation system.[^1]
+But efficiency aside, there's a larger problem: since service members' reports are stored as scanned PDFs, the data therein is not queryable. Therefore, there is not programmatic method available to analyze past reports and draw conclusions about the effectiveness of the Navy's Performance Evaluation system.[^1]
 
 ## eNavFit
 
