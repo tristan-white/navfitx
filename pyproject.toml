@@ -15,6 +15,9 @@ dependencies = [
     "zensical>=0.0.23",
 ]
 
+[project.scripts]
+navfitx = "navfitx.cli:app"
+
 [project.urls]
 Homepage = "https://github.com/tristan-white/navfitx"
 
@@ -41,6 +44,6 @@ ignore_missing_imports = true
 [tool.setuptools.package-data]
 "navfitx" = ["data/*.pdf"]
 
-[project.scripts]
-navfitx = "navfitx.__main__:main"
-
+[build-system]
+requires = ["uv_build>=0.10.10,<0.11.0"]
+build-backend = "uv_build"

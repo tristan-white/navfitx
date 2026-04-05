@@ -308,7 +308,7 @@ wheels = [
 [[package]]
 name = "navfitx"
 version = "0.0.3a5"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "platformdirs" },
     { name = "pydantic" },
