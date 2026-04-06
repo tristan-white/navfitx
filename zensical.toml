@@ -7,7 +7,6 @@
 # ============================================================================
 
 [project]
-
 # The site_name is shown in the page header and the browser window title
 #
 # Read more: https://zensical.org/docs/setup/basics/#site_name
@@ -28,6 +27,8 @@ site_author = "Tristan White"
 # documentation you should set this.
 # Read more: https://zensical.org/docs/setup/basics/#site_url
 site_url = "https://navfitx.com"
+
+repo_url = "https://github.com/tristan-white/navfitx"
 
 # The copyright notice appears in the page footer and can contain an HTML
 # fragment.
