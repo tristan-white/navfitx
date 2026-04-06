@@ -12,7 +12,7 @@ from navfitx.models import (
 
 
 @pytest.fixture
-def valid_fitrep():
+def fitrep():
     return Fitrep(
         id=1,
         name="JONES, JOHN P",

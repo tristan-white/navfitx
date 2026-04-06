@@ -1,66 +1,49 @@
-# This file can be converted into a NAVPERS 1610/2 (ie FITREP) PDF with the NAVFITX app.
-# See installation intsructions at navfitx.com
+# Mock FITREP toml file for testing.
+# Data herein should pass all FITREP validation checks.
 
-# For instructions on how to fill out each field, see a blank FITREP and/or BUEPRSINST 1610.10H.
+doc_type = "fitrep"
 
-[member]
-name = "LAST, FIRST MI"
-
-grade_or_rate = ""
-
-designator = ""
-
+rate = ""
+desig = ""
 ssn = "XXX-XX-XXXX"
-
 uic = ""
-
-activity = ""
-
+station = ""
 promotion_status = ""
-
-physical_readiness = ""
-
 billet_subcategory = ""
-
-[report]
 date_reported = "YYYY-MM-DD"
+period_start = "YYYY-MM-DD"
+period_end = "YYYY-MM-DD"
+not_observed = false
 
-not_observed_report = false
-
-counselor_name = "LAST, FI"
-
-date_counseled = "YYYY-MM-DD"
-
-[report.type]
+# Type of Report
 regular = false
 concurrent = false
 ops_cdr = false
 
-[report.occasion]
+physical_readiness = ""
+
+counselor_name = ""
+date_counseled = "YYYY-MM-DD"
+
+# Ocassion for Report
 periodic = false
 detachment_of_individual = false
 detachment_of_reporting_senior = false
 special = false
 
-[report.period]
-from = "YYYY-MM-DD"
-to = "YYYY-MM-DD"
-
-[report.summary_group]
-ACT = false
+# Summary Group
+ACT = true
 FTS = false
 INACT = false
 AT_or_ACDU_or_ADSW = false
 
-[reporting_senior]
-name = ""
-grade = ""
-designator = ""
-title = ""
-uic = 12345
-ssn = "XXX-XX-XXXX"
+senior_name = ""
+senior_grade = ""
+senior_desig = ""
+senior_title = ""
+senior_uic = "" 
+senior_ssn = "000-00-0000"
 
-[performance_traits]
 # Set each trait to a number 0-5:
 # 0 - Not Observed
 # 1 - Below Standards
@@ -68,22 +51,31 @@ ssn = "XXX-XX-XXXX"
 # 3 - Meets Standards
 # 4 - Above Standards
 # 5 - Greatly Exceeds Standards
-professional_expertise = 0
-climate = 0
-bearing_and_character = 0
-teamwork = 0
-mission = 0
-leadership = 0
+professional_expertise = 3
+climate = 3
+bearing_and_character = 3
+teamwork = 3
+mission = 3
+leadership = 3
 
-[career_recommendations]
-recommendation_1 = ""
-recommendation_2 = ""
+# Career Recommendations
+career_rec_1 = ""
+career_rec_2 = ""
 
-[comments_on_performance]
 # Max of 18 lines.
-# Max of 91 characters per line (not including newline characters).
-# Use the the following line of 91 "#" characters as a visual guide for the line limit. 
-###########################################################################################
-comments_on_performance = """
-Begin comments here.
+# Max of 92 characters per line (not including newline characters).
+# Use the the following line of 92 "#" characters as a visual guide for the line limit.
+############################################################################################
+comments = """
 """
+
+# Individual Promotion Recommendation
+# 0 - Not Observed
+# 1 - Significant Problems
+# 2 - Progressing
+# 3 - Promotable
+# 4 - Must Promote
+# 5 - Early Promote
+indivi_promo_rec = 0
+
+senior_address = ""

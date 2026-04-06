@@ -9,7 +9,6 @@ ssn = "000-00-0000"
 uic = "12345"
 station = "NAVPERSCOM"
 promotion_status = "REGULAR"
-billet_subcategory = "NA"
 date_reported = "2022-09-22"
 period_start = "2024-05-27"
 period_end = "2025-02-28"
@@ -43,7 +42,7 @@ senior_name = "HOPPER, G"
 senior_grade = "CAPT"
 senior_desig = "1840"
 senior_title = "CO"
-senior_uic = 12345
+senior_uic = "12345"
 senior_ssn = "000-00-0000"
 
 # Set each trait to a number 0-5:
@@ -53,12 +52,13 @@ senior_ssn = "000-00-0000"
 # 3 - Meets Standards
 # 4 - Above Standards
 # 5 - Greatly Exceeds Standards
-professional_expertise = 3
-climate = 3
+pro_expertise = 3
+cmd_climate = 3
 bearing_and_character = 3
 teamwork = 3
-mission = 3
+accomp_and_initiative = 3
 leadership = 3
+tactical_performance = 3
 
 # Career Recommendations
 career_rec_1 = "Lorem ipsum egestas"

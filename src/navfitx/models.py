@@ -1018,7 +1018,6 @@ class Fitrep(Report, table=True):
     def model_dump_toml(self) -> str:
         """
         Dump the Fitrep model to a TOML string.
-
         """
         fitrep_dict = self.model_dump()
         ret = ""
@@ -1029,7 +1028,25 @@ class Fitrep(Report, table=True):
                 v = v.value
             if v is None:
                 v = '""'
-            # TODO: account for case where v should be exported as 0 instead of ""
+            elif v is True:
+                v = "true"
+            elif v is False:
+                v = "false"
+            elif (
+                k
+                in [
+                    "physical_readiness",
+                    "pro_expertise",
+                    "cmd_climate",
+                    "bearing_and_character",
+                    "teamwork",
+                    "accomp_and_initiative",
+                    "leadership",
+                    "tactical_performance",
+                ]
+                and v is None
+            ):
+                v = 0
             ret += f"{k} = {v}\n"
         return ret
 

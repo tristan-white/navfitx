@@ -212,3 +212,6 @@ examples/
 
 # codex
 .codex
+
+# vscode 
+.vscode/
