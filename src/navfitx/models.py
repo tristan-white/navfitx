@@ -6,7 +6,7 @@ import re
 import textwrap
 import tomllib
 from abc import abstractmethod
-from datetime import date
+from datetime import date, datetime
 from enum import Enum, StrEnum
 from pathlib import Path
 from typing import Annotated
@@ -1044,6 +1044,10 @@ class Fitrep(Report, table=True):
         Create a Fitrep model from a TOML string.
         """
         data = tomllib.loads(toml_str)
+        data["date_reported"] = datetime.strptime(data["date_reported"], "%Y-%m-%d").date()
+        data["period_start"] = datetime.strptime(data["period_start"], "%Y-%m-%d").date()
+        data["period_end"] = datetime.strptime(data["period_end"], "%Y-%m-%d").date()
+        data["date_counseled"] = datetime.strptime(data["date_counseled"], "%Y-%m-%d").date()
         return Fitrep(**data)
 
     def create_pdf(self, path: Path) -> None:

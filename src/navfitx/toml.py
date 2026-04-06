@@ -1,4 +1,3 @@
-import tomllib
 from pathlib import Path
 from typing import Annotated
 
@@ -51,21 +50,22 @@ def pdf(
     """
     Generate a Performance Evaluation PDF from a .toml file.
     """
-    # parse toml file
     try:
-        with input.open("rb") as f:
-            toml_data = tomllib.load(f)
+        with input.open("r") as f:
+            toml_str = f.read()
     except Exception as e:
         print(f"Error parsing TOML file; are you sure {input} is a valid TOML file?")
         print(f"Error details: {e}")
         raise typer.Exit(code=1)
-    _ = toml_data
-    # if validate:
-    #     fitrep = Fitrep.model_validate(toml_data)
-    # else:
-    #     print(toml_data)
-    # fitrep = Fitrep.model_construct(**toml_data)
-    # create_fitrep_pdf(fitrep, output)
+
+    fitrep = Fitrep.from_toml(toml_str)
+
+    if validate:
+        Fitrep.model_validate(fitrep)
+
+    # TODO: ensure data is printable; ie that fields don't have text that is too long
+    fitrep.create_pdf(output)
+    print(f"PDF generated successfully at {output}")
 
 
 @app.command(no_args_is_help=True)

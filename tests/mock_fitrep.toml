@@ -3,6 +3,7 @@
 
 doc_type = "fitrep"
 
+name = "JONES, JOHN P"
 rate = "LTJG"
 desig = "1840"
 ssn = "000-00-0000"
@@ -22,7 +23,7 @@ ops_cdr = false
 physical_readiness = "P"
 billet_subcategory = "NA"
 
-counselor_name = "NIMITZ, C"
+counselor = "NIMITZ, C"
 date_counseled = "2024-08-14"
 
 # Ocassion for Report
@@ -31,12 +32,7 @@ detachment_of_individual = false
 detachment_of_reporting_senior = false
 special = false
 
-
-# Summary Group
-ACT = true
-FTS = false
-INACT = false
-AT_or_ACDU_or_ADSW = false
+group = "ACT"
 
 senior_name = "HOPPER, G"
 senior_grade = "CAPT"
@@ -44,6 +40,10 @@ senior_desig = "1840"
 senior_title = "CO"
 senior_uic = "12345"
 senior_ssn = "000-00-0000"
+
+job = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In rhoncus enim quis magna"
+duties_abbreviation = "EXAMPLE"
+duties_description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In rhoncus enim quis magna"
 
 # Set each trait to a number 0-5:
 # 0 - Not Observed
@@ -96,6 +96,6 @@ Praesent mattis ornare magna, id consectetur massa. Etiam consectetur lorem eu p
 # 3 - Promotable
 # 4 - Must Promote
 # 5 - Early Promote
-indivi_promo_rec = 3
+indiv_promo_rec = 3
 
 senior_address = "123 Main St, Anytown, USA"
