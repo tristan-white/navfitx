@@ -1,60 +1,15 @@
-# Template .toml file for NAVPERS 1610/2 (FITREP).
-# This file can be converted into a NAVPERS 1610/2 PDF with the NAVFITX app:
-# https://github.com/tristan-white/navfitx
+# This file can be converted into a NAVPERS 1610/2 (ie FITREP) PDF with the NAVFITX app.
+# See installation intsructions at navfitx.com
 
-[report]
-# Date service member reported to command.
-# Format: YYYY-MM-DD
-date_reported = "2022-09-09"
-
-# If this is a wholly Not Observed report, change to true.
-not_observed_report = false
-
-counselor_name = "LAST, FI"
-date_counseled = "YYYY-MM-DD"
-
-[report.type]
-regular = false
-concurrent = false
-ops_cdr = false
-
-[report.occasion]
-# Change to true each reporting occasion that applies.
-# See BUPERSINST 1610.10H chapter 3 for reporting occasions.
-periodic = false
-detachment_of_individual = false
-detachment_of_reporting_senior = false
-special = false
-
-[report.period]
-from = "YYYY-MM-DD"
-to = "YYYY-MM-DD"
+# For instructions on how to fill out each field, see a blank FITREP and/or BUEPRSINST 1610.10H.
 
 [member]
-# Enter the member's last name, first name, middle initial, and suffix (if any)
-# separated by spaces. Place a comma after the last name. Omit spaces and punctuation within a
-# name (e.g., Denney, John A; STJohn, Melvin J II; Walters, J Arthur; Obrien, Mary S; Martin,
-# Paul T JR; SmithJones, Ann.). The full middle name is acceptable but not required. NMN may
-# be used if member does not have a middle name.
-name = "DOE, JOHN A"
+name = "LAST, FIRST MI"
 
-# Enter the grade or rate the Service member is actually wearing on the ending date of the report.
-# Enlisted: Use standard rate abbreviations (e.g., SA, ADAN, CS2, BM1, LNC, EMCS, PSCM, etc.).
-# Officers: Use standard grade abbreviations (e.g., CAPT, CDR, LCDR, LT, LTJG, ENS, CWO5, CWO4, CWO3, CWO2, WO1 etc.).
-# Note 1: This field is used for summary group comparison.
-# Note 2: The CHIEFEVAL identifies this block as “Rating.” Standard abbreviations remain as the required information
-# and the rate/rating the member is currently wearing should be entered here.
-grade_or_rate = "LTJG"
+grade_or_rate = ""
 
-# Enter officer designator or enlisted warfare qualification designation.
-# Enlisted: Enter up to two enlisted warfare/qualification designators. If two designators are
-# entered, separate with a slash. Do not leave spaces (e.g., AW, AW/PJ, SS/DV etc.) (if none,
-# leave blank).
-# Officers: Enter the four-digit officer designator as of the ending date of report. Do not use an
-# alpha character for a numerical character.
-designator = "1840"
+designator = ""
 
-# Format: "XXX-XX-XXX"
 ssn = "XXX-XX-XXXX"
 
 uic = ""
@@ -63,10 +18,33 @@ activity = ""
 
 promotion_status = ""
 
-# Can be either "P", "B", "F", "M", "W", or "N"
 physical_readiness = ""
 
 billet_subcategory = ""
+
+[report]
+date_reported = "YYYY-MM-DD"
+
+not_observed_report = false
+
+counselor_name = "LAST, FI"
+
+date_counseled = "YYYY-MM-DD"
+
+[report.type]
+regular = false
+concurrent = false
+ops_cdr = false
+
+[report.occasion]
+periodic = false
+detachment_of_individual = false
+detachment_of_reporting_senior = false
+special = false
+
+[report.period]
+from = "YYYY-MM-DD"
+to = "YYYY-MM-DD"
 
 [report.summary_group]
 ACT = false
@@ -83,23 +61,29 @@ uic = 12345
 ssn = "XXX-XX-XXXX"
 
 [performance_traits]
-# Set each category 1 through 5, or 0 for Not Observed.
+# Set each trait to a number 0-5:
+# 0 - Not Observed
+# 1 - Below Standards
+# 2 - Progressing
+# 3 - Meets Standards
+# 4 - Above Standards
+# 5 - Greatly Exceeds Standards
 professional_expertise = 0
 climate = 0
 bearing_and_character = 0
 teamwork = 0
 mission = 0
+leadership = 0
 
 [career_recommendations]
-# Enter one or two career recommendations. The second recommendation is not required. 
-# Each entry may have a maximum of 20 characters and spaces. If necessary, use two lines for the entry.
-# Do not leave blank. If no recommendation is appropriate, enter “NA” or “NONE” in the first block.
 recommendation_1 = ""
 recommendation_2 = ""
 
 [comments_on_performance]
 # Max of 18 lines.
 # Max of 91 characters per line (not including newline characters).
+# Use the the following line of 91 "#" characters as a visual guide for the line limit. 
 ###########################################################################################
 comments_on_performance = """
+Begin comments here.
 """

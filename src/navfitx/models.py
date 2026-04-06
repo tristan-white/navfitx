@@ -522,6 +522,20 @@ class Report(SQLModel):
             career_rec = "\n".join(lines[:2])
         return career_rec
 
+    @model_validator(mode="after")
+    def validate_career_recs(self):
+        if self.career_rec_2 and not self.career_rec_1:
+            raise ValueError("Career Recommendation 2 should be blank if Career Recommendation 1 is blank.")
+        if self.career_rec_1.upper() == "NA" or self.career_rec_1.upper() == "NONE":
+            if self.career_rec_2:
+                raise ValueError(
+                    "Career Recommendation 2 should be blank if Career Recommendation 1 is 'NA' or 'NONE'."
+                )
+        if self.not_observed:
+            if self.career_rec_1 or self.career_rec_2:
+                raise ValueError("Career Recommendations should be blank if 'Not Observed' is checked.")
+        return self
+
     @field_validator("comments")
     @classmethod
     def validate_comments(cls, comments: str) -> str:
@@ -562,6 +576,10 @@ class Report(SQLModel):
             raise ValueError("Counseling date must be set.")
 
         # check date_reported against other dates
+        if self.date_reported <= date(2000, 1, 1):
+            # In the PyQt app, date fields must have a default value, so it uses 01 JAN 2000.
+            # This ensures that the default value is not used.
+            raise ValueError("Report date too far in the past.")
         if self.date_reported > date.today():
             raise ValueError("Report date cannot be in the future.")
         if self.date_reported > self.period_start:
@@ -571,6 +589,8 @@ class Report(SQLModel):
         if self.date_reported > self.date_counseled:
             raise ValueError("Report date cannot be after the counseling date.")
 
+        if self.period_start <= date(2000, 1, 1):
+            raise ValueError("Period of report start date too far in the past.")
         if self.period_start > date.today():
             raise ValueError("Period of report start date cannot be in the future.")
         if self.period_start > self.period_end:
@@ -578,11 +598,15 @@ class Report(SQLModel):
         if self.period_start > self.date_counseled:
             raise ValueError("Period of report start date cannot be after the counseling date.")
 
+        if self.period_end <= date(2000, 1, 1):
+            raise ValueError("Period of report end date too far in the past.")
         if self.period_end < self.date_counseled:
             raise ValueError("Period of report end date cannot be before the counseling date.")
         if self.period_end > date.today():
             raise ValueError("Period of report end date cannot be in the future.")
 
+        if self.date_counseled <= date(2000, 1, 1):
+            raise ValueError("Counseling date too far in the past.")
         if self.date_counseled > date.today():
             raise ValueError("Counseling date cannot be in the future.")
         return self
@@ -944,6 +968,8 @@ class Fitrep(Report, table=True):
     def validate_type_of_report(self):
         if self.ops_cdr and (self.regular or self.concurrent):
             raise ValueError("Report cannot be marked both as 'OpsCdr' and 'Concurrent'")
+        if not self.ops_cdr and not self.regular and not self.concurrent:
+            raise ValueError("Type of Report must be marked.")
         return self
 
     def get_promo_rec_point(self) -> Point:

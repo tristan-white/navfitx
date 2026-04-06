@@ -42,7 +42,7 @@ class Home(QMainWindow):
         self.reports_table: QTableWidget = QTableWidget()
         # show a tooltip when hovering over the reports table
         self.reports_table.setToolTip("Double click a Report to edit it.")
-        headers = ["Rank/Rate", "Full Name", "SSN", "Report", "To Date", "Record ID", "Validated"]
+        headers = ["Rank/Rate", "Full Name", "SSN", "Report", "To Date", "Record ID"]
         self.reports_table.setRowCount(0)
         self.reports_table.setColumnCount(len(headers))
         self.reports_table.setHorizontalHeaderLabels(headers)
@@ -147,7 +147,7 @@ class Home(QMainWindow):
         self.eval_form = EvalForm(self, self.submit_form, self.cancel_form, eval)
         idx = self.stack.addWidget(self.eval_form)
         self.stack.setCurrentIndex(idx)
-        self.setWindowTitle("eval")
+        self.setWindowTitle("EVAL")
 
     def open_fitrep_dialog(self, fitrep: Fitrep | None = None):
         self.fitrep_form = FitrepForm(self, self.submit_form, self.cancel_form, fitrep)
@@ -328,13 +328,15 @@ class Home(QMainWindow):
             match report_type.lower():
                 case "fitrep":
                     stmt = select(Fitrep).where(Fitrep.id == record_id)
+                    report = session.exec(stmt).first()
+                    self.open_fitrep_dialog(report)
                 case "eval":
-                    stmt = select(Fitrep).where(Fitrep.id == record_id)
+                    stmt = select(Eval).where(Eval.id == record_id)
+                    report = session.exec(stmt).first()
+                    self.open_eval_dialog(report)
                 case _:
                     print("unknown report type")
                     return
-            report = session.exec(stmt).first()
-        self.open_fitrep_dialog(report)
 
     def refresh_reports_table(self):
         if not self.db:
@@ -356,7 +358,7 @@ class Home(QMainWindow):
                 self.reports_table.setItem(i, 3, QTableWidgetItem(report.doc_type.upper()))
                 self.reports_table.setItem(i, 4, QTableWidgetItem(str(report.period_start)))
                 self.reports_table.setItem(i, 5, QTableWidgetItem(str(report.id)))
-                self.reports_table.setItem(i, 6, QTableWidgetItem("no"))
+                # self.reports_table.setItem(i, 6, QTableWidgetItem("no"))
 
     def create_buttons_groupbox(self) -> QGroupBox:
         group_box = QGroupBox()
