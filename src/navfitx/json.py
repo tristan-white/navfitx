@@ -7,7 +7,6 @@ from pydantic import ValidationError
 from rich import print, print_json
 
 from navfitx.models import Fitrep
-from navfitx.overlay import create_fitrep_pdf
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
@@ -83,7 +82,7 @@ def pdf(
     else:
         fitrep = Fitrep(**data)
 
-    create_fitrep_pdf(fitrep, outfile)
+    fitrep.create_pdf(outfile)
 
 
 @app.command()

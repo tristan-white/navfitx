@@ -1,7 +1,6 @@
 site_name: NAVFITX
-site_url: https://tristan-white.github.io/navfitx/
-# repo_url: https://github.com/tristan-white/navfitx
-# repo_name: tristan-white/nmap-script-tutorial
+site_url: https://navfitx.com
+repo_url: https://github.com/tristan-white/navfitx
 theme:
   name: material
   icon:
@@ -14,6 +13,7 @@ theme:
     - content.code.copy
     - content.footnote.tooltips
     - content.tabs.link
+    - content.tooltips
     - navigation.indexes
     - navigation.tabs
     - navigation.sections
@@ -32,13 +32,38 @@ markdown_extensions:
   - pymdownx.details
   - footnotes
 nav:
-  - Home: index.md
-  - Docs: docs.md
-  - Why: why.md
-  # - FAQs: faqs.md
+  - index.md
+  - Concepts:
+    - concepts/index.md
+    - concepts/summary_groups.md
+    - concepts/summary_letters.md
+  - why.md
 extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/tristan-white/navftix
     - icon: fontawesome/brands/python
       link: https://pypi.org/project/navfitx/
+
+markdown_extensions:
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - tables
+  - footnotes
+  - admonition
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.keys
+  - abbr
+  - attr_list
+  - pymdownx.snippets
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - toc:
+      permalink: ⚓︎

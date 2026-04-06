@@ -21,11 +21,12 @@ from PySide6.QtWidgets import (
 )
 from sqlmodel import Session, SQLModel, create_engine, select
 
-from navfitx.constants import APP_AUTHOR, APP_NAME, BUPERSINST_URL, GITHUB_URL
+from navfitx.constants import APP_AUTHOR, APP_NAME, BUPERSINST_URL, SITE_URL
 from navfitx.db import add_fitrep_to_db
-from navfitx.models import Fitrep
+from navfitx.models import Eval, Fitrep, Report
 from navfitx.utils import get_blank_report_path
 
+from .eval import EvalForm
 from .fitrep import FitrepForm
 
 
@@ -41,12 +42,13 @@ class Home(QMainWindow):
         self.reports_table: QTableWidget = QTableWidget()
         # show a tooltip when hovering over the reports table
         self.reports_table.setToolTip("Double click a Report to edit it.")
-        headers = ["Rank/Rate", "Full Name", "SSN", "Report", "To Date", "Record ID", "Validated"]
+        headers = ["Rank/Rate", "Full Name", "SSN", "Report", "To Date", "Record ID"]
         self.reports_table.setRowCount(0)
         self.reports_table.setColumnCount(len(headers))
         self.reports_table.setHorizontalHeaderLabels(headers)
         self.reports_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
-        self.reports_table.cellDoubleClicked.connect(self.edit_fitrep_from_table)
+
+        self.reports_table.cellDoubleClicked.connect(self.edit_report_from_table)
 
         self.setWindowTitle("NAVFITX")
 
@@ -68,6 +70,8 @@ class Home(QMainWindow):
                 pass
             if hasattr(self, "create_fitrep_btn"):
                 self.create_fitrep_btn.setDisabled(False)
+            if hasattr(self, "create_eval_btn"):
+                self.create_eval_btn.setDisabled(False)
 
     def build_home_menu(self):
         self.menuBar().clear()
@@ -134,17 +138,19 @@ class Home(QMainWindow):
 
         help_menu = self.menuBar().addMenu("Help")
         about_navfitx_action = help_menu.addAction("About NAVFITX")
-        about_navfitx_action.triggered.connect(lambda: self.open_link(GITHUB_URL))
+        about_navfitx_action.triggered.connect(lambda: self.open_link(SITE_URL))
 
         instruction = help_menu.addAction("Instructions (BUPERSINST 1610.10H)")
         instruction.triggered.connect(lambda: self.open_link(BUPERSINST_URL))
 
+    def open_eval_dialog(self, eval: Eval | None = None):
+        self.eval_form = EvalForm(self, self.submit_form, self.cancel_form, eval)
+        idx = self.stack.addWidget(self.eval_form)
+        self.stack.setCurrentIndex(idx)
+        self.setWindowTitle("EVAL")
+
     def open_fitrep_dialog(self, fitrep: Fitrep | None = None):
         self.fitrep_form = FitrepForm(self, self.submit_form, self.cancel_form, fitrep)
-
-        # Menu must be built by the FitrepForm now (moved from Home)
-        # self.build_form_menu()
-
         self.stack.addWidget(self.fitrep_form)
         self.stack.setCurrentIndex(1)
 
@@ -155,7 +161,7 @@ class Home(QMainWindow):
             self.build_home_menu()
         elif index == 1:
             # FitrepForm constructs its own menu when created.
-            self.setWindowTitle("FITREP Data Entry")
+            self.setWindowTitle("FITREP")
 
     def open_db(self):
         filename, selected_filter = QFileDialog.getOpenFileName(
@@ -172,6 +178,7 @@ class Home(QMainWindow):
             self.refresh_reports_table()
             self.new_submenu.setDisabled(False)
             self.create_fitrep_btn.setDisabled(False)
+            self.create_eval_btn.setDisabled(False)
 
     def create_db(self):
         filename, selected_filter = QFileDialog.getSaveFileName(self, "Create Database", "navfitx.db")
@@ -190,6 +197,7 @@ class Home(QMainWindow):
             pass
         self.new_submenu.setDisabled(False)
         self.create_fitrep_btn.setDisabled(False)
+        self.create_eval_btn.setDisabled(False)
         self.refresh_reports_table()
 
     # --- persistence helpers for remembering last-opened DB using platformdirs ---
@@ -239,18 +247,23 @@ class Home(QMainWindow):
     def open_link(self, url: str):
         webbrowser.open(url)
 
-    def submit_form(self, fitrep: Fitrep):
+    def submit_form(self, report: Report):
         assert self.db is not None
-        add_fitrep_to_db(self.db, fitrep)
+        add_fitrep_to_db(self.db, report)
         self.refresh_reports_table()
         i = self.stack.currentIndex()
         self.stack.setCurrentIndex(0)
-        self.stack.removeWidget(self.stack.widget(i))
+        widget = self.stack.widget(i)
+        if widget is not None:
+            self.stack.removeWidget(widget)
 
     def cancel_form(self):
         i = self.stack.currentIndex()
         self.stack.setCurrentIndex(0)
-        self.stack.removeWidget(self.stack.widget(i))
+        w = self.stack.widget(i)
+        if w is None:
+            raise Exception("No widget found at current stack index during cancel_form")
+        self.stack.removeWidget(w)
 
     def print_blank(self, report_type: str):
         filename, selected_filter = QFileDialog.getSaveFileName(
@@ -293,26 +306,37 @@ class Home(QMainWindow):
         folder_tree.insertTopLevelItem(0, root)
         return folder_tree
 
-    def edit_fitrep_from_table(self, x: int, y: int):
+    def edit_report_from_table(self, x: int, y: int):
         item = self.reports_table.item(x, y)
         assert item is not None
-
         if not self.db:
             return None
-
         row = item.row()
 
-        # (Assumes Record ID is in column 5 of reports table)
+        # Assumes Record ID is col 5 and type is row 3
         record_id_item = self.reports_table.item(row, 5)
-
         assert record_id_item is not None
 
+        report_type_item = self.reports_table.item(row, 3)
+        assert report_type_item is not None
+
         record_id = int(record_id_item.text())
+        report_type = report_type_item.text()
+
         engine = create_engine(f"sqlite:///{self.db}")
         with Session(engine) as session:
-            stmt = select(Fitrep).where(Fitrep.id == record_id)
-            fitrep = session.exec(stmt).first()
-        self.open_fitrep_dialog(fitrep)
+            match report_type.lower():
+                case "fitrep":
+                    stmt = select(Fitrep).where(Fitrep.id == record_id)
+                    report = session.exec(stmt).first()
+                    self.open_fitrep_dialog(report)
+                case "eval":
+                    stmt = select(Eval).where(Eval.id == record_id)
+                    report = session.exec(stmt).first()
+                    self.open_eval_dialog(report)
+                case _:
+                    print("unknown report type")
+                    return
 
     def refresh_reports_table(self):
         if not self.db:
@@ -323,16 +347,18 @@ class Home(QMainWindow):
         engine = create_engine(f"sqlite:///{self.db}")
         with Session(engine) as session:
             stmt = select(Fitrep)
-            results = list(session.exec(stmt))
+            results: list[Report] = list(session.exec(stmt))
+            stmt = select(Eval)
+            results.extend(list(session.exec(stmt)))
             self.reports_table.setRowCount(len(results))
-            for i, fitrep in enumerate(results):
-                self.reports_table.setItem(i, 0, QTableWidgetItem(fitrep.grade))
-                self.reports_table.setItem(i, 1, QTableWidgetItem(fitrep.name))
-                self.reports_table.setItem(i, 2, QTableWidgetItem(fitrep.ssn))
-                self.reports_table.setItem(i, 3, QTableWidgetItem("FitRep"))
-                self.reports_table.setItem(i, 4, QTableWidgetItem(str(fitrep.period_start)))
-                self.reports_table.setItem(i, 5, QTableWidgetItem(str(fitrep.id)))
-                self.reports_table.setItem(i, 6, QTableWidgetItem("no"))
+            for i, report in enumerate(results):
+                self.reports_table.setItem(i, 0, QTableWidgetItem(report.rate))
+                self.reports_table.setItem(i, 1, QTableWidgetItem(report.name))
+                self.reports_table.setItem(i, 2, QTableWidgetItem(report.ssn))
+                self.reports_table.setItem(i, 3, QTableWidgetItem(report.doc_type.upper()))
+                self.reports_table.setItem(i, 4, QTableWidgetItem(str(report.period_start)))
+                self.reports_table.setItem(i, 5, QTableWidgetItem(str(report.id)))
+                # self.reports_table.setItem(i, 6, QTableWidgetItem("no"))
 
     def create_buttons_groupbox(self) -> QGroupBox:
         group_box = QGroupBox()
@@ -364,6 +390,7 @@ class Home(QMainWindow):
         self.create_chief_eval_btn = QPushButton("Create Chief Eval")
         self.create_chief_eval_btn.setDisabled(True)
         self.create_eval_btn = QPushButton("Create Eval")
+        self.create_eval_btn.clicked.connect(self.open_eval_dialog)
         self.create_eval_btn.setDisabled(True)
         self.edit_report_btn = QPushButton("Edit Report")
         self.edit_report_btn.setDisabled(True)

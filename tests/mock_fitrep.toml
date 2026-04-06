@@ -1,0 +1,101 @@
+# Mock FITREP toml file for testing.
+# Data herein should pass all FITREP validation checks.
+
+doc_type = "fitrep"
+
+rate = "LTJG"
+desig = "1840"
+ssn = "000-00-0000"
+uic = "12345"
+station = "NAVPERSCOM"
+promotion_status = "REGULAR"
+billet_subcategory = "NA"
+date_reported = "2022-09-22"
+period_start = "2024-05-27"
+period_end = "2025-02-28"
+not_observed = false
+
+# Type of Report
+regular = true
+concurrent = false
+ops_cdr = false
+
+physical_readiness = "P"
+billet_subcategory = "NA"
+
+counselor_name = "NIMITZ, C"
+date_counseled = "2024-08-14"
+
+# Ocassion for Report
+periodic = true
+detachment_of_individual = false
+detachment_of_reporting_senior = false
+special = false
+
+
+# Summary Group
+ACT = true
+FTS = false
+INACT = false
+AT_or_ACDU_or_ADSW = false
+
+senior_name = "HOPPER, G"
+senior_grade = "CAPT"
+senior_desig = "1840"
+senior_title = "CO"
+senior_uic = 12345
+senior_ssn = "000-00-0000"
+
+# Set each trait to a number 0-5:
+# 0 - Not Observed
+# 1 - Below Standards
+# 2 - Progressing
+# 3 - Meets Standards
+# 4 - Above Standards
+# 5 - Greatly Exceeds Standards
+professional_expertise = 3
+climate = 3
+bearing_and_character = 3
+teamwork = 3
+mission = 3
+leadership = 3
+
+# Career Recommendations
+career_rec_1 = "Lorem ipsum egestas"
+career_rec_2 = "Lorem ipsum egestas"
+
+# Max of 18 lines.
+# Max of 92 characters per line (not including newline characters).
+# Use the the following line of 92 "#" characters as a visual guide for the line limit.
+############################################################################################
+comments = """
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. In rhoncus enim quis magna
+vestibulum sagittis. Aenean ut pretium libero. Quisque maximus risus vitae ligula mollis
+viverra. Nullam auctor justo diam, eu porta tellus egestas sit amet. Vivamus et elit non mi
+imperdiet sodales nec id tellus. Cras sodales scelerisque massa, vel pulvinar erat. Donec
+molestie augue diam, sed consequat sem vulputate vel. Mauris luctus mi eu tellus tempus,
+non scelerisque libero imperdiet. Integer facilisis velit ac ligula scelerisque, eu
+dignissim magna cursus. Vivamus nec libero eget urna congue egestas et id est.
+Nunc tincidunt lorem erat, ut aliquam magna vulputate eu.  Sed dapibus, augue eget blandit
+accumsan, velit diam consequat enim, eget rhoncus lorem erat in neque. Nam lobortis
+volutpat congue. Morbi urna nisl, tincidunt non metus sed, ornare bibendum lectus. Etiam
+consequat malesuada ligula, eu luctus felis ullamcorper a. Praesent massa massa, cursus non
+mauris in, finibus porta metus. Integer gravida et risus ac scelerisque. Mauris ut tellus
+efficitur nunc gravida pharetra. Phasellus vitae nisi vitae tellus mollis consequat
+tincidunt semper risus. Vivamus nec nulla vitae nunc tristique ornare.  Nulla facilisi.
+Phasellus nisl sem, imperdiet eget hendrerit elementum, semper quis justo. Mauris at purus
+hendrerit, molestie orci ut, maximus est. Praesent congue tincidunt sapien, vitae egestas
+neque auctor sed. Curabitur feugiat orci lorem, a fringilla leo fringilla malesuada.
+Praesent mattis ornare magna, id consectetur massa. Etiam consectetur lorem eu pellentesque
+"""
+
+# Individual Promotion Recommendation
+# 0 - Not Observed
+# 1 - Significant Problems
+# 2 - Progressing
+# 3 - Promotable
+# 4 - Must Promote
+# 5 - Early Promote
+indivi_promo_rec = 3
+
+senior_address = "123 Main St, Anytown, USA"

@@ -1,10 +1,11 @@
 [project]
 name = "navfitx"
-version = "0.0.3a4"
+version = "0.0.3a5"
 description = "it's like NAVFIT98 but better"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "fastapi[standard]>=0.135.3",
     "platformdirs>=4.4.0", # <2.12 because of this issue: https://github.com/fastapi/sqlmodel/issues/1623
     "pydantic>=2.11.10",
     "pymupdf>=1.26.6",
@@ -14,18 +15,23 @@ dependencies = [
     "sqlmodel>=0.0.27",
     "tomlkit>=0.14.0",
     "typer>=0.19.2",
+    "zensical>=0.0.23",
 ]
+
+[project.scripts]
+navfitx = "navfitx.cli:app"
 
 [project.urls]
 Homepage = "https://github.com/tristan-white/navfitx"
 
 [dependency-groups]
 dev = [
-    "mkdocs-material>=9.7.1",
     "mypy>=1.18.2",
     "pre-commit>=4.3.0",
     "pytest>=9.0.2",
     "ruff>=0.13.3",
+    "ty>=0.0.28",
+    "zensical>=0.0.23",
 ]
 
 [tool.ruff]
@@ -41,6 +47,6 @@ ignore_missing_imports = true
 [tool.setuptools.package-data]
 "navfitx" = ["data/*.pdf"]
 
-[project.scripts]
-navfitx = "navfitx.__main__:main"
-
+[build-system]
+requires = ["uv_build>=0.10.10,<0.11.0"]
+build-backend = "uv_build"

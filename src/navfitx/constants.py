@@ -12,7 +12,7 @@ MARGIN_RIGHT = 46
 MARGIN_LEFT = 17
 MARGIN_SIDES = MARGIN_LEFT + MARGIN_RIGHT
 
-GITHUB_URL = "https://github.com/tristan-white/navfitx"
+SITE_URL = "https://navfitx.com"
 
 BUPERSINST_URL = "https://www.mynavyhr.navy.mil/Portals/55/Reference/Instructions/BUPERS/BUPERSINST%201610.10.pdf?ver=g42WV7fkucvkkZolLrWseA%3d%3d"
 

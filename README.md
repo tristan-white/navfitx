@@ -19,20 +19,9 @@ It's faster, less buggy, cross-platform, and provides more validation to reduce 
 | Export reports as [TOML](https://toml.io/) files | ❌ | ✅ |
 | Export use via CLI | ❌ | ✅ |
 
-## Installation
+## Quickstart
 
-1. [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
-2. Run `uv tool install navfitx`.
-
-## Usage
-
-### Launch the GUI
-
-`uvx navfitx`
-
-### Use the CLI
-
-`uvx navfitx --help`
+See the [docs](https://navfitx.com/#installation)
 
 ## Help NAVFITX Succeed
 

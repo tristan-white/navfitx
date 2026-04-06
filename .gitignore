@@ -209,3 +209,6 @@ __marimo__/
 *.accdb
 
 examples/
+
+# codex
+.codex

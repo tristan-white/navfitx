@@ -2,7 +2,7 @@
 
 ![PyPI - Version](https://img.shields.io/pypi/v/navfitx)
 
-NAVFITX is a drop-in replacement for NAVFIT98A.
+NAVFITX is a feature rich, drop-in replacement for NAVFIT98A.
 
 | Feature | NAVFIT98 v33 | NAVFITX | 
 |---------|---------------|---------|
@@ -19,14 +19,36 @@ NAVFITX is a drop-in replacement for NAVFIT98A.
 
 ## Installation
 
-1. [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
-2. Run `uv tool install navfitx`.
+You can install and use NAVFITX in 60 seconds.
 
-## Usage
+=== "Windows"
 
-Launch the Graphic User Interface: `uvx navfitx`
+    1. Open Powershell[^1], copy/paste the following command, and hit ++enter++.
 
-Use the CLI: `uvx navfitx --help`
+        ```
+        powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+        ```
+
+        This command installs [uv](https://docs.astral.sh/uv/), a python package manager. It makes it easy to install python packges, such as NAVFITX.
+
+    2. Once uv has finished installing, close the Powershell window, then reopen it. 
+
+    3. In Powershell, install and launch NAVFITX with the command `uvx navfitx`. Done!
+
+=== "Mac / Linux"
+
+    1. Open Terminal[^2], copy/paste the following command, and hit ++enter++.
+
+        ```
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        ```
+
+        This command installs [uv](https://docs.astral.sh/uv/), a python package manager. It makes it easy to install python packges, such as NAVFITX.
+
+    2. Once uv has finished installing, close the Powershell window, then reopen it. 
+
+    3. In Terminal, install and launch NAVFITX with the command `uvx navfitx`. Done!
+
 
 ## Help NAVFITX Succeed
 
@@ -43,3 +65,7 @@ I'd like to see NAVFITX replace NAFIT98A in the fleet. I'm looking for user test
 You can "star" [NAVFITX in GitHub](https://github.com/tristan-white/navfitx) (clicking the star button at the top right).
 
 By adding a star, other users will be able to find it more easily and see that it has already been useful for others.
+
+
+[^1]: Press the ++windows++ key, then type "powershell".
+[^2]: On Mac, hit ++command+space++, then type "terminal".
