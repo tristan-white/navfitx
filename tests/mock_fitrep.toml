@@ -1,61 +1,51 @@
 # Mock FITREP toml file for testing.
 # Data herein should pass all FITREP validation checks.
 
-grade_or_rate = "LTJG"
+doc_type = "fitrep"
 
-designator = "1840"
-
+rate = "LTJG"
+desig = "1840"
 ssn = "000-00-0000"
-
 uic = "12345"
-
 station = "NAVPERSCOM"
-
 promotion_status = "REGULAR"
-
-physical_readiness = "P"
-
 billet_subcategory = "NA"
-
-[report]
 date_reported = "2022-09-22"
+period_start = "2024-05-27"
+period_end = "2025-02-28"
+not_observed = false
 
-not_observed_report = false
-
-counselor_name = "NIMITZ, C"
-
-date_counseled = "2024-08-14"
-
-[report.type]
+# Type of Report
 regular = true
 concurrent = false
 ops_cdr = false
 
-[report.occasion]
+physical_readiness = "P"
+billet_subcategory = "NA"
+
+counselor_name = "NIMITZ, C"
+date_counseled = "2024-08-14"
+
+# Ocassion for Report
 periodic = true
 detachment_of_individual = false
 detachment_of_reporting_senior = false
 special = false
 
-[report.period]
-from = "2024-05-27"
-to = "2025-02-28"
 
-[report.summary_group]
+# Summary Group
 ACT = true
 FTS = false
 INACT = false
 AT_or_ACDU_or_ADSW = false
 
-[reporting_senior]
-name = "HOPPER, G"
-grade = "CAPT"
-designator = "1840"
-title = "CO"
-uic = 12345
-ssn = "000-00-0000"
+senior_name = "HOPPER, G"
+senior_grade = "CAPT"
+senior_desig = "1840"
+senior_title = "CO"
+senior_uic = 12345
+senior_ssn = "000-00-0000"
 
-[performance_traits]
 # Set each trait to a number 0-5:
 # 0 - Not Observed
 # 1 - Below Standards
@@ -70,25 +60,24 @@ teamwork = 3
 mission = 3
 leadership = 3
 
-[career_recommendations]
-recommendation_1 = "Lorem ipsum egestas"
-recommendation_2 = "Lorem ipsum egestas"
+# Career Recommendations
+career_rec_1 = "Lorem ipsum egestas"
+career_rec_2 = "Lorem ipsum egestas"
 
-[comments_on_performance]
 # Max of 18 lines.
 # Max of 92 characters per line (not including newline characters).
-# Use the the following line of 92 "#" characters as a visual guide for the line limit. 
+# Use the the following line of 92 "#" characters as a visual guide for the line limit.
 ############################################################################################
-comments_on_performance = """
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. In rhoncus enim quis magna 
-vestibulum sagittis. Aenean ut pretium libero. Quisque maximus risus vitae ligula mollis 
+comments = """
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. In rhoncus enim quis magna
+vestibulum sagittis. Aenean ut pretium libero. Quisque maximus risus vitae ligula mollis
 viverra. Nullam auctor justo diam, eu porta tellus egestas sit amet. Vivamus et elit non mi
-imperdiet sodales nec id tellus. Cras sodales scelerisque massa, vel pulvinar erat. Donec 
+imperdiet sodales nec id tellus. Cras sodales scelerisque massa, vel pulvinar erat. Donec
 molestie augue diam, sed consequat sem vulputate vel. Mauris luctus mi eu tellus tempus,
 non scelerisque libero imperdiet. Integer facilisis velit ac ligula scelerisque, eu
-dignissim magna cursus. Vivamus nec libero eget urna congue egestas et id est. 
+dignissim magna cursus. Vivamus nec libero eget urna congue egestas et id est.
 Nunc tincidunt lorem erat, ut aliquam magna vulputate eu.  Sed dapibus, augue eget blandit
-accumsan, velit diam consequat enim, eget rhoncus lorem erat in neque. Nam lobortis 
+accumsan, velit diam consequat enim, eget rhoncus lorem erat in neque. Nam lobortis
 volutpat congue. Morbi urna nisl, tincidunt non metus sed, ornare bibendum lectus. Etiam
 consequat malesuada ligula, eu luctus felis ullamcorper a. Praesent massa massa, cursus non
 mauris in, finibus porta metus. Integer gravida et risus ac scelerisque. Mauris ut tellus
@@ -99,3 +88,14 @@ hendrerit, molestie orci ut, maximus est. Praesent congue tincidunt sapien, vita
 neque auctor sed. Curabitur feugiat orci lorem, a fringilla leo fringilla malesuada.
 Praesent mattis ornare magna, id consectetur massa. Etiam consectetur lorem eu pellentesque
 """
+
+# Individual Promotion Recommendation
+# 0 - Not Observed
+# 1 - Significant Problems
+# 2 - Progressing
+# 3 - Promotable
+# 4 - Must Promote
+# 5 - Early Promote
+indivi_promo_rec = 3
+
+senior_address = "123 Main St, Anytown, USA"

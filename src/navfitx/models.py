@@ -1015,6 +1015,24 @@ class Fitrep(Report, table=True):
         ]
         return self.average_traits(traits)
 
+    def model_dump_toml(self) -> str:
+        """
+        Dump the Fitrep model to a TOML string.
+
+        """
+        fitrep_dict = self.model_dump()
+        ret = ""
+        for k, v in fitrep_dict.items():
+            if k == "id":
+                continue
+            if isinstance(v, Enum):
+                v = v.value
+            if v is None:
+                v = '""'
+            # TODO: account for case where v should be exported as 0 instead of ""
+            ret += f"{k} = {v}\n"
+        return ret
+
     def create_pdf(self, path: Path) -> None:
         """
         Fills out a FITREP PDF report with the provided FITREP data.
