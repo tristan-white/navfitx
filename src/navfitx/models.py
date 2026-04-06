@@ -4,6 +4,7 @@ SQLModels for each type of report.
 
 import re
 import textwrap
+import tomllib
 from abc import abstractmethod
 from datetime import date
 from enum import Enum, StrEnum
@@ -401,7 +402,7 @@ class Report(SQLModel):
         comments (str): Comments text field with a minimum length of 1 character and no maximum length constraint. This field is required and cannot be blank. It is used to provide detailed comments about the subject's performance, achievements, or any other relevant information that the reporting senior wishes to include in the report. The comments should be comprehensive and informative, offering insights into the subject's strengths, areas for improvement, and overall contributions during the reporting period. The content of this field can vary widely based on the specific circumstances and performance of the subject being evaluated, but it must always contain meaningful information that adds value to the report and assists in
     """
 
-    id: int = Field(primary_key=True, default=None)
+    id: int | None = Field(primary_key=True, default=None)
     doc_type: str
     name: Annotated[str, StringConstraints(max_length=27, min_length=1, strip_whitespace=True, to_upper=True)] = Field(
         title="Name", default=""
@@ -628,6 +629,28 @@ class Report(SQLModel):
     @abstractmethod
     def member_trait_avg(self) -> str:
         pass
+
+    def model_dump_toml(self) -> str:
+        """
+        Dump the model to a TOML string.
+        """
+        report_dict = self.model_dump()
+        ret = ""
+        for k, v in report_dict.items():
+            if k == "id":
+                continue
+            if isinstance(v, Enum):
+                v = v.value
+            if v is None:
+                v = ""
+            elif v is True:
+                v = "true"
+            elif v is False:
+                v = "false"
+            elif isinstance(k, int | None) and v is None:
+                v = 0
+            ret += f'{k} = "{v}"\n'
+        return ret
 
     @abstractmethod
     def create_pdf(self, path: Path):
@@ -1015,40 +1038,13 @@ class Fitrep(Report, table=True):
         ]
         return self.average_traits(traits)
 
-    def model_dump_toml(self) -> str:
+    @classmethod
+    def from_toml(cls, toml_str: str) -> "Fitrep":
         """
-        Dump the Fitrep model to a TOML string.
+        Create a Fitrep model from a TOML string.
         """
-        fitrep_dict = self.model_dump()
-        ret = ""
-        for k, v in fitrep_dict.items():
-            if k == "id":
-                continue
-            if isinstance(v, Enum):
-                v = v.value
-            if v is None:
-                v = '""'
-            elif v is True:
-                v = "true"
-            elif v is False:
-                v = "false"
-            elif (
-                k
-                in [
-                    "physical_readiness",
-                    "pro_expertise",
-                    "cmd_climate",
-                    "bearing_and_character",
-                    "teamwork",
-                    "accomp_and_initiative",
-                    "leadership",
-                    "tactical_performance",
-                ]
-                and v is None
-            ):
-                v = 0
-            ret += f"{k} = {v}\n"
-        return ret
+        data = tomllib.loads(toml_str)
+        return Fitrep(**data)
 
     def create_pdf(self, path: Path) -> None:
         """
