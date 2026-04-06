@@ -2,6 +2,7 @@
 SQLModels for each type of report.
 """
 
+import re
 import textwrap
 from abc import abstractmethod
 from datetime import date
@@ -405,13 +406,11 @@ class Report(SQLModel):
     name: Annotated[str, StringConstraints(max_length=27, min_length=1, strip_whitespace=True, to_upper=True)] = Field(
         title="Name", default=""
     )
-    rate: str = ""
+    rate: Annotated[str, StringConstraints(min_length=1, to_upper=True, strip_whitespace=True)] = ""
     desig: Annotated[str, StringConstraints(max_length=12, min_length=1, strip_whitespace=True)] = Field(
         title="Designator", default=""
     )
-    ssn: Annotated[str, StringConstraints(strip_whitespace=True, pattern=r"^\d{3}-\d{2}-\d{4}$")] = Field(
-        title="SSN", default=""
-    )
+    ssn: str = Field(title="SSN", default="")
     group: SummaryGroup | None = Field(title="Group", default=None)
     uic: Annotated[str, StringConstraints(max_length=5, min_length=1, strip_whitespace=True)] = Field(
         title="UIC", default=""
@@ -433,28 +432,41 @@ class Report(SQLModel):
     senior_name: Annotated[str, StringConstraints(min_length=1, max_length=27, strip_whitespace=True)] = ""
     senior_grade: Annotated[str, StringConstraints(min_length=1, max_length=5, strip_whitespace=True)] = ""
     senior_desig: Annotated[str, StringConstraints(min_length=1, max_length=5, strip_whitespace=True)] = ""
-    senior_title: Annotated[str, StringConstraints(min_length=1, max_length=14, strip_whitespace=True)] = ""
+    senior_title: Annotated[
+        str, StringConstraints(min_length=1, max_length=14, strip_whitespace=True, to_upper=True)
+    ] = ""
     senior_uic: Annotated[str, StringConstraints(min_length=1, max_length=5, strip_whitespace=True)] = ""
-    senior_ssn: Annotated[str, StringConstraints(strip_whitespace=True, pattern=r"^\d{3}-\d{2}-\d{4}$")] = ""
-    job: str = ""
-    duties_abbreviation: Annotated[str, StringConstraints(min_length=1, max_length=14)] = ""
-    # duties_description: Annotated[str, StringConstraints(min_length=1, max_length=334)] = ""
-    duties_description: str = ""
+    senior_ssn: Annotated[str, StringConstraints(strip_whitespace=True)] = ""
+    job: Annotated[str, StringConstraints(min_length=1, strip_whitespace=True)] = ""
+    duties_abbreviation: Annotated[str, StringConstraints(min_length=1, max_length=14, strip_whitespace=True)] = ""
+    duties_description: Annotated[str, StringConstraints(min_length=1, strip_whitespace=True)] = ""
     date_counseled: date | None = None
-    counselor: Annotated[str, StringConstraints(min_length=1, max_length=20)] = ""
+    counselor: Annotated[str, StringConstraints(min_length=1, max_length=20, to_upper=True)] = ""
     career_rec_1: Annotated[str, StringConstraints(min_length=1, max_length=20, strip_whitespace=True)] = ""
     career_rec_2: Annotated[str, StringConstraints(min_length=1, max_length=20, strip_whitespace=True)] = ""
     comments: Annotated[str, StringConstraints(min_length=1)] = ""
-    indiv_promo_rec: int | None = Field(None, ge=0, le=5)
+    indiv_promo_rec: int | None = Field(default=None, ge=0, le=5)
     senior_address: Annotated[str, StringConstraints(min_length=1, max_length=40)] = ""
 
-    def format_job(self, text: str) -> str:
+    @staticmethod
+    def format_job(text: str) -> str:
         """Formats the 'Command employment and command achievements' to fit within the constraints of the FITREP form."""
         text = textwrap.fill(text, width=91)
         return text
 
+    @field_validator("job")
+    @classmethod
+    def validate_job(cls, job: str) -> str:
+        formatted: str = cls.format_job(job)
+        # ensure formatted job is no more than 3 lines
+        if len(formatted.split("\n")) > 3:
+            raise ValueError(
+                "Command employment and command achievements too long; limit of 3 lines of 91 characters each."
+            )
+        return job
+
     def format_date(self, dt: date | None) -> str:
-        """Formats a date object into the Fitrep date format (YYMMMDD)."""
+        """Formats a date object into the report date format (YYMMMDD)."""
         if not dt:
             return ""
         return dt.strftime("%y%b%d").upper()
@@ -474,6 +486,14 @@ class Report(SQLModel):
         if len(station) > 18:
             raise ValueError("Ship/Station must be 18 characters or less.")
         return station
+
+    @field_validator("ssn", "senior_ssn")
+    @classmethod
+    def validate_ssn(cls, ssn: str) -> str:
+        ssn = ssn.strip()
+        if not re.match(r"^\d{3}-\d{2}-\d{4}$", ssn):
+            raise ValueError("SSN must be in the format XXX-XX-XXXX")
+        return ssn
 
     @field_validator("promotion_status")
     @classmethod
@@ -531,38 +551,41 @@ class Report(SQLModel):
         return duties_description
 
     @model_validator(mode="after")
-    def check_dates(self):
-        if (
-            self.date_reported is None
-            or self.period_start is None
-            or self.period_end is None
-            or self.date_counseled is None
-        ):
-            raise ValueError("All date fields must be set.")
+    def validate_dates(self):
+        if self.date_reported is None:
+            raise ValueError("Report date must be set.")
+        if self.period_start is None:
+            raise ValueError("Period of report start date must be set.")
+        if self.period_end is None:
+            raise ValueError("Period of report end date must be set.")
+        if self.date_counseled is None:
+            raise ValueError("Counseling date must be set.")
+
+        # check date_reported against other dates
+        if self.date_reported > date.today():
+            raise ValueError("Report date cannot be in the future.")
         if self.date_reported > self.period_start:
             raise ValueError("Report date cannot be after the period of report start date.")
         if self.date_reported > self.period_end:
             raise ValueError("Report date cannot be after the period of report end date.")
-        if self.date_counseled < self.date_reported:
-            raise ValueError("Counseling date cannot be before the report date.")
-        if self.date_counseled < self.period_start:
-            raise ValueError("Counseling date cannot be before the period of report start date.")
-        if self.period_end < self.period_start:
-            raise ValueError("Period of report end date cannot be before the start date.")
+        if self.date_reported > self.date_counseled:
+            raise ValueError("Report date cannot be after the counseling date.")
+
+        if self.period_start > date.today():
+            raise ValueError("Period of report start date cannot be in the future.")
+        if self.period_start > self.period_end:
+            raise ValueError("Period of report start date cannot be after the end date.")
+        if self.period_start > self.date_counseled:
+            raise ValueError("Period of report start date cannot be after the counseling date.")
+
+        if self.period_end < self.date_counseled:
+            raise ValueError("Period of report end date cannot be before the counseling date.")
+        if self.period_end > date.today():
+            raise ValueError("Period of report end date cannot be in the future.")
+
+        if self.date_counseled > date.today():
+            raise ValueError("Counseling date cannot be in the future.")
         return self
-
-    # @model_validator(mode="after")
-    # def check_type_of_report(self):
-    #     if self.ops_cdr and self.concurrent:
-    #         raise ValueError("OpsCdr and Concurrent cannot both be selected. [Ref: page 45 of NAVFIT98v30 User Guide]")
-
-    # @model_validator(mode="after")
-    # def check_occasion_for_report(self):
-    #     if self.special:
-    #         if self.det_indiv or self.det_rs or self.periodic:
-    #             raise ValueError(
-    #                 "Special Occasion reports cannot also be Detachment Individual, Detachment Reporting Senior, or Periodic reports."
-    #             )
 
     def average_traits(self, traits: list[int | None]) -> str:
         if len(traits) != 7:
@@ -792,7 +815,7 @@ class Report(SQLModel):
         prints correctly on generated PDFs.
 
         Note:
-            Soley using the wrap or fill function from the textwrap module to format the comments completely
+            Soley relying on the `wrap` or `fill` function from the textwrap module to format the comments
             isn't quite sufficient because it doesn't appropriately handle cases when users want
             to add empty lines to the comments. The textwrap module by default eliminates newlines. This behavior
             can be disabled, but then newlines are counted as characters that count towards the character limit
@@ -850,6 +873,78 @@ class Fitrep(Report, table=True):
     accomp_and_initiative: int | None = Field(None, ge=0, le=5)
     leadership: int | None = Field(None, ge=0, le=5)
     tactical_performance: int | None = Field(None, ge=0, le=5)
+
+    @field_validator(
+        "physical_readiness",
+        "pro_expertise",
+        "cmd_climate",
+        "bearing_and_character",
+        "teamwork",
+        "accomp_and_initiative",
+        "leadership",
+        "tactical_performance",
+    )
+    @classmethod
+    def validate_traits(cls, value: int | None) -> int | None:
+        if value is None:
+            raise ValueError("Trait value must be set or marked NOB.")
+        return value
+
+    @model_validator(mode="after")
+    def validate_nob(self):
+        # if NOB is checked, then all traits must be NOB
+        if self.not_observed:
+            traits = [
+                self.pro_expertise,
+                self.cmd_climate,
+                self.bearing_and_character,
+                self.teamwork,
+                self.accomp_and_initiative,
+                self.leadership,
+                self.tactical_performance,
+            ]
+            for trait in traits:
+                if trait != 0:
+                    raise ValueError("If 'Not Observed' is checked, all traits must be marked as NOB (None).")
+        return self
+
+    @model_validator(mode="after")
+    def validate_indiv_promo_rec(self):
+        """
+        If three or less traits are observed, then it is not required to make a promotion recommendation.
+
+        See Chapter on NOB Reports in EVALMAN.
+        """
+        traits = [
+            self.pro_expertise,
+            self.cmd_climate,
+            self.bearing_and_character,
+            self.teamwork,
+            self.accomp_and_initiative,
+            self.leadership,
+            self.tactical_performance,
+        ]
+        observed = 0
+        for trait in traits:
+            if trait is not None:
+                observed += 1
+        if observed <= 3 and self.indiv_promo_rec is not None:
+            raise ValueError("Promotion recommendation should not be set if 3 or fewer traits are observed.")
+        if observed > 3 and self.indiv_promo_rec is None:
+            raise ValueError("Promotion recommendation must be set if more than 3 traits are observed.")
+        return self
+
+    @model_validator(mode="after")
+    def validate_special(self):
+        if self.special and (self.periodic or self.det_indiv or self.det_rs):
+            raise ValueError("The occasion for report cannot have 'Special' checked if any other occasion is selected.")
+        return self
+
+    @model_validator(mode="after")
+    def validate_type_of_report(self):
+        if self.ops_cdr and (self.regular or self.concurrent):
+            raise ValueError("Report cannot be marked both as 'OpsCdr' and 'Concurrent'")
+        return self
 
     def get_promo_rec_point(self) -> Point:
         """Returns a Point where 'X' should be drawn given the fitrep's

@@ -50,8 +50,8 @@ nav = [
     { "Summary Groups" = "concepts/summary_groups.md"},
     { "Summary Letter" = "concepts/summary_letters.md"},
   ]},
+  # { "Validation" = "validation.md"},
   { "Why?" = "why.md" },
-  # { "Blocks" = "blocks.md"},
   # { "Signatures" = "signatures.md"},
 ]
 

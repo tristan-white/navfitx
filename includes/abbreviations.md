@@ -22,4 +22,5 @@
 *[TEMDU]: Temporary Duty
 *[UIC]: Unit Identification Code
 *[BCA]: Body Composition Assessment
-
+*[NOB]: Not Observed
+*[CNPC]: Commander, Navy Personnel Command
