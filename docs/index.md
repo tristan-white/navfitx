@@ -6,16 +6,16 @@ NAVFITX is a feature rich, drop-in replacement for NAVFIT98A.
 
 | Feature | NAVFIT98 v33 | NAVFITX | 
 |---------|---------------|---------|
-| Export Reports as PDF | ✅ | ✅ |
 | Runs on Windows | ✅ | ✅ |
-| Easy to install | ❌ | ✅ |
 | Runs on MacOS | ❌ | ✅ |
 | Runs on Linux | ❌ | ✅ |
+| Export Reports as PDF | ✅ | ✅ |
+| Import/export reports in a sqlite database | ❌ | ✅ |
+| Import/export reports as JSON files | ❌ | ✅ |
+| Import/export reports as [TOML](https://toml.io/) files | ❌ | ✅ |
 | Install & Use w/out Admin Privileges | ❌ | ✅ |
-| Export reports in a sqlite database | ❌ | ✅ |
-| Export reports as JSON files | ❌ | ✅ |
-| Export reports as [TOML](https://toml.io/) files | ❌ | ✅ |
-| Export use via CLI | ❌ | ✅ |
+| Easy to install | ❌ | ✅ |
+| CLI tool | ❌ | ✅ |
 
 ## Installation
 

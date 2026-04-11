@@ -1,3 +1,4 @@
+import tomllib
 from pathlib import Path
 from typing import Annotated
 
@@ -7,6 +8,18 @@ from rich import print
 from navfitx.models import Fitrep
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
+
+
+def validate_toml_file(file: Path) -> Path:
+    """
+    Validate that the provided file is a valid TOML file.
+    """
+    try:
+        with file.open("rb") as f:
+            tomllib.load(f)
+    except Exception as e:
+        raise typer.BadParameter(f"{e}")
+    return file
 
 
 @app.callback()

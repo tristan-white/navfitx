@@ -131,6 +131,8 @@ class EvalForm(QWidget):
         # so it's used here to look the same as the form.
         self.group.addItem("")
         self.group.addItems([member.value for member in SummaryGroup])
+        if self.eval.group is not None:
+            self.group.setCurrentIndex(self.get_idx_for_enum(self.eval.group))
         grid_layout.addWidget(QLabel("Group"), 2, 0)
         grid_layout.addWidget(self.group, 2, 1)
 
@@ -597,11 +599,11 @@ class EvalForm(QWidget):
 
     @Slot()
     def validate_ship_station(self):
-        if not self.station.text().isalnum() or len(self.station.text()) > 18:
+        if len(self.station.text()) > 18:
             QMessageBox.information(
                 self,
                 "Ship/Station Validation",
-                "Maximum of 18 characters allowed. Only letters and number are permitted.",
+                "Maximum of 18 characters allowed.",
                 QMessageBox.StandardButton.Ok,
             )
             self.station.setText("")
@@ -617,12 +619,6 @@ class EvalForm(QWidget):
                 self, "Grade Validation", "Rank/Grade cannot be more than 5 characters.", QMessageBox.StandardButton.Ok
             )
             return
-        for char in self.grade.text():
-            if not char.isalpha():
-                QMessageBox.information(
-                    self, "Grade Validation", "Rank/Grade may only contain letters.", QMessageBox.StandardButton.Ok
-                )
-                return
 
     @Slot()
     def validate_desig(self):
@@ -705,7 +701,7 @@ class EvalForm(QWidget):
 
     def save_form(self):
         """
-        Create a Eval` class from the data input in the GUI Form.
+        Create a Eval class from the data input in the GUI Form.
         """
         self.eval.name = self.name.text()
         self.eval.rate = self.grade.text()

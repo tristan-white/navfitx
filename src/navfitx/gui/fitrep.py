@@ -131,6 +131,8 @@ class FitrepForm(QWidget):
         # so it's used here to look the same as the form.
         self.group.addItem("")
         self.group.addItems([member.value for member in SummaryGroup])
+        if self.fitrep.group is not None:
+            self.group.setCurrentIndex(self.get_idx_for_enum(self.fitrep.group))
         grid_layout.addWidget(QLabel("Group"), 2, 0)
         grid_layout.addWidget(self.group, 2, 1)
 
@@ -622,11 +624,11 @@ class FitrepForm(QWidget):
 
     @Slot()
     def validate_ship_station(self):
-        if not self.station.text().isalnum() or len(self.station.text()) > 18:
+        if len(self.station.text()) > 18:
             QMessageBox.information(
                 self,
                 "Ship/Station Validation",
-                "Maximum of 18 characters allowed. Only letters and number are permitted.",
+                "Maximum of 18 characters allowed.",
                 QMessageBox.StandardButton.Ok,
             )
             self.station.setText("")

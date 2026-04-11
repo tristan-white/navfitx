@@ -98,4 +98,6 @@ Praesent mattis ornare magna, id consectetur massa. Etiam consectetur lorem eu p
 # 5 - Early Promote
 indiv_promo_rec = 3
 
-senior_address = "123 Main St, Anytown, USA"
+senior_address = """
+123 Main St, Anytown, USA
+"""
