@@ -524,8 +524,8 @@ class EvalForm(QWidget):
         validate_action.triggered.connect(self.validate_report)
 
         # validate_action.setDisabled(True)  # not implemented yet
-        spell_check_action = tools.addAction("Spell Check")
-        spell_check_action.setDisabled(True)  # not implemented yet
+        # spell_check_action = tools.addAction("Spell Check")
+        # spell_check_action.setDisabled(True)  # not implemented yet
 
     def validate_report(self):
         """Perform validation on all fields in the form."""

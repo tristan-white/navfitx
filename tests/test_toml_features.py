@@ -1,7 +1,7 @@
 from navfitx.models import Fitrep
 
 
-def test_fitrep_toml_export(fitrep):
+def test_fitrep_toml_export(fitrep: Fitrep):
     # export a valid fitrep to toml str
     toml_str = fitrep.model_dump_toml()
 

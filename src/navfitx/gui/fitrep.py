@@ -523,12 +523,12 @@ class FitrepForm(QWidget):
         print_action = file_menu.addAction("Export as PDF")
         print_action.triggered.connect(self.print)
 
-        toml_export_action = file_menu.addAction("Export as TOML")
-        toml_export_action.setDisabled(True)  # not implemented yet
+        # toml_export_action = file_menu.addAction("Export as TOML")
+        # toml_export_action.setDisabled(True)
         # toml_export_action.triggered.connect(self.export_toml)
 
-        json_export_action = file_menu.addAction("Export as JSON")
-        json_export_action.triggered.connect(self.export_json)
+        # json_export_action = file_menu.addAction("Export as JSON")
+        # json_export_action.triggered.connect(self.export_json)
 
         close_action = file_menu.addAction("Close")
         # Connect close to the provided on_reject callback so Home can handle stack cleanup
@@ -538,8 +538,8 @@ class FitrepForm(QWidget):
         validate_action = tools.addAction("Validate Report")
         validate_action.triggered.connect(self.validate_report)
         # validate_action.setDisabled(True)  # not implemented yet
-        spell_check_action = tools.addAction("Spell Check")
-        spell_check_action.setDisabled(True)  # not implemented yet
+        # spell_check_action = tools.addAction("Spell Check")
+        # spell_check_action.setDisabled(True)  # not implemented yet
 
     def validate_report(self):
         """Perform validation on all fields in the form."""
@@ -548,30 +548,22 @@ class FitrepForm(QWidget):
         except ValidationError as err:
             errors = json.loads(err.json())
             # show a list of all validation errors
-            error_messages = "\n".join([f"{error['loc'][0]}: {error['msg']}" for error in errors])
-
+            err_msgs = ""
+            for error in errors:
+                python_field_name = error["loc"][0]
+                err_msgs += f"{Fitrep.model_fields[python_field_name].title}: {error['msg']}\n"
             test = QMessageBox()
             test.setWindowModality(Qt.WindowModality.NonModal)
-            test.information(self, "Validation", error_messages)
-            # test.show()
-
-            # msg = QMessageBox(self)
-            # msg.setIcon(QMessageBox.Critical)
-            # msg.setWindowTitle("FITREP Validation Errors")
-            # msg.setText("The following validation errors were found:")
-            # msg.setDetailedText(error_messages)
-            # msg.setStandardButtons(QMessageBox.StandardButton.Ok)
-            # msg.setModal(False)               # non-blocking
-            # msg.setWindowFlag(Qt.Window)     # make it a separate top-level window (draggable)
-            # msg.setAttribute(Qt.WA_DeleteOnClose)
-            # msg.show()
+            test.warning(self, "Validation", err_msgs)
+            return
+        QMessageBox.information(self, "Validation", "No validation errors found. Report is valid.")
 
     @staticmethod
     def get_idx_for_enum(member: Enum | None) -> int:
         """
         Return 1-based index of the enum member within its enum class, or 0 if None/not found.
 
-        Useful for setting QComboBox current index based on enum member.
+        Useful for setting QComboBinox current index based on enum member.
         """
         if member is None:
             return 0
@@ -722,6 +714,33 @@ class FitrepForm(QWidget):
 
     def print(self):
         self.save_form()
+
+        try:
+            Fitrep.model_validate(self.fitrep)
+            # validation_failed = False
+            # err_msgs = ""
+        except ValidationError as err:
+            # validation_failed = True
+            errors = json.loads(err.json())
+            err_msgs = ""
+            for error in errors:
+                python_field_name = error["loc"][0]
+                err_msgs += f"{Fitrep.model_fields[python_field_name].title}: {error['msg']}\n"
+
+            # if validation_failed:
+            msg_box = QMessageBox(self)
+            msg_box.setIcon(QMessageBox.Warning)
+            msg_box.setWindowTitle("Validation Error")
+            msg_box.setText(
+                f"Validation errors found. The report is invalid and may print incorrectly. Fix the following errors to correct the report:\n\n{err_msgs}"
+            )
+            msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+            msg_box.button(QMessageBox.Yes).setText("Ignore and Print")
+            msg_box.button(QMessageBox.No).setText("Cancel")
+            result = msg_box.exec()
+            if result != QMessageBox.Yes:
+                return
+
         filename, selected_filter = QFileDialog.getSaveFileName(self, "Export FITREP PDF", "fitrep.pdf")
         if filename:
             self.fitrep.create_pdf(Path(filename))

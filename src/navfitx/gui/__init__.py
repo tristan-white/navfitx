@@ -1,3 +1,4 @@
+import os
 import sys
 
 import typer
@@ -14,7 +15,7 @@ app = typer.Typer(no_args_is_help=True, add_completion=False)
 @app.command()
 def gui():
     """
-    Launch the NAVFITX GUI application.
+    Launch the NAVFITX Graphical User Interface.
     """
     qt_app = QApplication()
     qt_app.setWindowIcon(QIcon(str(get_icon_path())))

@@ -4,6 +4,7 @@ import pytest
 
 from navfitx.models import (
     BilletSubcategory,
+    Eval,
     Fitrep,
     PhysicalReadiness,
     PromotionStatus,
@@ -11,7 +12,7 @@ from navfitx.models import (
 )
 
 
-@pytest.fixture
+@pytest.fixture()
 def fitrep():
     return Fitrep(
         id=1,
@@ -53,4 +54,32 @@ def fitrep():
         comments="Lorem ipsum dolor sit amet, consectetur adipiscing elit. In rhoncus enim quis magna vestibulum sagittis. Aenean ut pretium libero. Quisque maximus risus vitae ligula mollis viverra. Nullam auctor justo diam, eu porta tellus egestas sit amet. Vivamus et elit non mi imperdiet sodales nec id tellus. Cras sodales scelerisque massa, vel pulvinar erat. Donec molestie augue diam, sed consequat sem vulputate vel. Mauris luctus mi eu tellus tempus, non scelerisque libero imperdiet. Integer facilisis velit ac ligula scelerisque, eu dignissim magna cursus. Vivamus nec libero eget urna congue egestas et id est. Nunc tincidunt lorem erat, ut aliquam magna vulputate eu.  Sed dapibus, augue eget blandit accumsan, velit diam consequat enim, eget rhoncus lorem erat in neque. Nam lobortis volutpat congue. Morbi urna nisl, tincidunt non metus sed, ornare bibendum lectus. Etiam consequat malesuada ligula, eu luctus felis ullamcorper a. Praesent massa massa, cursus non mauris in, finibus porta metus. Integer gravida et risus ac scelerisque. Mauris ut tellus efficitur nunc gravida pharetra. Phasellus vitae nisi vitae tellus mollis consequat tincidunt semper risus. Vivamus nec nulla vitae nunc tristique ornare.  Nulla facilisi. Phasellus nisl sem, imperdiet eget hendrerit elementum, semper quis justo. Mauris at purus hendrerit, molestie orci ut, maximus est. Praesent congue tincidunt sapien, vitae egestas neque auctor sed. Curabitur feugiat orci lorem, a fringilla leo fringilla malesuada. Praesent mattis ornare magna, id consectetur massa. Etiam consectetur lorem eu pellentesque sollicitudin. Proin dapibus leo eu justo.",
         indiv_promo_rec=3,
         senior_address="123 Main St, Anytown, USA",
+    )
+
+
+@pytest.fixture()
+def eval():
+    return Eval(
+        name="John Doe",
+        rate="E-2",
+        desig="USN",
+        ssn="123-45-6789",
+        uic="12345",
+        station="NAVSTA Norfolk",
+        promotion_status=PromotionStatus.REGULAR,
+        date_reported=None,
+        period_start=None,
+        period_end=None,
+        not_observed=False,
+        physical_readiness=PhysicalReadiness.PASS,
+        billet_subcategory=BilletSubcategory.BASIC,
+        senior_name="Jane Smith",
+        senior_grade="O-4",
+        senior_desig="USN",
+        senior_title="Senior Officer",
+        senior_uic="54321",
+        senior_ssn="987-65-4321",
+        job="Commanding Officer of a destroyer.",
+        duties_abbreviation="CO Duties",
+        duties_description="Responsible for the overall command and operation of the ship.",
     )

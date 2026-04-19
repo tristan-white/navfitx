@@ -407,7 +407,9 @@ class Report(SQLModel):
     name: Annotated[str, StringConstraints(max_length=27, min_length=1, strip_whitespace=True, to_upper=True)] = Field(
         title="Name", default=""
     )
-    rate: Annotated[str, StringConstraints(min_length=1, to_upper=True, strip_whitespace=True)] = ""
+    rate: Annotated[str, StringConstraints(min_length=1, max_length=5, to_upper=True, strip_whitespace=True)] = Field(
+        title="Rate", default=""
+    )
     desig: Annotated[str, StringConstraints(max_length=12, min_length=1, strip_whitespace=True)] = Field(
         title="Designator", default=""
     )
@@ -420,34 +422,58 @@ class Report(SQLModel):
         title="Ship/Station", default=""
     )
     promotion_status: PromotionStatus | None = Field(title="Promotion Status", default=None)
-    date_reported: date | None = None
-    periodic: bool = False
-    det_indiv: bool = False
-    special: bool = False
-    period_start: date | None = None
-    period_end: date | None = None
-    not_observed: bool = False
-    regular: bool = False
-    concurrent: bool = False
-    billet_subcategory: BilletSubcategory | None = None
-    senior_name: Annotated[str, StringConstraints(min_length=1, max_length=27, strip_whitespace=True)] = ""
-    senior_grade: Annotated[str, StringConstraints(min_length=1, max_length=5, strip_whitespace=True)] = ""
-    senior_desig: Annotated[str, StringConstraints(min_length=1, max_length=5, strip_whitespace=True)] = ""
+    date_reported: date | None = Field(title="Date Reported", default=None)
+    periodic: bool = Field(title="Periodic", default=False)
+    det_indiv: bool = Field(title="Detachment of Individual", default=False)
+    special: bool = Field(title="Special", default=False)
+    period_start: date | None = Field(title="Period of Start", default=None)
+    period_end: date | None = Field(title="Period of End", default=None)
+    not_observed: bool = Field(title="Not Observed", default=False)
+    regular: bool = Field(title="Regular", default=False)
+    concurrent: bool = Field(title="Concurrent", default=False)
+    billet_subcategory: BilletSubcategory | None = Field(title="Billet Subcategory", default=None)
+    senior_name: Annotated[str, StringConstraints(min_length=1, max_length=27, strip_whitespace=True)] = Field(
+        title="Reporting Senior Name", default=""
+    )
+    senior_grade: Annotated[str, StringConstraints(min_length=1, max_length=5, strip_whitespace=True)] = Field(
+        title="Reporting Senior Grade", default=""
+    )
+    senior_desig: Annotated[str, StringConstraints(min_length=1, max_length=5, strip_whitespace=True)] = Field(
+        title="Reporting Senior Designator", default=""
+    )
     senior_title: Annotated[
         str, StringConstraints(min_length=1, max_length=14, strip_whitespace=True, to_upper=True)
-    ] = ""
-    senior_uic: Annotated[str, StringConstraints(min_length=1, max_length=5, strip_whitespace=True)] = ""
-    senior_ssn: Annotated[str, StringConstraints(strip_whitespace=True)] = ""
-    job: Annotated[str, StringConstraints(min_length=1, strip_whitespace=True)] = ""
-    duties_abbreviation: Annotated[str, StringConstraints(min_length=1, max_length=14, strip_whitespace=True)] = ""
-    duties_description: Annotated[str, StringConstraints(min_length=1, strip_whitespace=True)] = ""
-    date_counseled: date | None = None
-    counselor: Annotated[str, StringConstraints(min_length=1, max_length=20, to_upper=True)] = ""
-    career_rec_1: Annotated[str, StringConstraints(min_length=1, max_length=20, strip_whitespace=True)] = ""
-    career_rec_2: Annotated[str, StringConstraints(min_length=1, max_length=20, strip_whitespace=True)] = ""
-    comments: Annotated[str, StringConstraints(min_length=1)] = ""
-    indiv_promo_rec: int | None = Field(default=None, ge=0, le=5)
-    senior_address: Annotated[str, StringConstraints(min_length=1, max_length=40)] = ""
+    ] = Field(title="Reporting Senior Title", default="")
+    senior_uic: Annotated[str, StringConstraints(min_length=1, max_length=5, strip_whitespace=True)] = Field(
+        title="Reporting Senior UIC", default=""
+    )
+    senior_ssn: Annotated[str, StringConstraints(strip_whitespace=True)] = Field(
+        title="Reporting Senior SSN", default=""
+    )
+    job: Annotated[str, StringConstraints(min_length=1, strip_whitespace=True)] = Field(
+        title="Command Employment and Command Achievements", default=""
+    )
+    duties_abbreviation: Annotated[str, StringConstraints(min_length=1, max_length=14, strip_whitespace=True)] = Field(
+        title="Duties Abbreviation", default=""
+    )
+    duties_description: Annotated[str, StringConstraints(min_length=1, strip_whitespace=True)] = Field(
+        title="Duties Description", default=""
+    )
+    date_counseled: date | None = Field(title="Date Counseled", default=None)
+    counselor: Annotated[str, StringConstraints(min_length=1, max_length=20, to_upper=True)] = Field(
+        title="Counselor", default=""
+    )
+    career_rec_1: Annotated[str, StringConstraints(min_length=1, max_length=20, strip_whitespace=True)] = Field(
+        title="Career Recommendation 1", default=""
+    )
+    career_rec_2: Annotated[str, StringConstraints(min_length=1, max_length=20, strip_whitespace=True)] = Field(
+        title="Career Recommendation 2", default=""
+    )
+    comments: Annotated[str, StringConstraints(min_length=1)] = Field(title="Comments", default="")
+    indiv_promo_rec: int | None = Field(title="Individual Promotion Recommendation", default=None, ge=0, le=5)
+    senior_address: Annotated[str, StringConstraints(min_length=1, max_length=40)] = Field(
+        title="Reporting Senior Address", default=""
+    )
 
     @staticmethod
     def format_job(text: str) -> str:
@@ -655,195 +681,6 @@ class Report(SQLModel):
     @abstractmethod
     def create_pdf(self, path: Path):
         pass
-        # blank_fitrep = get_blank_report_path(f"{self.doc_type}")
-        # doc = pymupdf.open(str(blank_fitrep))
-        # meta = doc.metadata
-        # meta["title"] = f"{self.doc_type.upper()} for {self.name}"
-        # doc.set_metadata(meta)
-        # front = doc[0]
-        # back = doc[1]
-        # front.insert_text(Point(22, 43), self.name, fontsize=12, fontname="cour")
-        # back.insert_text(Point(22, 43), self.name, fontsize=12, fontname="Cour")
-        # front.insert_text(Point(292, 43), self.rate, fontsize=12, fontname="Cour")
-        # back.insert_text(Point(292, 43), self.rate, fontsize=12, fontname="Cour")
-        # front.insert_text(Point(360, 43), self.desig, fontsize=12, fontname="Cour")
-        # back.insert_text(Point(360, 43), self.desig, fontsize=12, fontname="Cour")
-        # front.insert_text(Point(460, 43), self.ssn, fontsize=12, fontname="Cour")
-        # back.insert_text(Point(460, 43), self.ssn, fontsize=12, fontname="Cour")
-        # if group_point := self.get_group_point():
-        #     front.insert_text(group_point, "X", fontsize=12, fontname="Cour")
-        # front.insert_text(Point(170, 67), self.uic, fontsize=12, fontname="Cour")
-        # front.insert_text(Point(223, 67), self.station, fontsize=12, fontname="Cour")
-        # front.insert_text(Point(416, 67), self.promotion_status, fontsize=12, fontname="Cour")
-        # report_date_str = self.format_date(self.date_reported)
-        # front.insert_text(Point(496, 67), report_date_str, fontsize=12, fontname="Cour")
-
-        # if self.periodic:
-        #     front.insert_text(Point(76, 88), "X", fontsize=12, fontname="Cour")
-        # if self.det_indiv:
-        #     front.insert_text(Point(157, 88), "X", fontsize=12, fontname="Cour")
-        # # if self.det_rs:
-        # #     front.insert_text(Point(251, 88), "X", fontsize=12, fontname="Cour")
-        # if self.special:
-        #     front.insert_text(Point(329, 88), "X", fontsize=12, fontname="Cour")
-
-        # from_date_str = self.format_date(self.period_start)
-        # front.insert_text(Point(395, 92), from_date_str, fontsize=12, fontname="Cour")
-        # to_date_str = self.format_date(self.period_end)
-        # front.insert_text(Point(494, 92), to_date_str, fontsize=12, fontname="Cour")
-        # if self.not_observed:
-        #     front.insert_text(Point(77, 112), "X", fontsize=12, fontname="Cour")
-
-        # if self.regular:
-        #     front.insert_text(Point(156, 112), "X", fontsize=12, fontname="Cour")
-        # if self.concurrent:
-        #     front.insert_text(Point(250, 112), "X", fontsize=12, fontname="Cour")
-        # if self.ops_cdr:
-        #     front.insert_text(Point(329, 112), "X", fontsize=12, fontname="Cour")
-
-        # front.insert_text(Point(361, 115), self.physical_readiness, fontsize=12, fontname="Cour")
-        # front.insert_text(Point(460, 115), self.billet_subcategory, fontsize=12, fontname="Cour")
-
-        # front.insert_text(Point(22, 140), self.senior_name, fontsize=12, fontname="Cour")
-        # front.insert_text(Point(172, 140), self.senior_grade, fontsize=12, fontname="Cour")
-        # front.insert_text(Point(222, 140), self.senior_desig, fontsize=12, fontname="Cour")
-        # front.insert_text(Point(273, 140), self.senior_title, fontsize=12, fontname="Cour")
-        # front.insert_text(Point(405, 140), self.senior_uic, fontsize=12, fontname="Cour")
-        # front.insert_text(Point(461, 140), self.senior_ssn, fontsize=12, fontname="Cour")
-
-        # front.insert_text(Point(24, 164), self.format_job(self.job), fontsize=10, fontname="Cour", lineheight=1.0)
-        # front.insert_text(Point(28, 212), self.duties_abbreviation, fontsize=12, fontname="Cour")
-
-        # duties_desc = wrap_duty_desc(self.duties_description)
-        # front.insert_text(Point(24, 212), duties_desc, fontsize=10, fontname="Cour", lineheight=1.0)
-
-        # match self.pro_expertise:
-        #     case 0:
-        #         front.insert_text(Point(76, 403), "X", fontsize=12, fontname="Cour")
-        #     case 1:
-        #         front.insert_text(Point(205, 403), "X", fontsize=12, fontname="Cour")
-        #     case 2:
-        #         front.insert_text(Point(241, 403), "X", fontsize=12, fontname="Cour")
-        #     case 3:
-        #         front.insert_text(Point(377, 403), "X", fontsize=12, fontname="Cour")
-        #     case 4:
-        #         front.insert_text(Point(414, 403), "X", fontsize=12, fontname="Cour")
-        #     case 5:
-        #         front.insert_text(Point(551, 403), "X", fontsize=12, fontname="Cour")
-        # match self.cmd_climate:
-        #     case 0:
-        #         front.insert_text(Point(76, 486), "X", fontsize=12, fontname="Cour")
-        #     case 1:
-        #         front.insert_text(Point(205, 486), "X", fontsize=12, fontname="Cour")
-        #     case 2:
-        #         front.insert_text(Point(241, 486), "X", fontsize=12, fontname="Cour")
-        #     case 3:
-        #         front.insert_text(Point(377, 486), "X", fontsize=12, fontname="Cour")
-        #     case 4:
-        #         front.insert_text(Point(414, 486), "X", fontsize=12, fontname="Cour")
-        #     case 5:
-        #         front.insert_text(Point(551, 486), "X", fontsize=12, fontname="Cour")
-        # match self.bearing_and_character:
-        #     case 0:
-        #         front.insert_text(Point(76, 571), "X", fontsize=12, fontname="Cour")
-        #     case 1:
-        #         front.insert_text(Point(205, 571), "X", fontsize=12, fontname="Cour")
-        #     case 2:
-        #         front.insert_text(Point(241, 571), "X", fontsize=12, fontname="Cour")
-        #     case 3:
-        #         front.insert_text(Point(377, 571), "X", fontsize=12, fontname="Cour")
-        #     case 4:
-        #         front.insert_text(Point(414, 571), "X", fontsize=12, fontname="Cour")
-        #     case 5:
-        #         front.insert_text(Point(551, 571), "X", fontsize=12, fontname="Cour")
-        # match self.teamwork:
-        #     case 0:
-        #         front.insert_text(Point(76, 655), "X", fontsize=12, fontname="Cour")
-        #     case 1:
-        #         front.insert_text(Point(205, 655), "X", fontsize=12, fontname="Cour")
-        #     case 2:
-        #         front.insert_text(Point(241, 655), "X", fontsize=12, fontname="Cour")
-        #     case 3:
-        #         front.insert_text(Point(377, 655), "X", fontsize=12, fontname="Cour")
-        #     case 4:
-        #         front.insert_text(Point(414, 655), "X", fontsize=12, fontname="Cour")
-        #     case 5:
-        #         front.insert_text(Point(551, 655), "X", fontsize=12, fontname="Cour")
-        # match self.accomp_and_initiative:
-        #     case 0:
-        #         front.insert_text(Point(76, 739), "X", fontsize=12, fontname="Cour")
-        #     case 1:
-        #         front.insert_text(Point(205, 739), "X", fontsize=12, fontname="Cour")
-        #     case 2:
-        #         front.insert_text(Point(241, 739), "X", fontsize=12, fontname="Cour")
-        #     case 3:
-        #         front.insert_text(Point(377, 739), "X", fontsize=12, fontname="Cour")
-        #     case 4:
-        #         front.insert_text(Point(414, 739), "X", fontsize=12, fontname="Cour")
-        #     case 5:
-        #         front.insert_text(Point(551, 739), "X", fontsize=12, fontname="Cour")
-
-        # counsel_date_str = self.format_date(self.date_counseled)
-        # front.insert_text(Point(200, 272), counsel_date_str, fontsize=12, fontname="Cour")
-
-        # front.insert_text(Point(279, 272), self.counselor, fontsize=12, fontname="Cour")
-
-        # # for point in self.get_perf_points_back(self):
-        # #     back.insert_text(point, "X", fontsize=12, fontname="Cour")
-
-        # match self.leadership:
-        #     case 0:
-        #         back.insert_text(Point(76, 186), "X", fontsize=12, fontname="Cour")
-        #     case 1:
-        #         back.insert_text(Point(205, 186), "X", fontsize=12, fontname="Cour")
-        #     case 2:
-        #         back.insert_text(Point(241, 186), "X", fontsize=12, fontname="Cour")
-        #     case 3:
-        #         back.insert_text(Point(377, 186), "X", fontsize=12, fontname="Cour")
-        #     case 4:
-        #         back.insert_text(Point(414, 186), "X", fontsize=12, fontname="Cour")
-        #     case 5:
-        #         back.insert_text(Point(551, 186), "X", fontsize=12, fontname="Cour")
-        # match self.tactical_performance:
-        #     case 0:
-        #         back.insert_text(Point(76, 282), "X", fontsize=12, fontname="Cour")
-        #     case 1:
-        #         back.insert_text(Point(205, 282), "X", fontsize=12, fontname="Cour")
-        #     case 2:
-        #         back.insert_text(Point(241, 282), "X", fontsize=12, fontname="Cour")
-        #     case 3:
-        #         back.insert_text(Point(377, 282), "X", fontsize=12, fontname="Cour")
-        #     case 4:
-        #         back.insert_text(Point(414, 282), "X", fontsize=12, fontname="Cour")
-        #     case 5:
-        #         back.insert_text(Point(551, 282), "X", fontsize=12, fontname="Cour")
-
-        # back.insert_text(
-        #     Point(34, 354),
-        #     self.wrap_text(self.comments, 92),
-        #     fontsize=9.2,
-        #     fontname="Cour",
-        # )
-
-        # match self.indiv_promo_rec:
-        #     case PromotionRecommendation.NOB.value:
-        #         # return Point(101, 606)
-        #         back.insert_text(Point(101, 606), "X", fontsize=12, fontname="Cour")
-        #     case PromotionRecommendation.SIGNIFICANT_PROBLEMS.value:
-        #         # return Point(151, 606)
-        #         back.insert_text(Point(151, 606), "X", fontsize=12, fontname="Cour")
-        #     case PromotionRecommendation.PROGRESSING.value:
-        #         # return Point(202, 606)
-        #         back.insert_text(Point(202, 606), "X", fontsize=12, fontname="Cour")
-        #     case PromotionRecommendation.PROMOTABLE.value:
-        #         # return Point(253, 606)
-        #         back.insert_text(Point(253, 606), "X", fontsize=12, fontname="Cour")
-        #     case PromotionRecommendation.MUST_PROMOTE.value:
-        #         # return Point(304, 606)
-        #         back.insert_text(Point(304, 606), "X", fontsize=12, fontname="Cour")
-        #     case PromotionRecommendation.EARLY_PROMOTE.value:
-        #         # return Point(355, 606)
-        #         back.insert_text(Point(355, 606), "X", fontsize=12, fontname="Cour")
 
     def summary_group_avg(self) -> str:
         """
@@ -910,16 +747,16 @@ class Fitrep(Report, table=True):
     """
 
     doc_type: str = Field(default="fitrep", const=True)
-    det_rs: bool = False
-    ops_cdr: bool = False
-    physical_readiness: PhysicalReadiness | None = None
-    pro_expertise: int | None = Field(None, ge=0, le=5)
-    cmd_climate: int | None = Field(None, ge=0, le=5)
-    bearing_and_character: int | None = Field(None, ge=0, le=5)
-    teamwork: int | None = Field(None, ge=0, le=5)
-    accomp_and_initiative: int | None = Field(None, ge=0, le=5)
-    leadership: int | None = Field(None, ge=0, le=5)
-    tactical_performance: int | None = Field(None, ge=0, le=5)
+    det_rs: bool = Field(default=False, title="Detachment of Reporting Senior")
+    ops_cdr: bool = Field(title="Ops Commander", default=False)
+    physical_readiness: PhysicalReadiness | None = Field(None, title="Physical Readiness")
+    pro_expertise: int | None = Field(None, title="Professional Expertise", ge=0, le=5)
+    cmd_climate: int | None = Field(None, title="Command or Organizational Climate", ge=0, le=5)
+    bearing_and_character: int | None = Field(None, title="Military Bearing / Character", ge=0, le=5)
+    teamwork: int | None = Field(None, title="Teamwork", ge=0, le=5)
+    accomp_and_initiative: int | None = Field(None, title="Mission Accomplishment and Initiative", ge=0, le=5)
+    leadership: int | None = Field(None, title="Leadership", ge=0, le=5)
+    tactical_performance: int | None = Field(None, ge=0, le=5, title="Tactical Performance")
 
     @field_validator(
         "physical_readiness",
@@ -1053,6 +890,8 @@ class Fitrep(Report, table=True):
     def create_pdf(self, path: Path) -> None:
         """
         Fills out a FITREP PDF report with the provided FITREP data.
+
+        Note: This method does not validate the model before PDF creation.
         """
         blank_fitrep = get_blank_report_path("fitrep")
         doc = pymupdf.open(str(blank_fitrep))

@@ -1,23 +1,26 @@
 # NAVFITX
 
-![PyPI - Version](https://img.shields.io/pypi/v/navfitx)
-
 NAVFITX is a feature rich, drop-in replacement for NAVFIT98A.
 
 | Feature | NAVFIT98 v33 | NAVFITX | 
 |---------|---------------|---------|
+| Triggers Anti-Virus Warnings | ✅ | ❌ |
 | Runs on Windows | ✅ | ✅ |
 | Runs on MacOS | ❌ | ✅ |
 | Runs on Linux | ❌ | ✅ |
 | Export Reports as PDF | ✅ | ✅ |
 | Import/export reports in a sqlite database | ❌ | ✅ |
-| Import/export reports as JSON files | ❌ | ✅ |
-| Import/export reports as [TOML](https://toml.io/) files | ❌ | ✅ |
 | Install & Use w/out Admin Privileges | ❌ | ✅ |
 | Easy to install | ❌ | ✅ |
 | CLI tool | ❌ | ✅ |
 
+<!-- | Import/export reports as JSON files | ❌ | ✅ |
+| Import/export reports as [TOML](https://toml.io/) files | ❌ | ✅ | -->
+
 ## Installation
+
+!!! note
+    NAVFITX is in pre-release. Newer versions may introduce changes that are not backward compatible.
 
 You can install and use NAVFITX in 60 seconds.
 
