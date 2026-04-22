@@ -1,7 +1,6 @@
 import json
 import textwrap
 from enum import Enum
-from pathlib import Path
 from typing import Callable
 
 from pydantic import ValidationError
@@ -12,7 +11,6 @@ from PySide6.QtWidgets import (
     QComboBox,
     QDateEdit,
     QDialogButtonBox,
-    QFileDialog,
     QGridLayout,
     QGroupBox,
     QHBoxLayout,
@@ -691,9 +689,32 @@ class EvalForm(QWidget):
 
     def print(self):
         self.save_form()
-        filename, selected_filter = QFileDialog.getSaveFileName(self, "Export Eval PDF", "eval.pdf")
-        if filename:
-            self.eval.create_pdf(Path(filename))
+
+        try:
+            Eval.model_validate(self.eval)
+            # validation_failed = False
+            # err_msgs = ""
+        except ValidationError as err:
+            # validation_failed = True
+            errors = json.loads(err.json())
+            err_msgs = ""
+            for error in errors:
+                python_field_name = error["loc"][0]
+                err_msgs += f"{Eval.model_fields[python_field_name].title}: {error['msg']}\n"
+
+            # if validation_failed:
+            msg_box = QMessageBox(self)
+            msg_box.setIcon(QMessageBox.Icon.Warning)
+            msg_box.setWindowTitle("Validation Error")
+            msg_box.setText(
+                f"Validation errors found. The report is invalid and may print incorrectly. Fix the following errors to correct the report:\n\n{err_msgs}"
+            )
+            msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+            msg_box.button(QMessageBox.StandardButton.Yes).setText("Ignore and Print")
+            msg_box.button(QMessageBox.StandardButton.No).setText("Cancel")
+            result = msg_box.exec()
+            if result != QMessageBox.StandardButton.Yes:
+                return
 
     def submit(self):
         self.save_form()

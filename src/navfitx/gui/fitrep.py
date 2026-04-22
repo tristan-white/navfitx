@@ -729,16 +729,16 @@ class FitrepForm(QWidget):
 
             # if validation_failed:
             msg_box = QMessageBox(self)
-            msg_box.setIcon(QMessageBox.Warning)
+            msg_box.setIcon(QMessageBox.Icon.Warning)
             msg_box.setWindowTitle("Validation Error")
             msg_box.setText(
                 f"Validation errors found. The report is invalid and may print incorrectly. Fix the following errors to correct the report:\n\n{err_msgs}"
             )
-            msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-            msg_box.button(QMessageBox.Yes).setText("Ignore and Print")
-            msg_box.button(QMessageBox.No).setText("Cancel")
+            msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+            msg_box.button(QMessageBox.StandardButton.Yes).setText("Ignore and Print")
+            msg_box.button(QMessageBox.StandardButton.No).setText("Cancel")
             result = msg_box.exec()
-            if result != QMessageBox.Yes:
+            if result != QMessageBox.StandardButton.Yes:
                 return
 
         filename, selected_filter = QFileDialog.getSaveFileName(self, "Export FITREP PDF", "fitrep.pdf")
