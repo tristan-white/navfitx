@@ -22,7 +22,8 @@ See the [docs](https://navfitx.com/#installation)
 ## Help NAVFITX Succeed
 
 ### Feedback/Suggestions
-If you find a bug, have a question, or have feedback/a request for an enhancement, please create a [new issue](https://github.com/tristan-white/navfitx/issues) to track it.
+
+If you find a bug, have a question, or have feedback/a request for an enhancement, please create a [new discussion](https://github.com/tristan-white/navfitx/discussions/categories/questions) on github.
 
 I'd like to see NAVFITX replace NAFIT98A in the fleet. I'm looking for user testimonials from anyone that's used NAVFIT98A or eNavFit in order to answer the "why is this important" when I make the pitch to current NAVFIT98 stakeholders within the Navy. If you have feedback on these programs, please provide it here:
 

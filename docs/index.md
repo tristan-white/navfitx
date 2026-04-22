@@ -1,6 +1,6 @@
 # NAVFITX
 
-NAVFITX is a feature rich, drop-in replacement for NAVFIT98A.
+NAVFITX is a drop-in replacement for NAVFIT98A.
 
 | Feature | NAVFIT98 v33 | NAVFITX | 
 |---------|---------------|---------|

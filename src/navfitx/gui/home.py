@@ -129,13 +129,13 @@ class Home(QMainWindow):
         file_menu = self.menuBar().addMenu("File")
         self.new_submenu = file_menu.addMenu("New")
 
-        import_menu = file_menu.addMenu("Import")
-        import_toml_action = import_menu.addAction("Import Report from TOML")
-        import_toml_action.triggered.connect(self.import_toml_report)
+        # import_menu = file_menu.addMenu("Import")
+        # import_toml_action = import_menu.addAction("Import Report from TOML")
+        # import_toml_action.triggered.connect(self.import_toml_report)
 
         if not self.db:
             self.new_submenu.setDisabled(True)
-            import_menu.setDisabled(True)
+            # import_menu.setDisabled(True)
 
         new_eval_action = self.new_submenu.addAction("Evaluation")
         new_eval_action.setDisabled(True)  # not implemented yet

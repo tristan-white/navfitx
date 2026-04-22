@@ -6,11 +6,11 @@
 
 Since 1998, the Navy has been using a Visual Basic app called NAVFIT98 to create performance evaluation reports for all its service members. NAVFIT98 was a great step forward and made creating the performance evaluation reporting process more efficient.
 
-But it's still being used in 2026. It has known bugs, is difficult to install, and its report validation feature is lacking, resulting in thousands[^2] of reports submitted annually that are incorrect and must be redone.
+But it's still being used in 2026. It has known bugs, is difficult to install, and its report validation feature is lacking, resulting in thousands[^1] of reports submitted annually that are incorrect and must be redone.
 
-Currently, due to NAVFIT98 limitations, the only authorized method to submit reports to the Navy Personnel Command is to *physically mail them*. This means that **five to six hundred thousand** reports are physically mailed to Navy Personnel Command each year.[^2] These reports are then **manually** scanned into a Navy service members' official records.
+Currently, due to NAVFIT98 limitations, the only authorized method to submit reports to the Navy Personnel Command is to *physically mail them*. This means that **five to six hundred thousand** reports are physically mailed to Navy Personnel Command each year.[^1] These reports are then **manually** scanned into a Navy service members' official records.
 
-This process is radically inefficient. But efficiency aside, there's a larger problem: since service members' reports are stored as scanned PDFs, the data therein is not queryable. Therefore, there is no programmatic method to analyze past reports and draw conclusions about the effectiveness of the Navy's Performance Evaluation system.[^1]
+This process is radically inefficient. But efficiency aside, there's a larger problem: since service members' reports are stored as scanned PDFs, the data therein is not queryable. Therefore, there is no programmatic method to analyze past reports and draw conclusions about the effectiveness of the Navy's Performance Evaluation system.[^2]
 
 ## eNavFit
 
@@ -55,5 +55,5 @@ To avoid the issues faced by eNavFit, a next generation NAVFIT app should have t
 - [Improving the Navy’s Performance Evaluation System with Successful Practices](https://dair.nps.edu/handle/123456789/4730)
 - [Military Officer Performance: Actions Needed to Fully Incorporate Performance Evaluation Key Practices](https://www.gao.gov/assets/gao-25-106618.pdf)
 
-[^1]: This problem is summarized well by Laura Small from the Naval Postgraduate School in her thesis [*Successful Practices for Employee Performance Evaluations*](https://apps.dtic.mil/sti/citations/AD1114373); see section III.D: "FINDINGS: CURRENT PES SHORTCOMINGS".
-[^2]: [Performance Evaluation FAQ](https://www.mynavyhr.navy.mil/Career-Management/Performance-Evaluation/FAQ/)
+[^1]: [Performance Evaluation FAQ](https://www.mynavyhr.navy.mil/Career-Management/Performance-Evaluation/FAQ/)
+[^2]: This problem is summarized well by Laura Small from the Naval Postgraduate School in her thesis [*Successful Practices for Employee Performance Evaluations*](https://apps.dtic.mil/sti/citations/AD1114373); see section III.D: "FINDINGS: CURRENT PES SHORTCOMINGS".
