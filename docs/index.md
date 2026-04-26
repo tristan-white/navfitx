@@ -20,7 +20,7 @@ NAVFITX is a drop-in replacement for NAVFIT98A.
 ## Installation
 
 !!! note
-    NAVFITX is in pre-release. Newer versions may introduce changes that are not backward compatible.
+    NAVFITX is in pre-release. Until version 0.1.0, new versions may introduce changes that are not backward compatible.
 
 You can install and use NAVFITX in 60 seconds.
 

@@ -24,7 +24,7 @@ from PySide6.QtWidgets import (
 )
 from sqlmodel import Session, SQLModel, create_engine, select
 
-from navfitx.constants import APP_AUTHOR, APP_NAME, BUPERSINST_URL, SITE_URL
+from navfitx.constants import APP_AUTHOR, APP_NAME, BUPERSINST_URL, FEEDBACK_URL, SITE_URL
 from navfitx.db import add_fitrep_to_db
 from navfitx.models import Eval, Fitrep, Report
 from navfitx.utils import get_blank_report_path
@@ -61,6 +61,7 @@ class Home(QMainWindow):
                 self.refresh_reports_table()
 
     def delete_report_by_id(self, report_id):
+        # TODO: this needs fixing; right now it's deleting both any report with the same ID
         if not self.db:
             return
         engine = create_engine(f"sqlite:///{self.db}")
@@ -97,11 +98,12 @@ class Home(QMainWindow):
             if hasattr(self, "create_eval_btn"):
                 self.create_eval_btn.setDisabled(False)
 
-        if self.db is not None:
-            left_label = QLabel(f"NAVFITX Database: {self.db}")
-            self.statusBar().addWidget(left_label)
-            # right_label = QLabel("Right text")
-            # self.statusBar().addPermanentWidget(right_label) # Bottom right
+        # if self.db is not None:
+        #     left_label = QLabel(f"NAVFITX Database: {self.db}")
+        #     left_label.setToolTip("This file contains saved reports.")
+        #     self.statusBar().addWidget(left_label)
+        # right_label = QLabel("Right text")
+        # self.statusBar().addPermanentWidget(right_label) # Bottom right
 
         self.reports_table: QTableWidget = QTableWidget()
         self.setup_reports_table_context_menu()
@@ -144,7 +146,7 @@ class Home(QMainWindow):
         new_chief_action.setDisabled(True)  # not implemented yet
 
         fitness_report_action = self.new_submenu.addAction("Fitness Report")
-        fitness_report_action.triggered.connect(lambda: self.open_fitrep_dialog(None))
+        fitness_report_action.triggered.connect(lambda: self.open_fitrep_dialog(Fitrep()))
 
         folder_action = self.new_submenu.addAction("Folder")
         folder_action.setDisabled(True)  # not implemented yet
@@ -173,16 +175,16 @@ class Home(QMainWindow):
         # print_folder_action = print_menu.addAction("Print Folder")
         # print_folder_action.setDisabled(True)
 
-        print_blank_fitrep_action = print_menu.addAction("Print Blank FITREP")
-        print_blank_fitrep_action.triggered.connect(lambda: self.print_blank("fitrep"))
-
-        print_blank_chief = print_menu.addAction("Print Blank Chief Eval")
-        print_blank_chief.triggered.connect(lambda: self.print_blank("chief"))
-
-        print_blank_eval = print_menu.addAction("Print Blank Evaluation")
+        print_blank_eval = print_menu.addAction("Blank Evaluation")
         print_blank_eval.triggered.connect(lambda: self.print_blank("eval"))
 
-        print_blank_summary = print_menu.addAction("Print Blank Summary Letter")
+        print_blank_chief = print_menu.addAction("Blank Chief Eval")
+        print_blank_chief.triggered.connect(lambda: self.print_blank("chief"))
+
+        print_blank_fitrep_action = print_menu.addAction("Blank Fitness Report")
+        print_blank_fitrep_action.triggered.connect(lambda: self.print_blank("fitrep"))
+
+        print_blank_summary = print_menu.addAction("Blank Summary Letter")
         print_blank_summary.triggered.connect(lambda: self.print_blank("summary"))
 
         # delete_submenu = edit_menu.addMenu("Delete")
@@ -191,22 +193,26 @@ class Home(QMainWindow):
         # self.delete_folder_action.setDisabled(True)
 
         help_menu = self.menuBar().addMenu("Help")
-        about_navfitx_action = help_menu.addAction("About NAVFITX")
-        about_navfitx_action.triggered.connect(lambda: self.open_link(SITE_URL))
 
         instruction = help_menu.addAction("Instructions (BUPERSINST 1610.10H)")
         instruction.triggered.connect(lambda: self.open_link(BUPERSINST_URL))
 
-    def open_eval_dialog(self, eval: Eval | None = None):
+        feedback_action = help_menu.addAction("Give Feedback")
+        feedback_action.triggered.connect(lambda: self.open_link(FEEDBACK_URL))
+
+        about_navfitx_action = help_menu.addAction("About NAVFITX")
+        about_navfitx_action.triggered.connect(lambda: self.open_link(SITE_URL))
+
+    def open_eval_dialog(self, eval: Eval):
         self.eval_form = EvalForm(self, self.submit_form, self.cancel_form, eval)
         idx = self.stack.addWidget(self.eval_form)
         self.stack.setCurrentIndex(idx)
         self.setWindowTitle("EVAL")
 
-    def open_fitrep_dialog(self, fitrep: Fitrep | None = None):
+    def open_fitrep_dialog(self, fitrep: Fitrep):
         self.fitrep_form = FitrepForm(self, self.submit_form, self.cancel_form, fitrep)
-        self.stack.addWidget(self.fitrep_form)
-        self.stack.setCurrentIndex(1)
+        idx = self.stack.addWidget(self.fitrep_form)
+        self.stack.setCurrentIndex(idx)
 
     def on_stack_index_changed(self, index: int):
         """Handle stack index changes: restore home menu on index 0, set form title on index 1."""
@@ -434,10 +440,12 @@ class Home(QMainWindow):
                 case "fitrep":
                     stmt = select(Fitrep).where(Fitrep.id == record_id)
                     report = session.exec(stmt).first()
+                    assert report is not None
                     self.open_fitrep_dialog(report)
                 case "eval":
                     stmt = select(Eval).where(Eval.id == record_id)
                     report = session.exec(stmt).first()
+                    assert report is not None
                     self.open_eval_dialog(report)
                 case _:
                     print("unknown report type")
@@ -490,12 +498,12 @@ class Home(QMainWindow):
         col1_layout.addStretch(1)
 
         self.create_fitrep_btn = QPushButton("Create FITREP")
-        self.create_fitrep_btn.clicked.connect(self.open_fitrep_dialog)
+        self.create_fitrep_btn.clicked.connect(lambda: self.open_fitrep_dialog(Fitrep()))
         self.create_fitrep_btn.setDisabled(True)
         self.create_chief_eval_btn = QPushButton("Create CHIEFEVAL")
         self.create_chief_eval_btn.setDisabled(True)
         self.create_eval_btn = QPushButton("Create EVAL")
-        self.create_eval_btn.clicked.connect(self.open_eval_dialog)
+        self.create_eval_btn.clicked.connect(lambda: self.open_eval_dialog(Eval()))
         self.create_eval_btn.setDisabled(True)
         self.edit_report_btn = QPushButton("Edit Report")
         self.edit_report_btn.setDisabled(True)

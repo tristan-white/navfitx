@@ -297,14 +297,14 @@ class PromotionStatus(StrEnum):
     SPOT = "SPOT"
 
 
-class PhysicalReadiness(StrEnum):
-    # BLANK = ""
-    PASS = "P"
-    BCA_PASS = "B"
-    FAIL = "F"
-    MED_WAIVED = "M"
-    WAIVED = "W"
-    NO_PFA = "N"
+# class PhysicalReadiness(StrEnum):
+#     # BLANK = ""
+#     PASS = "P"
+#     BCA_PASS = "B"
+#     FAIL = "F"
+#     MED_WAIVED = "M"
+#     WAIVED = "W"
+#     NO_PFA = "N"
 
 
 class BilletSubcategory(StrEnum):
@@ -431,6 +431,7 @@ class Report(SQLModel):
     not_observed: bool = Field(title="Not Observed", default=False)
     regular: bool = Field(title="Regular", default=False)
     concurrent: bool = Field(title="Concurrent", default=False)
+    physical_readiness: str = Field("", title="Physical Readiness")
     billet_subcategory: BilletSubcategory | None = Field(title="Billet Subcategory", default=None)
     senior_name: Annotated[str, StringConstraints(min_length=1, max_length=27, strip_whitespace=True)] = Field(
         title="Reporting Senior Name", default=""
@@ -463,6 +464,16 @@ class Report(SQLModel):
     counselor: Annotated[str, StringConstraints(min_length=1, max_length=20, to_upper=True)] = Field(
         title="Counselor", default=""
     )
+
+    # Subclasses overwrite these fields with Field title metadata
+    trait1: int | None = Field(None, ge=0, le=5)
+    trait2: int | None = Field(None, ge=0, le=5)
+    trait3: int | None = Field(None, ge=0, le=5)
+    trait4: int | None = Field(None, ge=0, le=5)
+    trait5: int | None = Field(None, ge=0, le=5)
+    trait6: int | None = Field(None, ge=0, le=5)
+    trait7: int | None = Field(None, ge=0, le=5)
+
     career_rec_1: Annotated[str, StringConstraints(min_length=1, max_length=20, strip_whitespace=True)] = Field(
         title="Career Recommendation 1", default=""
     )
@@ -652,9 +663,17 @@ class Report(SQLModel):
             return f"{avg:.2f}"
         return "0.00"
 
-    @abstractmethod
     def member_trait_avg(self) -> str:
-        pass
+        traits = [
+            self.trait1,
+            self.trait2,
+            self.trait3,
+            self.trait4,
+            self.trait5,
+            self.trait6,
+            self.trait7,
+        ]
+        return self.average_traits(traits)
 
     def model_dump_toml(self) -> str:
         """
@@ -727,21 +746,19 @@ class Fitrep(Report, table=True):
             'Detachment Reporting Senior' checkbox. This particular checkbox does not appear in EVALs.
         ops_cdr (bool):
             'Ops Commander' checkbox. This particular checkbox does not appear in EVALs.
-        physical_readiness (PhysicalReadiness | None):
-            Physical readiness code.
-        pro_expertise (int | None):
+        trait1 (int | None):
             Professional expertise score (0-5).
-        cmd_climate (int | None):
+        trait2 (int | None):
             Command or Organizational Climate score (0-5).
-        bearing_and_character (int | None):
+        trait3 (int | None):
             Military Bearing / Character score (0-5).
-        teamwork (int | None):
+        trait4 (int | None):
             Teamwork score (0-5).
-        accomp_and_initiative (int | None):
+        trait5 (int | None):
             Mission Accomplishment and Initiative score (0-5).
-        leadership (int | None):
+        trait6 (int | None):
             Leadership score (0-5).
-        tactical_performance (int | None):
+        trait7 (int | None):
             Tactical Performance score (0-5).
 
     """
@@ -749,24 +766,23 @@ class Fitrep(Report, table=True):
     doc_type: str = Field(default="fitrep", const=True)
     det_rs: bool = Field(default=False, title="Detachment of Reporting Senior")
     ops_cdr: bool = Field(title="Ops Commander", default=False)
-    physical_readiness: PhysicalReadiness | None = Field(None, title="Physical Readiness")
-    pro_expertise: int | None = Field(None, title="Professional Expertise", ge=0, le=5)
-    cmd_climate: int | None = Field(None, title="Command or Organizational Climate", ge=0, le=5)
-    bearing_and_character: int | None = Field(None, title="Military Bearing / Character", ge=0, le=5)
-    teamwork: int | None = Field(None, title="Teamwork", ge=0, le=5)
-    accomp_and_initiative: int | None = Field(None, title="Mission Accomplishment and Initiative", ge=0, le=5)
-    leadership: int | None = Field(None, title="Leadership", ge=0, le=5)
-    tactical_performance: int | None = Field(None, ge=0, le=5, title="Tactical Performance")
+
+    trait1: int | None = Field(None, title="Professional Expertise", ge=0, le=5)
+    trait2: int | None = Field(None, title="Command or Organizational Climate", ge=0, le=5)
+    trait3: int | None = Field(None, title="Military Bearing / Character", ge=0, le=5)
+    trait4: int | None = Field(None, title="Teamwork", ge=0, le=5)
+    trait5: int | None = Field(None, title="Mission Accomplishment and Initiative", ge=0, le=5)
+    trait6: int | None = Field(None, title="Leadership", ge=0, le=5)
+    trait7: int | None = Field(None, ge=0, le=5, title="Tactical Performance")
 
     @field_validator(
-        "physical_readiness",
-        "pro_expertise",
-        "cmd_climate",
-        "bearing_and_character",
-        "teamwork",
-        "accomp_and_initiative",
-        "leadership",
-        "tactical_performance",
+        "trait1",
+        "trait2",
+        "trait3",
+        "trait4",
+        "trait5",
+        "trait6",
+        "trait7",
     )
     @classmethod
     def validate_traits(cls, value: int | None) -> int | None:
@@ -779,13 +795,13 @@ class Fitrep(Report, table=True):
         # if NOB is checked, then all traits must be NOB
         if self.not_observed:
             traits = [
-                self.pro_expertise,
-                self.cmd_climate,
-                self.bearing_and_character,
-                self.teamwork,
-                self.accomp_and_initiative,
-                self.leadership,
-                self.tactical_performance,
+                self.trait1,
+                self.trait2,
+                self.trait3,
+                self.trait4,
+                self.trait5,
+                self.trait6,
+                self.trait7,
             ]
             for trait in traits:
                 if trait != 0:
@@ -800,13 +816,13 @@ class Fitrep(Report, table=True):
         See Chapter on NOB Reports in EVALMAN.
         """
         traits = [
-            self.pro_expertise,
-            self.cmd_climate,
-            self.bearing_and_character,
-            self.teamwork,
-            self.accomp_and_initiative,
-            self.leadership,
-            self.tactical_performance,
+            self.trait1,
+            self.trait2,
+            self.trait3,
+            self.trait4,
+            self.trait5,
+            self.trait6,
+            self.trait7,
         ]
         observed = 0
         for trait in traits:
@@ -863,18 +879,6 @@ class Fitrep(Report, table=True):
             return Point(120, 64)
         return None
 
-    def member_trait_avg(self) -> str:
-        traits = [
-            self.pro_expertise,
-            self.cmd_climate,
-            self.bearing_and_character,
-            self.teamwork,
-            self.accomp_and_initiative,
-            self.leadership,
-            self.tactical_performance,
-        ]
-        return self.average_traits(traits)
-
     @classmethod
     def from_toml(cls, toml_str: str) -> "Fitrep":
         """
@@ -887,7 +891,7 @@ class Fitrep(Report, table=True):
         data["date_counseled"] = datetime.strptime(data["date_counseled"], "%Y-%m-%d").date()
         return Fitrep(**data)
 
-    def create_pdf(self, path: Path) -> None:
+    def create_pdf(self, path: Path):
         """
         Fills out a FITREP PDF report with the provided FITREP data.
 
@@ -956,7 +960,7 @@ class Fitrep(Report, table=True):
         duties_desc = wrap_duty_desc(self.duties_description)
         front.insert_text(Point(24, 212), duties_desc, fontsize=10, fontname="Cour", lineheight=1.0)
 
-        match self.pro_expertise:
+        match self.trait1:
             case 0:
                 front.insert_text(Point(76, 403), "X", fontsize=12, fontname="Cour")
             case 1:
@@ -969,7 +973,7 @@ class Fitrep(Report, table=True):
                 front.insert_text(Point(414, 403), "X", fontsize=12, fontname="Cour")
             case 5:
                 front.insert_text(Point(551, 403), "X", fontsize=12, fontname="Cour")
-        match self.cmd_climate:
+        match self.trait2:
             case 0:
                 front.insert_text(Point(76, 486), "X", fontsize=12, fontname="Cour")
             case 1:
@@ -982,7 +986,7 @@ class Fitrep(Report, table=True):
                 front.insert_text(Point(414, 486), "X", fontsize=12, fontname="Cour")
             case 5:
                 front.insert_text(Point(551, 486), "X", fontsize=12, fontname="Cour")
-        match self.bearing_and_character:
+        match self.trait3:
             case 0:
                 front.insert_text(Point(76, 571), "X", fontsize=12, fontname="Cour")
             case 1:
@@ -995,7 +999,7 @@ class Fitrep(Report, table=True):
                 front.insert_text(Point(414, 571), "X", fontsize=12, fontname="Cour")
             case 5:
                 front.insert_text(Point(551, 571), "X", fontsize=12, fontname="Cour")
-        match self.teamwork:
+        match self.trait4:
             case 0:
                 front.insert_text(Point(76, 655), "X", fontsize=12, fontname="Cour")
             case 1:
@@ -1008,7 +1012,7 @@ class Fitrep(Report, table=True):
                 front.insert_text(Point(414, 655), "X", fontsize=12, fontname="Cour")
             case 5:
                 front.insert_text(Point(551, 655), "X", fontsize=12, fontname="Cour")
-        match self.accomp_and_initiative:
+        match self.trait5:
             case 0:
                 front.insert_text(Point(76, 739), "X", fontsize=12, fontname="Cour")
             case 1:
@@ -1030,7 +1034,7 @@ class Fitrep(Report, table=True):
         # for point in self.get_perf_points_back(self):
         #     back.insert_text(point, "X", fontsize=12, fontname="Cour")
 
-        match self.leadership:
+        match self.trait6:
             case 0:
                 back.insert_text(Point(76, 186), "X", fontsize=12, fontname="Cour")
             case 1:
@@ -1043,7 +1047,7 @@ class Fitrep(Report, table=True):
                 back.insert_text(Point(414, 186), "X", fontsize=12, fontname="Cour")
             case 5:
                 back.insert_text(Point(551, 186), "X", fontsize=12, fontname="Cour")
-        match self.tactical_performance:
+        match self.trait7:
             case 0:
                 back.insert_text(Point(76, 282), "X", fontsize=12, fontname="Cour")
             case 1:
@@ -1107,31 +1111,19 @@ class Eval(Report, table=True):
 
     doc_type: str = "eval"
     prom_frock: bool = False
-    physical_readiness: PhysicalReadiness | None = None
-    prof_knowledge: int | None = Field(None, ge=0, le=5)
-    quality_of_work: int | None = Field(None, ge=0, le=5)
-    cmd_climate: int | None = Field(None, ge=0, le=5)
-    bearing_and_character: int | None = Field(None, ge=0, le=5)
-    initiative: int | None = Field(None, ge=0, le=5)
-    teamwork: int | None = Field(None, ge=0, le=5)
-    leadership: int | None = Field(None, ge=0, le=5)
+
+    trait1: int | None = Field(None, title="Professional Knowledge", ge=0, le=5)
+    trait2: int | None = Field(None, title="Quality of Work", ge=0, le=5)
+    trait3: int | None = Field(None, title="Command or Organizational Climate", ge=0, le=5)
+    trait7: int | None = Field(None, title="Military Bearing/Character", ge=0, le=5)
+    trait5: int | None = Field(None, title="Personal Job Accomplishment/Initiative", ge=0, le=5)
+    trait4: int | None = Field(None, title="Teamwork", ge=0, le=5)
+    trait6: int | None = Field(None, title="Leadership", ge=0, le=5)
 
     # 182 char constraint from NAVFIT98 user manual
     # TODO: confirm NAVFIT98 actually only allows 182 chars
     achievements: Annotated[str, StringConstraints(min_length=1, max_length=182)] = Field("")
     retain: bool | None = Field(None)
-
-    def member_trait_avg(self) -> str:
-        traits = [
-            self.prof_knowledge,
-            self.quality_of_work,
-            self.cmd_climate,
-            self.bearing_and_character,
-            self.initiative,
-            self.teamwork,
-            self.leadership,
-        ]
-        return self.average_traits(traits)
 
     def get_group_point(self) -> Point | None:
         if self.group == SummaryGroup.ACT:
@@ -1206,7 +1198,7 @@ class Eval(Report, table=True):
         duties_desc = wrap_duty_desc(self.duties_description)
         front.insert_text(Point(24, 212), duties_desc, fontsize=10, fontname="Cour", lineheight=1.0)
 
-        match self.prof_knowledge:
+        match self.trait1:
             case 0:
                 front.insert_text(Point(76, 403), "X", fontsize=12, fontname="Cour")
             case 1:
@@ -1219,7 +1211,7 @@ class Eval(Report, table=True):
                 front.insert_text(Point(414, 403), "X", fontsize=12, fontname="Cour")
             case 5:
                 front.insert_text(Point(551, 403), "X", fontsize=12, fontname="Cour")
-        match self.quality_of_work:
+        match self.trait2:
             case 0:
                 front.insert_text(Point(76, 486), "X", fontsize=12, fontname="Cour")
             case 1:
@@ -1232,7 +1224,7 @@ class Eval(Report, table=True):
                 front.insert_text(Point(414, 486), "X", fontsize=12, fontname="Cour")
             case 5:
                 front.insert_text(Point(551, 486), "X", fontsize=12, fontname="Cour")
-        match self.cmd_climate:
+        match self.trait3:
             case 0:
                 front.insert_text(Point(76, 571), "X", fontsize=12, fontname="Cour")
             case 1:
@@ -1245,7 +1237,7 @@ class Eval(Report, table=True):
                 front.insert_text(Point(414, 571), "X", fontsize=12, fontname="Cour")
             case 5:
                 front.insert_text(Point(551, 571), "X", fontsize=12, fontname="Cour")
-        match self.bearing_and_character:
+        match self.trait4:
             case 0:
                 front.insert_text(Point(76, 655), "X", fontsize=12, fontname="Cour")
             case 1:
@@ -1258,7 +1250,7 @@ class Eval(Report, table=True):
                 front.insert_text(Point(414, 655), "X", fontsize=12, fontname="Cour")
             case 5:
                 front.insert_text(Point(551, 655), "X", fontsize=12, fontname="Cour")
-        match self.initiative:
+        match self.trait5:
             case 0:
                 front.insert_text(Point(76, 739), "X", fontsize=12, fontname="Cour")
             case 1:
@@ -1277,7 +1269,7 @@ class Eval(Report, table=True):
 
         front.insert_text(Point(279, 272), self.counselor, fontsize=12, fontname="Cour")
 
-        match self.teamwork:
+        match self.trait6:
             case 0:
                 back.insert_text(Point(76, 186), "X", fontsize=12, fontname="Cour")
             case 1:
@@ -1290,7 +1282,7 @@ class Eval(Report, table=True):
                 back.insert_text(Point(414, 186), "X", fontsize=12, fontname="Cour")
             case 5:
                 back.insert_text(Point(551, 186), "X", fontsize=12, fontname="Cour")
-        match self.leadership:
+        match self.trait7:
             case 0:
                 back.insert_text(Point(76, 282), "X", fontsize=12, fontname="Cour")
             case 1:
@@ -1336,7 +1328,6 @@ class Eval(Report, table=True):
         back.insert_text(Point(240, 694), self.summary_group_avg(), fontsize=12, fontname="Cour")
         back.insert_text(Point(370, 300), textwrap.fill(self.career_rec_1, 13), fontsize=10, fontname="Cour")
         back.insert_text(Point(467, 300), textwrap.fill(self.career_rec_2, 13), fontsize=10, fontname="Cour")
-
         doc.save(str(path))
         doc.close()
 
@@ -1349,23 +1340,11 @@ class ChiefEval(Report, table=True):
     rate: str = ""
     det_rs: bool = False
     ops_cdr: bool = False
-    physical_readiness: str | None = None
-    technical_mastery: int | None = Field(None, ge=0, le=5)
-    expertise: int | None = Field(None, ge=0, le=5)
-    professionalism: int | None = Field(None, ge=0, le=5)
-    integrity: int | None = Field(None, ge=0, le=5)
-    accountability: int | None = Field(None, ge=0, le=5)
-    leadership: int | None = Field(None, ge=0, le=5)
-    teamwork: int | None = Field(None, ge=0, le=5)
 
-    def member_trait_avg(self) -> str:
-        traits = [
-            self.technical_mastery,
-            self.expertise,
-            self.professionalism,
-            self.integrity,
-            self.accountability,
-            self.leadership,
-            self.teamwork,
-        ]
-        return self.average_traits(traits)
+    trait1: int | None = Field(None, ge=0, le=5, title="Technical Mastery")
+    trait2: int | None = Field(None, ge=0, le=5, title="Institutional Expertise")
+    trait3: int | None = Field(None, ge=0, le=5, title="Professionalism")
+    trait4: int | None = Field(None, ge=0, le=5, title="Integrity")
+    trait5: int | None = Field(None, ge=0, le=5, title="Accountability")
+    trait6: int | None = Field(None, ge=0, le=5, title="Leadership")
+    trait7: int | None = Field(None, ge=0, le=5, title="Teamwork")

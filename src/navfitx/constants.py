@@ -22,3 +22,5 @@ APP_AUTHOR = "tristan-white"
 
 
 DUTIES_DESC_SPACE_FOR_ABBREV = 21
+
+FEEDBACK_URL = "https://tally.so/r/WOePKQ"
