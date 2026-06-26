@@ -4,7 +4,7 @@
 
 NAVFITX is a drop-in replacement for NAVFIT98A.
 
-Learn more at [navfitx.com](https://navfitx.com/#installation)
+Try it now: [navfitx.com/#quickstart](https://navfitx.com/#installation)
 
 ## Help NAVFITX Succeed
 

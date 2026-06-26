@@ -17,22 +17,22 @@ NAVFITX is a drop-in replacement for NAVFIT98A.
 <!-- | Import/export reports as JSON files | ❌ | ✅ |
 | Import/export reports as [TOML](https://toml.io/) files | ❌ | ✅ | -->
 
-## Installation
+## Quickstart
 
 !!! note
     NAVFITX is in pre-release. Until version 0.1.0, new versions may introduce changes that are not backward compatible.
 
-You can install and use NAVFITX in 60 seconds.
+You can install and run NAVFITX with one command.
 
 === "Windows"
 
-    1. Open Powershell[^1], copy/paste the following command, and hit ++enter++.
+    Open Powershell[^1], copy/paste the following command, and hit ++enter++.
 
-        ```
-        powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-        ```
+    ```
+    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+    ```
 
-        This command installs [uv](https://docs.astral.sh/uv/), a python package manager. It makes it easy to install python packges, such as NAVFITX.
+    This command installs [uv](https://docs.astral.sh/uv/), a python package manager. It makes it easy to install python packges, such as NAVFITX.
 
     2. Once uv has finished installing, close the Powershell window, then reopen it. 
 
@@ -42,16 +42,9 @@ You can install and use NAVFITX in 60 seconds.
 
     1. Open Terminal[^2], copy/paste the following command, and hit ++enter++.
 
-        ```
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-        ```
-
-        This command installs [uv](https://docs.astral.sh/uv/), a python package manager. It makes it easy to install python packges, such as NAVFITX.
-
-    2. Once uv has finished installing, close the Powershell window, then reopen it. 
-
-    3. In Terminal, install and launch NAVFITX with the command `uvx navfitx`. Done!
-
+    ```
+    curl -LsSf uvx.sh/navfitx/install.sh | sh
+    ```
 
 ## Help NAVFITX Succeed
 
