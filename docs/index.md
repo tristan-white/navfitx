@@ -29,18 +29,12 @@ You can install and run NAVFITX with one command.
     Open Powershell[^1], copy/paste the following command, and hit ++enter++.
 
     ```
-    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+    powershell -ExecutionPolicy ByPass -c "irm https://uvx.sh/navfitx/install.ps1 | iex"
     ```
-
-    This command installs [uv](https://docs.astral.sh/uv/), a python package manager. It makes it easy to install python packges, such as NAVFITX.
-
-    2. Once uv has finished installing, close the Powershell window, then reopen it. 
-
-    3. In Powershell, install and launch NAVFITX with the command `uvx navfitx`. Done!
 
 === "Mac / Linux"
 
-    1. Open Terminal[^2], copy/paste the following command, and hit ++enter++.
+    Open Terminal[^2], copy/paste the following command, and hit ++enter++.
 
     ```
     curl -LsSf uvx.sh/navfitx/install.sh | sh
