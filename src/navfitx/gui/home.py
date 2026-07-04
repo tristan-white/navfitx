@@ -267,9 +267,10 @@ class Home(QMainWindow):
         except Exception:
             pass
         self.new_submenu.setDisabled(False)
-        self.create_fitrep_btn.setDisabled(False)
-        self.create_eval_btn.setDisabled(False)
+        # self.create_fitrep_btn.setDisabled(False)
+        # self.create_eval_btn.setDisabled(False)
         self.refresh_reports_table()
+        self.reports_table_label.setText(f"Reports ({self.db})")
 
     def import_toml_report(self):
         filename, selected_filter = QFileDialog.getOpenFileName(
