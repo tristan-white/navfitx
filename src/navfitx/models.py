@@ -281,7 +281,7 @@ class N98Report(SQLModel, table=True):
     is_validated: str
 
 
-class SummaryGroup(StrEnum):
+class DutyStatus(StrEnum):
     # BLANK = ""
     ACT = "ACT"
     TAR = "TAR"
@@ -370,13 +370,14 @@ class Report(SQLModel):
         id (int): Primary key for the report record.
         doc_type (str): Type of report ('fitrep', 'eval', or 'chiefeval').
         name (str): Full name of the subject.
+        rate (str): Rate (or grade/rank).
         desig (str): Designator code.
         ssn (str): Social Security Number (format: XXX-XX-XXXX).
-        group (SummaryGroup): Summary group category.
+        group (DutyStatus): Summary group category.
         uic (str): Unit Identification Code.
         station (str): Ship or station name.
         promotion_status (PromotionStatus): Promotion status category.
-        date_reported (date): Date the report was filed.
+        date_reported (date): Date sailor reported to the command.
         periodic (bool): 'Periodic' checkbox.
         det_indiv (bool): 'Detachment of Individual' checkbox.
         special (bool): Special occasion report checkbox.
@@ -414,7 +415,7 @@ class Report(SQLModel):
         title="Designator", default=""
     )
     ssn: str = Field(title="SSN", default="")
-    group: SummaryGroup | None = Field(title="Group", default=None)
+    group: DutyStatus | None = Field(title="Group", default=None)
     uic: Annotated[str, StringConstraints(max_length=5, min_length=1, strip_whitespace=True)] = Field(
         title="UIC", default=""
     )
@@ -474,10 +475,10 @@ class Report(SQLModel):
     trait6: int | None = Field(None, ge=0, le=5)
     trait7: int | None = Field(None, ge=0, le=5)
 
-    career_rec_1: Annotated[str, StringConstraints(min_length=1, max_length=20, strip_whitespace=True)] = Field(
+    career_rec_1: Annotated[str, StringConstraints(max_length=20, strip_whitespace=True)] = Field(
         title="Career Recommendation 1", default=""
     )
-    career_rec_2: Annotated[str, StringConstraints(min_length=1, max_length=20, strip_whitespace=True)] = Field(
+    career_rec_2: Annotated[str, StringConstraints(max_length=20, strip_whitespace=True)] = Field(
         title="Career Recommendation 2", default=""
     )
     comments: Annotated[str, StringConstraints(min_length=1)] = Field(title="Comments", default="")
@@ -491,6 +492,14 @@ class Report(SQLModel):
         """Formats the 'Command employment and command achievements' to fit within the constraints of the FITREP form."""
         text = textwrap.fill(text, width=91)
         return text
+
+    @field_validator("uic")
+    @classmethod
+    def validate_uic(cls, uic: str) -> str:
+        # only alphanumeric characters are allowed in UICs
+        if not re.match(r"^[A-Za-z0-9]+$", uic):
+            raise ValueError("UIC may only contain alphanumeric characters.")
+        return uic
 
     @field_validator("job")
     @classmethod
@@ -511,7 +520,7 @@ class Report(SQLModel):
 
     @field_validator("group")
     @classmethod
-    def validate_group(cls, group: SummaryGroup | None) -> SummaryGroup:
+    def validate_group(cls, group: DutyStatus | None) -> DutyStatus:
         if group is None:
             raise ValueError("Summary Group must be specified.")
         return group
@@ -869,13 +878,13 @@ class Fitrep(Report, table=True):
                 raise ValueError("Fitrep has no Promotion Recommendation set.")
 
     def get_group_point(self) -> Point | None:
-        if self.group == SummaryGroup.ACT:
+        if self.group == DutyStatus.ACT:
             return Point(33, 64)
-        if self.group == SummaryGroup.TAR:
+        if self.group == DutyStatus.TAR:
             return Point(63, 64)
-        if self.group == SummaryGroup.INACT:
+        if self.group == DutyStatus.INACT:
             return Point(92, 64)
-        if self.group == SummaryGroup.ATADSW:
+        if self.group == DutyStatus.ATADSW:
             return Point(120, 64)
         return None
 
@@ -1126,13 +1135,13 @@ class Eval(Report, table=True):
     retain: bool | None = Field(None)
 
     def get_group_point(self) -> Point | None:
-        if self.group == SummaryGroup.ACT:
+        if self.group == DutyStatus.ACT:
             return Point(33, 64)
-        if self.group == SummaryGroup.TAR:
+        if self.group == DutyStatus.TAR:
             return Point(63, 64)
-        if self.group == SummaryGroup.INACT:
+        if self.group == DutyStatus.INACT:
             return Point(92, 64)
-        if self.group == SummaryGroup.ATADSW:
+        if self.group == DutyStatus.ATADSW:
             return Point(120, 64)
         return None
 

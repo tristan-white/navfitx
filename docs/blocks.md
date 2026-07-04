@@ -2,7 +2,7 @@
 
 !!! warning
 
-    BUPERSINST 1610.10H is the authoritative document that provides policy and procedures for the Navy Performance Evaluation System.
+    [BUPERSINST 1610.10H](https://www.mynavyhr.navy.mil/Portals/55/Reference/Instructions/BUPERS/BUPERSINST%201610.10.pdf?ver=g42WV7fkucvkkZolLrWseA%3d%3d) is the authoritative document that provides policy and procedures for the Navy Performance Evaluation System.
 
 This section provides the basic information needed to complete performance reports and summary letters.                                              
                                                                                 
@@ -29,8 +29,6 @@ Officers: Use standard grade abbreviations (e.g., CAPT, CDR, LCDR, LT, LTJG, ENS
 
 ## DESIG
 
-BLOCK 3
-
 Enter officer designator or enlisted warfare qualification designation.
 
 Enlisted: Enter up to two enlisted warfare/qualification designators. If two designators are entered, separate with a slash. Do not leave spaces (e.g., AW, AW/PJ, SS/DV etc.) (if none,
@@ -43,14 +41,10 @@ Officers: Enter the four-digit officer designator as of the ending date of repor
 
 ## Department of Defense (DoD) ID/SSN
 
-BLOCK 4
-
 Enter the Service member's full SSN with hyphens after the third and fifth digits.
 It should be used for all reports that are mailed (e.g., 000-00-0000).
 
-DUTY/COMPETITIVE STATUS
-
-BLOCK 5 
+## DUTY/COMPETITIVE STATUS
 
 This field is used for summary group comparison. For enlisted, group all ACT and Training and Administration of Reserves (TAR) together and group inactive duty (INACT) and annual training (AT)/active duty for operational support (ADOS) separately. For officers, do not mix summary groups. Place an X in only one box to indicate the member’s status as follows:
 
@@ -60,8 +54,6 @@ This field is used for summary group comparison. For enlisted, group all ACT and
 - AT/ADOS – All Navy Reservists on temporary ACDU but still compete for INACT promotion quotas. Includes all annual training (AT), active duty for training (ADT), active duty for ADOS, 1-year recall (OYR), canvasser recruiter (CANREC), mobilization, recall, etc. (refer to chapter 10).
 
 ## Unit ID Code (UIC)
-
-BLOCK 6
 
 Enter the UIC of the Service member's ship or station. Normally a UIC is a breakout for enlisted personnel; however, if reporting seniors have more than one UIC with enlisted personnel attached, but desires to group all enlisted personnel together, they may do so. If using UIC as a summary group comparison, block 6 should match the primary UIC of the reporting senior in block 26. For activities which no UIC is assigned, enter five zeros. The first four characters of a UIC must be numbers.
 
@@ -91,8 +83,6 @@ Staff or Shore Activity: Use the plain language address (PLA) or a commonly acce
 
 ## PROMOTION STATUS
 
-BLOCK 8 
-
 Enter the member's promotion status on the ending date of the report period as follows:
 
 Block 8 - Promotion Status Table
@@ -110,20 +100,16 @@ Selected to a grade or rate higher than shown in block 2, but not yet frocked or
 
 ## DATE REPORTED
 
-BLOCK 9 
-
 Use the date the Service member reported to the command in block 7. Date may be selected from the drop-down calendar or recorded in YYMMMDD format (e.g., 96OCT17).
 
 ## OCCASION FOR REPORT
 
-BLOCKS 10-13 Select all applicable options or place an “X” in each block that applies. See chapter 3 for reporting occasions.
+Select all applicable options or place an “X” in each block that applies. See chapter 3 for reporting occasions.
 
 !!! note
     More than one occasion may apply, except Special cannot be combined with another occasion. Do not submit a Special report if another occasion applies.
 
 ## PERIOD OF REPORT
-
-BLOCKS 14-15 
 
 Enter the beginning FROM and ending TO dates of the report period.  Date may be selected from the drop-down calendar or recorded in YYMMMDD format (e.g., 96OCT17).
 
@@ -139,13 +125,9 @@ First ACDU Report on Recalled Member: The FROM date is the recall date.
 
 ## NOT OBSERVED REPORT (NOB)
 
-BLOCK 16
-
 If this is a wholly Not Observed report, select the NOB option or enter an “X” in block 16.  The trait grades must be left blank, no career recommendation is permitted, the promotion recommendation must be NOB, and the promotion recommendation summary must be left blank. In addition, the Member Trait Average and Summary Group Average blocks on the FITREP and CHIEFEVAL and the Individual Trait Average and Summary Group Average blocks on the EVAL must be left blank. Comments are allowed but should be limited primarily to administrative, training/educational/schools/fellowship performance.  Refer to chapter 6 for detailed instructions, exceptions, and an example. Also refer to chapter 10 for instructions on Navy Reserve annual training (AT) not observed (NOB) reports.
 
 ## TYPE OF REPORT
-
-BLOCKS 17-19
 
 Select the option or place an “X” in the block that applies. If this is a Concurrent/Regular report, place an “X” in blocks 17 and 18. See chapter 4 for instructions and examples of all types of Concurrent reports.
 
@@ -153,8 +135,6 @@ Select the option or place an “X” in the block that applies. If this is a Co
     This field is used for summary group comparison.
 
 ## PHYSICAL READINESS
-
-BLOCK 20
 
 !!! note
     Ensure data entered here matches data entered into the official Navy Physical Readiness Information Management System (PRIMS 2) for the cycles being referenced. Utilizing the dropdown feature (CHIEFEVAL) select the date and category for the result of each official physical fitness assessment (PFA) or combat fitness assessments (CFA) conducted in the reporting period. Document all official PFAs/CFAs in block 20 using the following format (FITREP/EVAL): PPP. This indicates the individual passed three official PFAs/CFAs during the reporting period. Do not enter spaces or slashes between the characters. Enter specific PFA cycle ID information in block 29. Do not use physical readiness tests (PRT) or combat fitness tests (CFT) and body composition assessments (BCA) that are not part of an official PFA/CFA. Performance trait grades and recommendations must conform to the following:
@@ -223,8 +203,6 @@ should be used in the performance section.
 
 ## BILLET SUBCATEGORY (IF ANY)
 
-BLOCK 21 
-
 Select or enter the billet subcategory code, if authorized, or enter “NA.” Do not leave blank. Qualifying commands may subcategorize certain members by billet type when determining summary groups. See instructions within the table to determine which commands qualify. Do not use any code that does not appear in table 1-1.
 
 Block 21 - Billet Subcategory Entry
@@ -263,8 +241,6 @@ summarized together. If annotated with an * below, Block 21 should match entry i
 
 ## REPORTING SENIOR
 
-BLOCK 22
-
 Enter the last name, initials, and suffix (if any) of the reporting senior.  Place a comma after the last name (e.g., STJOHN, O F). Omit spaces and punctuation within a name. Block 22 must be the same on all reports in the batch. Be sure the name and signature match.
 
 !!! note
@@ -272,8 +248,6 @@ Enter the last name, initials, and suffix (if any) of the reporting senior.  Pla
     This field is used for summary group comparison.
 
 ## GRADE
-
-BLOCK 23
 
 Enter the reporting senior's grade.
 
@@ -294,13 +268,9 @@ Entry must be five characters or less. Do not use hyphens. Do not leave blank.
 
 ## DESIG
 
-BLOCK 24
-
 Enter reporting senior's four-digit officer designator. Exceptions: If an assigned reporting senior is enclosing a letter report, enter “LTR” (see chapter 7). If the reporting senior is a member of another Service, enter abbreviation for branch of Service (e.g., USAF, USA, USMC, USCG, USSF, U.S. Public Health Service (USPH), National Oceanic and Atmospheric Administration (NOAA)). If the reporting senior is Navy enlisted or civilian, leave blank.
 
 ## TITLE
-
-BLOCK 25 
 
 Enter the reporting senior’s title (abbreviated if necessary). The entry may be up to 14 characters and spaces. Always use “CO” for commanding officer (CO) and “OIC” for officer in charge. For other titles, use the complete title or a common abbreviation (e.g., commander, XO, Dept. Head, DCNO etc.).
 
@@ -312,8 +282,6 @@ Designee,” or “GCMCA.” (Provide command’s title in EVAL block 48 or FITR
 
 ## UIC
 
-BLOCK 26 
-
 Enter the UIC of the reporting senior's command. All reports from the same command must use the same reporting senior UIC (i.e., a delegated reporting senior must enter the same UIC used on reports submitted by the CO).
 
 !!! note
@@ -321,8 +289,6 @@ Enter the UIC of the reporting senior's command. All reports from the same comma
     Reporting senior UIC may vary from member’s UIC in block 6.
 
 ## SSN
-
-BLOCK 27 
 
 Enter the reporting senior's full SSN with hyphens after the third and fifth digits (e.g., 000-00-0000).
 
@@ -333,8 +299,6 @@ It is optional for reporting seniors to provide a copy of a report without their
     After a report has been accepted to the OMPF, the correction of an incorrect reporting senior’s SSN requires the submission of supplemental material from the reporting senior whose name appears in Block 22. For specific directions concerning supplementary material, refer to chapter 15.
 
 ## COMMAND EMPLOYMENT AND COMMAND ACHIEVEMENTS
-
-BLOCK 28 
 
 Enter a brief statement of command employment and significant command awards or achievements during the period of the report. Provide information that will help report users understand the context in which the member's duties were performed. Use the following guidelines for command employment:
 
@@ -350,8 +314,6 @@ Reserve Units: Indicate the unit's ACDU gaining command (i.e., active unit ident
 Assessments or Inspections (CHIEFEVAL-Specific): If a command undergoes an assessment or inspection during the rating period and is referenced in this block, the score must be included if the member contributed to the result. For example: “Supply Management Inspection (SMI)- Outstanding.” Supply ratings must include the SMI reference, whereas Engineering ratings may not, unless directly involved. Classified inspection results should not be included. Inspections that can be considered comprehensive to the command (INSURV) should be included, unless results have been deemed classified.
 
 ## PRIMARY/COLLATERAL/WATCHSTANDING DUTIES/PFA
-
-BLOCK 29 
 
 Enter an abbreviation of 14 or fewer characters and spaces for the most significant primary duty for the period reported on. Enter text in the small box to the right of the caption. Refer to Block 21. Block 29 should match Block 21 in some circumstances. The remainder of Block 29 consists of one to four elements, as follows:
 
@@ -373,8 +335,6 @@ qualifications or watches refer to those that are mandatory based on rating or p
 
 ## DATE COUNSELED
 
-BLOCK 30 
-
 If mid-term counseling was received during the report period, enter the date counseled from the counseling worksheet. Date may be selected from the drop-down calendar or recorded in YYMMMDD format (e.g., 22FEB20).
 
 Counseling Not Performed During Report Period: A mid-term counseling session should be documented only once on the report for the period in which it occurred. If counseling was not performed because the counseling date did not fall within the report period, enter “NOT REQ” in block 30. If counseling was not performed for any other reason, enter “NOT PERF.”
@@ -385,19 +345,13 @@ Counseling Not Performed During Report Period: A mid-term counseling session sho
 
 ## COUNSELOR
 
-BLOCK 31
-
 This block is signed on the counseling worksheet only. On the fitness or evaluation report, type the name of the counselor from the counseling worksheet. If the entry in block 30 is NOT PERF, enter a brief explanation in block 31 (e.g., TEMADD or ILLNESS). If a longer explanation is needed, enter “SEE COMMENT” and provide an explanation in the Comments block.
 
 ## SIGNATURE OF INDIVIDUAL COUNSELED
 
-BLOCK 32
-
 To reduce the number of signatures required and possible rejection issues, there is no requirement to sign block 32; it should be left blank. The signature of the reporting senior (Blocks 45 or 50) and the individual evaluated (Blocks 46, 49 or 51) verifies Blocks 30 and 31 are accurate but does not mean that the counseling was considered adequate. An individual who believes the counseling was inadequate may submit a statement to the record.
 
 ## PERFORMANCE TRAITS
-
-BLOCKS 33-39 
 
 Every Service member is accountable on each evaluation or FITREP for contributions to command or organizational climate/equal opportunity, military bearing, and character. To achieve high marks in these areas, members must demonstrate how they have cultivated or maintained command climates where improper discrimination of any kind is not tolerated, where all hands are treated with dignity and respect and professionalism is the norm.
 

@@ -29,7 +29,7 @@ from PySide6.QtWidgets import (
 )
 
 from navfitx.constants import DUTIES_DESC_SPACE_FOR_ABBREV
-from navfitx.models import BilletSubcategory, PromotionRecommendation, PromotionStatus, Report, SummaryGroup
+from navfitx.models import BilletSubcategory, DutyStatus, PromotionRecommendation, PromotionStatus, Report
 
 TReport = TypeVar("TReport", bound=Report)
 
@@ -141,7 +141,7 @@ class BaseReportForm(QWidget, Generic[TReport]):
             row=2,
             col=0,
             label="Group",
-            enum_cls=SummaryGroup,
+            enum_cls=DutyStatus,
             value=self.report.group,
         )
         self.uic = self.add_line_edit(
@@ -652,7 +652,7 @@ class BaseReportForm(QWidget, Generic[TReport]):
         self.report.desig = self.desig.text()
         self.report.ssn = self.ssn.text()
         group_text = self.group.currentText()
-        self.report.group = None if group_text == "" else SummaryGroup(group_text)
+        self.report.group = None if group_text == "" else DutyStatus(group_text)
         self.report.uic = self.uic.text()
         self.report.station = self.station.text()
         self.report.promotion_status = (

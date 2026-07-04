@@ -4,22 +4,22 @@ import pytest
 
 from navfitx.models import (
     BilletSubcategory,
+    DutyStatus,
     Eval,
     Fitrep,
     PromotionStatus,
-    SummaryGroup,
 )
 
 
 @pytest.fixture()
-def fitrep():
+def fitrep() -> Fitrep:
     return Fitrep(
         id=1,
         name="JONES, JOHN P",
         rate="LTJG",
         desig="1840",
         ssn="000-00-0000",
-        group=SummaryGroup.ACT,
+        group=DutyStatus.ACT,
         uic="12345",
         station="NAVPERSCOM",
         promotion_status=PromotionStatus.REGULAR,

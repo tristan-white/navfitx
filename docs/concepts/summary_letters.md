@@ -1,7 +1,7 @@
 # Summary Letters
 
 !!! note
-    NAVFITX currently does generate summary letters. This feature is coming soon.
+    NAVFITX currently does not generate summary letters. This feature is coming soon.
 
 When reports are submitted to NAVPERSCOM, each summary group is required to be submitted with a summary letter (even if the summary group consists of only one report).
 

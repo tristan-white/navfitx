@@ -1,3 +1,4 @@
+# ty: ignore
 import webbrowser
 from dataclasses import dataclass
 from datetime import date
@@ -10,7 +11,7 @@ from typing_extensions import Annotated
 
 from navfitx.boxes import Box, Bullets, Checkbox, Multiline, MultilineCentered, String
 from navfitx.constants import MARGIN_BOTTOM, MARGIN_LEFT, MARGIN_RIGHT, MARGIN_SIDES, MARGIN_TOP
-from navfitx.models import Fitrep, PromotionStatus, SummaryGroup
+from navfitx.models import DutyStatus, Fitrep, PromotionStatus
 
 
 def make_box_to_right(box: Box, width: float) -> Box:
@@ -53,19 +54,19 @@ def update_ssn(fitrep: Fitrep, comp: String) -> None:
 
 
 def update_group_act(fitrep: Fitrep, comp: Checkbox) -> None:
-    comp.checked = fitrep.group == SummaryGroup.ACT
+    comp.checked = fitrep.group == DutyStatus.ACT
 
 
 def update_group_tar(fitrep: Fitrep, comp: Checkbox) -> None:
-    comp.checked = fitrep.group == SummaryGroup.TAR
+    comp.checked = fitrep.group == DutyStatus.TAR
 
 
 def update_group_inact(fitrep: Fitrep, comp: Checkbox) -> None:
-    comp.checked = fitrep.group == SummaryGroup.INACT
+    comp.checked = fitrep.group == DutyStatus.INACT
 
 
 def update_group_at_adsw_265(fitrep: Fitrep, comp: Checkbox) -> None:
-    comp.checked = fitrep.group == SummaryGroup.ATADSW
+    comp.checked = fitrep.group == DutyStatus.ATADSW
 
 
 def update_uic(fitrep: Fitrep, comp: String) -> None:
@@ -749,7 +750,7 @@ def test_make_fitrep(
         rate="LTJG",
         desig="1840",
         ssn="000-00-0000",
-        group=SummaryGroup.ACT,
+        group=DutyStatus.ACT,
         uic="12345",
         station="MYSHIP",
         promotion_status=PromotionStatus.REGULAR,

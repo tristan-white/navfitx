@@ -22,14 +22,28 @@ def add_report_to_db(db_path: Path, report: Report):
 def add_fitrep_to_db(db_path: Path, report: Report):
     engine = create_engine(f"sqlite:///{db_path}")
     with Session(engine) as session:
-        # if fitrep.id is not None:
-        #     db_fitrep = session.get(Fitrep, fitrep.id)
-        #     for key, value in fitrep.model_dump().items():
-        #         setattr(db_fitrep, key, value)
-        #     session.add(db_fitrep)
-        # else:
         session.add(report)
         session.commit()
+
+
+# def get_enlisted_summary_group_avg(db_path: Path, rate: str, desig: str, rs: str, period_end: date, uic) -> float:
+#     """
+#     Get the average summary group for enlisted sailors in a given reporting senior's command.
+#     """
+#     engine = create_engine(f"sqlite:///{db_path}")
+#     with Session(engine) as session:
+#         avg_summary_group = (
+#             session.query(Report)
+#             .filter(
+#                 Report.reporting_senior == rs,
+#                 Report.period_end == period_end,
+#                 Report.uic == uic,
+#                 Report.rate.in_(["E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "E9"]),
+#             )
+#             .with_entities(func.avg(Report.summary_group))
+#             .scalar()
+#         )
+#         return avg_summary_group
 
 
 """
