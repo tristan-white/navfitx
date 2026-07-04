@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Callable, Generic, TypeVar
 
 from pydantic import ValidationError
-from PySide6.QtCore import QDate, QRegularExpression
+from PySide6.QtCore import QDate, QRegularExpression, Slot
 from PySide6.QtGui import QFont, QRegularExpressionValidator, QTextOption
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -457,6 +457,7 @@ class BaseReportForm(QWidget, Generic[TReport]):
         self.save_to_report()
         self.on_accept(self.report)
 
+    @Slot()
     def validate_report(self) -> None:
         self.save_to_report()
         try:
@@ -466,6 +467,7 @@ class BaseReportForm(QWidget, Generic[TReport]):
             return
         QMessageBox.information(self, "Validation", "No validation errors found. Report is valid.")
 
+    @Slot()
     def export_pdf(self) -> None:
         self.save_to_report()
         if not self.confirm_invalid_print():

@@ -5,7 +5,7 @@ import webbrowser
 from pathlib import Path
 
 from platformdirs import user_config_dir
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QPoint, Qt, Slot
 from PySide6.QtWidgets import (
     QFileDialog,
     QGroupBox,
@@ -42,6 +42,7 @@ class Home(QMainWindow):
         self.reports_table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.reports_table.customContextMenuRequested.connect(self.show_reports_table_context_menu)
 
+    @Slot(QPoint)
     def show_reports_table_context_menu(self, pos):
         menu = QMenu(self)
         edit_action = menu.addAction("Edit Report")
@@ -55,29 +56,30 @@ class Home(QMainWindow):
             self.edit_report_from_table(selected_row, 0)
         elif action == delete_action:
             report_id_item = self.reports_table.item(selected_row, 5)
-            if report_id_item:
-                report_id = report_id_item.text()
-                self.delete_report_by_id(report_id)
+            report_type_item = self.reports_table.item(selected_row, 3)
+            if report_id_item and report_type_item:
+                report_id = int(report_id_item.text())
+                report_type = report_type_item.text()
+                self.delete_report_by_id(report_id, report_type)
                 self.refresh_reports_table()
 
-    def delete_report_by_id(self, report_id):
-        # TODO: this needs fixing; right now it's deleting both any report with the same ID
+    def delete_report_by_id(self, report_id: int, report_type: str):
         if not self.db:
             return
         engine = create_engine(f"sqlite:///{self.db}")
         with Session(engine) as session:
-            # Try deleting Fitrep first
-            fitrep = session.exec(select(Fitrep).where(Fitrep.id == report_id)).first()
-            if fitrep:
-                session.delete(fitrep)
-                session.commit()
-                return
-            # Try deleting Eval
-            eval = session.exec(select(Eval).where(Eval.id == report_id)).first()
-            if eval:
-                session.delete(eval)
-                session.commit()
-                return
+            if report_type.lower() == "fitrep":
+                fitrep = session.exec(select(Fitrep).where(Fitrep.id == report_id)).first()
+                if fitrep:
+                    session.delete(fitrep)
+                    session.commit()
+                    return
+            elif report_type.lower() == "eval":
+                eval = session.exec(select(Eval).where(Eval.id == report_id)).first()
+                if eval:
+                    session.delete(eval)
+                    session.commit()
+                    return
 
     def __init__(self) -> None:
         super().__init__()
@@ -93,10 +95,10 @@ class Home(QMainWindow):
             except Exception:
                 # Avoid crashing the UI if the restored DB is invalid/missing
                 pass
-            if hasattr(self, "create_fitrep_btn"):
-                self.create_fitrep_btn.setDisabled(False)
-            if hasattr(self, "create_eval_btn"):
-                self.create_eval_btn.setDisabled(False)
+            # if hasattr(self, "create_fitrep_btn"):
+            #     self.create_fitrep_btn.setDisabled(False)
+            # if hasattr(self, "create_eval_btn"):
+            #     self.create_eval_btn.setDisabled(False)
 
         # if self.db is not None:
         #     left_label = QLabel(f"NAVFITX Database: {self.db}")
@@ -119,10 +121,11 @@ class Home(QMainWindow):
 
         self.setWindowTitle("NAVFITX")
 
-        # central widget container
+        # Central widget container
         self.stack = QStackedWidget()
         self.stack.currentChanged.connect(self.on_stack_index_changed)
-        # create home widget via method (moved from former HomeWidget class)
+
+        # Create home widget via method (moved from former HomeWidget class)
         self.stack.addWidget(self.create_home_widget())
         self.setCentralWidget(self.stack)
 
@@ -140,7 +143,8 @@ class Home(QMainWindow):
             # import_menu.setDisabled(True)
 
         new_eval_action = self.new_submenu.addAction("Evaluation")
-        new_eval_action.setDisabled(True)  # not implemented yet
+        new_eval_action.setDisabled(False)
+        new_eval_action.triggered.connect(lambda: self.open_eval_dialog(Eval()))
 
         new_chief_action = self.new_submenu.addAction("Chief Evaluation")
         new_chief_action.setDisabled(True)  # not implemented yet
@@ -159,21 +163,10 @@ class Home(QMainWindow):
         close_db_action.triggered.connect(self.close_db)
         # close_db_action.setDisabled(True)
 
-        # export_folder_action = file_menu.addAction("Export Folder")
-        # export_folder_action.setDisabled(True)
-
         exit_action = file_menu.addAction("Exit")
         exit_action.triggered.connect(self.close)
 
-        # edit_menu = self.menuBar().addMenu("Edit")
-        # edit_report_submenu = edit_menu.addMenu("Edit Report")
-        # edit_report_submenu.setDisabled(True)
-        # edit_folder_action = edit_report_submenu.addAction("Edit Folder")
-        # edit_folder_action.setDisabled(True)
-
         print_menu = self.menuBar().addMenu("Print")
-        # print_folder_action = print_menu.addAction("Print Folder")
-        # print_folder_action.setDisabled(True)
 
         print_blank_eval = print_menu.addAction("Blank Evaluation")
         print_blank_eval.triggered.connect(lambda: self.print_blank("eval"))
@@ -187,11 +180,6 @@ class Home(QMainWindow):
         print_blank_summary = print_menu.addAction("Blank Summary Letter")
         print_blank_summary.triggered.connect(lambda: self.print_blank("summary"))
 
-        # delete_submenu = edit_menu.addMenu("Delete")
-        # delete_submenu.setDisabled(True)
-        # self.delete_folder_action = delete_submenu.addAction("Delete Folder")
-        # self.delete_folder_action.setDisabled(True)
-
         help_menu = self.menuBar().addMenu("Help")
 
         instruction = help_menu.addAction("Instructions (BUPERSINST 1610.10H)")
@@ -204,37 +192,43 @@ class Home(QMainWindow):
         about_navfitx_action.triggered.connect(lambda: self.open_link(SITE_URL))
 
     def open_eval_dialog(self, eval: Eval):
+        # self.statusBar().hide()
         self.eval_form = EvalForm(self, self.submit_form, self.cancel_form, eval)
         idx = self.stack.addWidget(self.eval_form)
         self.stack.setCurrentIndex(idx)
         self.setWindowTitle("EVAL")
 
     def open_fitrep_dialog(self, fitrep: Fitrep):
+        # self.statusBar().hide()
         self.fitrep_form = FitrepForm(self, self.submit_form, self.cancel_form, fitrep)
         idx = self.stack.addWidget(self.fitrep_form)
         self.stack.setCurrentIndex(idx)
 
+    @Slot(int)
     def on_stack_index_changed(self, index: int):
         """Handle stack index changes: restore home menu on index 0, set form title on index 1."""
         if index == 0:
+            # self.statusBar().show()
             self.setWindowTitle("NAVFITX")
             self.build_home_menu()
         elif index == 1:
             # FitrepForm constructs its own menu when created.
             self.setWindowTitle("FITREP")
 
+    @Slot()
     def close_db(self):
         self.db = None
         self.refresh_reports_table()
         self.new_submenu.setDisabled(True)
-        self.create_fitrep_btn.setDisabled(True)
-        self.create_eval_btn.setDisabled(True)
+        # self.create_fitrep_btn.setDisabled(True)
+        # self.create_eval_btn.setDisabled(True)
         # remove persisted last DB since there is no open DB now
         try:
             self.save_last_db(None)
         except Exception:
             pass
 
+    @Slot()
     def open_db(self):
         filename, selected_filter = QFileDialog.getOpenFileName(
             self, "Open Database", filter="Database Files (*.db *.sqlite);;All Files (*)"
@@ -254,6 +248,7 @@ class Home(QMainWindow):
             self.create_fitrep_btn.setDisabled(False)
             self.create_eval_btn.setDisabled(False)
 
+    @Slot()
     def create_db(self):
         filename, selected_filter = QFileDialog.getSaveFileName(self, "Create Database", "navfitx.db")
         if not filename:
@@ -368,6 +363,7 @@ class Home(QMainWindow):
             if i != 0:
                 self.stack.removeWidget(widget)
 
+    @Slot()
     def cancel_form(self):
         i = self.stack.currentIndex()
         self.stack.setCurrentIndex(0)
@@ -396,13 +392,15 @@ class Home(QMainWindow):
 
         # reports table
         self.refresh_reports_table()
-        layout.addWidget(QLabel("Reports"))
 
-        # buttons
-        buttons_groupbox = self.create_buttons_groupbox()
+        db_path_str = f"{self.db}" if self.db else "No database open"
+        layout.addWidget(QLabel(f"Reports ({db_path_str})"))
+
         layout.addWidget(self.reports_table)
 
-        layout.addWidget(buttons_groupbox)
+        # Uncomment to add buttons below the table
+        # buttons_groupbox = self.create_buttons_groupbox()
+        # layout.addWidget(buttons_groupbox)
 
         return widget
 
@@ -417,6 +415,7 @@ class Home(QMainWindow):
         folder_tree.insertTopLevelItem(0, root)
         return folder_tree
 
+    @Slot(int, int)
     def edit_report_from_table(self, x: int, y: int):
         item = self.reports_table.item(x, y)
         assert item is not None

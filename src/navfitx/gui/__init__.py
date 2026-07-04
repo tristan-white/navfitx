@@ -19,7 +19,12 @@ def gui():
     qt_app = QApplication()
     qt_app.setWindowIcon(QIcon(str(get_icon_path())))
     window = Home()
-    # window.resize(800, 600)
     window.setGeometry(200, 200, 1300, 800)
+
+    screen = qt_app.primaryScreen().availableGeometry()
+    frame = window.frameGeometry()
+    frame.moveCenter(screen.center())
+    window.move(frame.topLeft())
+
     window.show()
     sys.exit(qt_app.exec())

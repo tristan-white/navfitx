@@ -2,14 +2,13 @@ import json
 from typing import Callable
 
 from pydantic import ValidationError
+from PySide6.QtCore import Slot
 from PySide6.QtWidgets import (
     QMainWindow,
     QMessageBox,
 )
 
-from navfitx.models import (
-    Eval,
-)
+from navfitx.models import Eval
 
 from .report import BaseReportForm
 
@@ -28,22 +27,15 @@ class EvalForm(BaseReportForm[Eval]):
     ):
         super().__init__(main=main, on_accept=on_accept, on_reject=on_reject, report=report)
 
+        self.add_label("Professional Knowledge", 16, 0)
+        self.add_label("Quality of Work", 16, 2)
+        self.add_label("Command or Organizational Climate", 17, 0)
+        self.add_label("Military Bearing/Character", 17, 2)
+        self.add_label("Personal Job Accomplishment/Initiative", 18, 0)
+        self.add_label("Teamwork", 18, 2)
+        self.add_label("Leadership", 19, 0)
+
         # self.setWindowTitle("EVAL Data Entry")
-
-    # def validate_report(self):
-    #     """Perform validation on all fields in the form."""
-    #     # TODO: save form before validating.
-    #     try:
-    #         Eval.model_validate(self.report.model_dump())
-    #     except ValidationError as err:
-    #         errors = json.loads(err.json())
-    #         # show a list of all validation errors
-    #         error_messages = "\n".join([f"{error['loc'][0]}: {error['msg']}" for error in errors])
-
-    #         test = QMessageBox()
-    #         test.setWindowModality(Qt.WindowModality.NonModal)
-    #         test.information(self, "Validation", error_messages)
-    #         # test.show()
 
     # @staticmethod
     # def get_idx_for_enum(member: Enum | None) -> int:
@@ -212,6 +204,7 @@ class EvalForm(BaseReportForm[Eval]):
             if result != QMessageBox.StandardButton.Yes:
                 return
 
+    @Slot()
     def submit(self):
         self.save_form()
         self.on_accept(self.report)
