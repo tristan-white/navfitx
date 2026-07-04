@@ -502,7 +502,7 @@ class BaseReportForm(QWidget, Generic[TReport]):
             msg_box.setIcon(QMessageBox.Icon.Warning)
             msg_box.setWindowTitle("Validation Error")
             msg_box.setText(
-                "Validation errors found. The report is invalid and may print incorrectly. "
+                "Validation errors found. Invalid reports may print incorrectly. "
                 "Fix the following errors to correct the report:\n\n" + "\n".join(lines)
             )
             msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)

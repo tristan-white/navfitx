@@ -220,6 +220,7 @@ class Home(QMainWindow):
         self.db = None
         self.refresh_reports_table()
         self.new_submenu.setDisabled(True)
+        self.reports_table_label.setText("Reports (No database open)")
         # self.create_fitrep_btn.setDisabled(True)
         # self.create_eval_btn.setDisabled(True)
         # remove persisted last DB since there is no open DB now
@@ -245,8 +246,8 @@ class Home(QMainWindow):
 
             self.refresh_reports_table()
             self.new_submenu.setDisabled(False)
-            self.create_fitrep_btn.setDisabled(False)
-            self.create_eval_btn.setDisabled(False)
+            # self.create_fitrep_btn.setDisabled(False)
+            # self.create_eval_btn.setDisabled(False)
 
     @Slot()
     def create_db(self):
@@ -394,7 +395,8 @@ class Home(QMainWindow):
         self.refresh_reports_table()
 
         db_path_str = f"{self.db}" if self.db else "No database open"
-        layout.addWidget(QLabel(f"Reports ({db_path_str})"))
+        self.reports_table_label = QLabel(f"Reports ({db_path_str})")
+        layout.addWidget(self.reports_table_label)
 
         layout.addWidget(self.reports_table)
 
