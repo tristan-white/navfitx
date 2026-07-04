@@ -248,6 +248,7 @@ class Home(QMainWindow):
             self.new_submenu.setDisabled(False)
             # self.create_fitrep_btn.setDisabled(False)
             # self.create_eval_btn.setDisabled(False)
+            self.reports_table_label.setText(f"Reports ({self.db})")
 
     @Slot()
     def create_db(self):
