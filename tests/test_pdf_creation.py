@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from navfitx.models import Eval, Fitrep
+from navfitx.models import ChiefEval, Eval, Fitrep
 
 
 def test_blank_fitrep_pdf_creation(tmp_path: Path):
@@ -25,3 +25,15 @@ def test_blank_eval_pdf_creation(tmp_path: Path):
 
 def test_mock_eval_pdf_creation(eval: Eval, tmp_path: Path):
     eval.create_pdf(tmp_path / "eval.pdf")
+
+
+def test_blank_chiefeval_pdf_creation(tmp_path: Path):
+    """
+    Test that the PDF creation process for chief evals completes without errors.
+    """
+    chiefeval = ChiefEval()
+    chiefeval.create_pdf(tmp_path / "chiefeval.pdf")
+
+
+def test_mock_chiefeval_pdf_creation(chiefeval: ChiefEval, tmp_path: Path):
+    chiefeval.create_pdf(tmp_path / "chiefeval.pdf")

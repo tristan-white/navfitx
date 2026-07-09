@@ -47,12 +47,12 @@ Copyright &copy; 2026 Tristan White
 # Read more: https://zensical.org/docs/setup/navigation/
 nav = [
   { "NAVFITX" = "index.md" },
-  { "Concepts" = [
-    { "Summary Groups" = "concepts/summary_groups.md"},
-    { "Summary Letter" = "concepts/summary_letters.md"},
-  ]},
-  # { "Validation" = "validation.md"},
+  # { "Concepts" = [
+  #   { "Summary Groups" = "concepts/summary_groups.md"},
+  #   { "Summary Letter" = "concepts/summary_letters.md"},
+  # ]},
   { "Why?" = "why.md" },
+  # { "Validation" = "validation.md"},
   # { "FAQs" = "faqs.md"},
 ]
 

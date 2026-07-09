@@ -56,11 +56,6 @@ class EvalForm(BaseReportForm[Eval]):
     #         self.periodic.setChecked(False)
 
     # @Slot()
-    # def validate_occasion(self, check_state: Qt.CheckState):
-    #     if check_state == Qt.CheckState.Checked:
-    #         self.special.setChecked(False)
-
-    # @Slot()
     # def validate_career_rec1(self):
     #     text = self.career_rec_1.document().toPlainText()
     #     # width is 13 because that's what navfit98 allows on one line
@@ -82,98 +77,6 @@ class EvalForm(BaseReportForm[Eval]):
     #         )
     #         allowed_text = "\n".join(wrapped[:2])
     #         self.career_rec_1.setText(allowed_text)
-
-    # @Slot()
-    # def validate_ship_station(self):
-    #     if len(self.station.text()) > 18:
-    #         QMessageBox.information(
-    #             self,
-    #             "Ship/Station Validation",
-    #             "Maximum of 18 characters allowed.",
-    #             QMessageBox.StandardButton.Ok,
-    #         )
-    #         self.station.setText("")
-
-    # @Slot()
-    # def validate_name(self):
-    #     self.name.setText(self.name.text().upper())
-
-    # @Slot()
-    # def validate_grade(self):
-    #     if len(self.grade.text()) > 5:
-    #         QMessageBox.information(
-    #             self, "Grade Validation", "Rank/Grade cannot be more than 5 characters.", QMessageBox.StandardButton.Ok
-    #         )
-    #         return
-
-    # @Slot()
-    # def validate_desig(self):
-    #     if len(self.desig.text()) > 5:
-    #         QMessageBox.information(
-    #             self,
-    #             "Designator Validation",
-    #             "Designator must be less than 12 characters.",
-    #             QMessageBox.StandardButton.Ok,
-    #         )
-
-    # @Slot()
-    # def validate_ssn(self):
-    #     self.ssn.setText(self.ssn.text().strip())
-    #     ssn_text = self.ssn.text()
-    #     if len(ssn_text) != 11 or ssn_text[3] != "-" or ssn_text[6] != "-":
-    #         QMessageBox.information(
-    #             self, "SSN Validation", "SSN must be in the format XXX-XX-XXXX.", QMessageBox.StandardButton.Ok
-    #         )
-    #         return
-    #     for i, char in enumerate(ssn_text):
-    #         if i in [3, 6]:
-    #             continue
-    #         if not char.isdigit():
-    #             QMessageBox.information(
-    #                 self, "SSN Validation", "SSN must be in the format XXX-XX-XXXX.", QMessageBox.StandardButton.Ok
-    #             )
-    #             return
-
-    # @Slot()
-    # def validate_uic(self):
-    #     if len(self.uic.text()) > 5:
-    #         QMessageBox.information(
-    #             self,
-    #             "Block 40 Validation",
-    #             "Block 40 may only have up to 20 alpha-numeric characters.",
-    #             QMessageBox.StandardButton.Ok,
-    #         )
-    #     for char in self.uic.text():
-    #         if not char.isalnum():
-    #             QMessageBox.information(
-    #                 self,
-    #                 "UIC Validation",
-    #                 "UIC may only contain alphanumeric characters.",
-    #                 QMessageBox.StandardButton.Ok,
-    #             )
-
-    # @Slot()
-    # def validate_billet_subcategory(self):
-    #     if "SPECIAL" in self.billet_subcategory.currentData():
-    #         QMessageBox.information(
-    #             self,
-    #             "Billet Subcategory Validation",
-    #             "Note: 'SPECIAL' subcategories are only permitted use with Commander, Navy Personnel Command approval.",
-    #             QMessageBox.StandardButton.Ok,
-    #         )
-
-    # @Slot()
-    # def validate_duties_description(self):
-    #     """
-    #     This block is funky because of the duteis abbreviation block, which takes up some space on the first line.
-    #     I think the best solution that makes for an acceptable UX is to initialize the box with spaces. However,
-    #     the user may delete these, in which case they should be added back so the user sees and accurate line
-    #     count. This function, therefore, is not used to validate the length, but rather strip the text of
-    #     leading/trailing whitespace, then re-add the spaces to the beginning to ensure the line count is accurate.
-    #     """
-    #     self.duties_description.setText(
-    #         f"{' ' * DUTIES_DESC_SPACE_FOR_ABBREV}{self.duties_description.toPlainText().strip()}"
-    #     )
 
     def print(self):
         self.save_form()

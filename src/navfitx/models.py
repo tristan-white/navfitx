@@ -1346,6 +1346,7 @@ class ChiefEval(Report, table=True):
     A SQLModel to represent Chief EVAL reports.
     """
 
+    doc_type: str = "chiefeval"
     rate: str = ""
     det_rs: bool = False
     ops_cdr: bool = False
@@ -1357,3 +1358,209 @@ class ChiefEval(Report, table=True):
     trait5: int | None = Field(None, ge=0, le=5, title="Accountability")
     trait6: int | None = Field(None, ge=0, le=5, title="Leadership")
     trait7: int | None = Field(None, ge=0, le=5, title="Teamwork")
+
+    def get_group_point(self) -> Point | None:
+        if self.group == DutyStatus.ACT:
+            return Point(33, 64)
+        if self.group == DutyStatus.TAR:
+            return Point(63, 64)
+        if self.group == DutyStatus.INACT:
+            return Point(92, 64)
+        if self.group == DutyStatus.ATADSW:
+            return Point(120, 64)
+        return None
+
+    def create_pdf(self, path: Path) -> None:
+        blank_fitrep = get_blank_report_path("fitrep")
+        doc = pymupdf.open(str(blank_fitrep))
+        if isinstance(doc.metadata, dict):
+            meta = doc.metadata
+            meta["title"] = f"{self.doc_type.upper()} for {self.name}"
+            doc.set_metadata(meta)
+        front = doc[0]
+        back = doc[1]
+        front.insert_text(Point(22, 43), self.name, fontsize=12, fontname="cour")
+        back.insert_text(Point(22, 43), self.name, fontsize=12, fontname="Cour")
+        front.insert_text(Point(292, 43), self.rate, fontsize=12, fontname="Cour")
+        back.insert_text(Point(292, 43), self.rate, fontsize=12, fontname="Cour")
+        front.insert_text(Point(360, 43), self.desig, fontsize=12, fontname="Cour")
+        back.insert_text(Point(360, 43), self.desig, fontsize=12, fontname="Cour")
+        front.insert_text(Point(460, 43), self.ssn, fontsize=12, fontname="Cour")
+        back.insert_text(Point(460, 43), self.ssn, fontsize=12, fontname="Cour")
+        if group_point := self.get_group_point():
+            front.insert_text(group_point, "X", fontsize=12, fontname="Cour")
+        front.insert_text(Point(170, 67), self.uic, fontsize=12, fontname="Cour")
+        front.insert_text(Point(223, 67), self.station, fontsize=12, fontname="Cour")
+        front.insert_text(Point(416, 67), str(self.promotion_status), fontsize=12, fontname="Cour")
+        report_date_str = self.format_date(self.date_reported)
+        front.insert_text(Point(496, 67), report_date_str, fontsize=12, fontname="Cour")
+
+        if self.periodic:
+            front.insert_text(Point(76, 88), "X", fontsize=12, fontname="Cour")
+        if self.det_indiv:
+            front.insert_text(Point(157, 88), "X", fontsize=12, fontname="Cour")
+        if self.det_rs:
+            front.insert_text(Point(251, 88), "X", fontsize=12, fontname="Cour")
+        if self.special:
+            front.insert_text(Point(329, 88), "X", fontsize=12, fontname="Cour")
+
+        from_date_str = self.format_date(self.period_start)
+        front.insert_text(Point(395, 92), from_date_str, fontsize=12, fontname="Cour")
+        to_date_str = self.format_date(self.period_end)
+        front.insert_text(Point(494, 92), to_date_str, fontsize=12, fontname="Cour")
+        if self.not_observed:
+            front.insert_text(Point(77, 112), "X", fontsize=12, fontname="Cour")
+
+        if self.regular:
+            front.insert_text(Point(156, 112), "X", fontsize=12, fontname="Cour")
+        if self.concurrent:
+            front.insert_text(Point(250, 112), "X", fontsize=12, fontname="Cour")
+
+        front.insert_text(Point(361, 115), str(self.physical_readiness), fontsize=12, fontname="Cour")
+        front.insert_text(Point(460, 115), str(self.billet_subcategory), fontsize=12, fontname="Cour")
+
+        front.insert_text(Point(22, 140), self.senior_name, fontsize=12, fontname="Cour")
+        front.insert_text(Point(172, 140), self.senior_grade, fontsize=12, fontname="Cour")
+        front.insert_text(Point(222, 140), self.senior_desig, fontsize=12, fontname="Cour")
+        front.insert_text(Point(273, 140), self.senior_title, fontsize=12, fontname="Cour")
+        front.insert_text(Point(405, 140), self.senior_uic, fontsize=12, fontname="Cour")
+        front.insert_text(Point(461, 140), self.senior_ssn, fontsize=12, fontname="Cour")
+
+        front.insert_text(Point(24, 164), self.format_job(self.job), fontsize=10, fontname="Cour", lineheight=1.0)
+        front.insert_text(Point(28, 212), self.duties_abbreviation, fontsize=12, fontname="Cour")
+
+        duties_desc = wrap_duty_desc(self.duties_description)
+        front.insert_text(Point(24, 212), duties_desc, fontsize=10, fontname="Cour", lineheight=1.0)
+
+        match self.trait1:
+            case 0:
+                front.insert_text(Point(76, 403), "X", fontsize=12, fontname="Cour")
+            case 1:
+                front.insert_text(Point(205, 403), "X", fontsize=12, fontname="Cour")
+            case 2:
+                front.insert_text(Point(241, 403), "X", fontsize=12, fontname="Cour")
+            case 3:
+                front.insert_text(Point(377, 403), "X", fontsize=12, fontname="Cour")
+            case 4:
+                front.insert_text(Point(414, 403), "X", fontsize=12, fontname="Cour")
+            case 5:
+                front.insert_text(Point(551, 403), "X", fontsize=12, fontname="Cour")
+        match self.trait2:
+            case 0:
+                front.insert_text(Point(76, 486), "X", fontsize=12, fontname="Cour")
+            case 1:
+                front.insert_text(Point(205, 486), "X", fontsize=12, fontname="Cour")
+            case 2:
+                front.insert_text(Point(241, 486), "X", fontsize=12, fontname="Cour")
+            case 3:
+                front.insert_text(Point(377, 486), "X", fontsize=12, fontname="Cour")
+            case 4:
+                front.insert_text(Point(414, 486), "X", fontsize=12, fontname="Cour")
+            case 5:
+                front.insert_text(Point(551, 486), "X", fontsize=12, fontname="Cour")
+        match self.trait3:
+            case 0:
+                front.insert_text(Point(76, 571), "X", fontsize=12, fontname="Cour")
+            case 1:
+                front.insert_text(Point(205, 571), "X", fontsize=12, fontname="Cour")
+            case 2:
+                front.insert_text(Point(241, 571), "X", fontsize=12, fontname="Cour")
+            case 3:
+                front.insert_text(Point(377, 571), "X", fontsize=12, fontname="Cour")
+            case 4:
+                front.insert_text(Point(414, 571), "X", fontsize=12, fontname="Cour")
+            case 5:
+                front.insert_text(Point(551, 571), "X", fontsize=12, fontname="Cour")
+        match self.trait4:
+            case 0:
+                front.insert_text(Point(76, 655), "X", fontsize=12, fontname="Cour")
+            case 1:
+                front.insert_text(Point(205, 655), "X", fontsize=12, fontname="Cour")
+            case 2:
+                front.insert_text(Point(241, 655), "X", fontsize=12, fontname="Cour")
+            case 3:
+                front.insert_text(Point(377, 655), "X", fontsize=12, fontname="Cour")
+            case 4:
+                front.insert_text(Point(414, 655), "X", fontsize=12, fontname="Cour")
+            case 5:
+                front.insert_text(Point(551, 655), "X", fontsize=12, fontname="Cour")
+        match self.trait5:
+            case 0:
+                front.insert_text(Point(76, 739), "X", fontsize=12, fontname="Cour")
+            case 1:
+                front.insert_text(Point(205, 739), "X", fontsize=12, fontname="Cour")
+            case 2:
+                front.insert_text(Point(241, 739), "X", fontsize=12, fontname="Cour")
+            case 3:
+                front.insert_text(Point(377, 739), "X", fontsize=12, fontname="Cour")
+            case 4:
+                front.insert_text(Point(414, 739), "X", fontsize=12, fontname="Cour")
+            case 5:
+                front.insert_text(Point(551, 739), "X", fontsize=12, fontname="Cour")
+
+        counsel_date_str = self.format_date(self.date_counseled)
+        front.insert_text(Point(200, 272), counsel_date_str, fontsize=12, fontname="Cour")
+
+        front.insert_text(Point(279, 272), self.counselor, fontsize=12, fontname="Cour")
+
+        match self.trait6:
+            case 0:
+                back.insert_text(Point(76, 186), "X", fontsize=12, fontname="Cour")
+            case 1:
+                back.insert_text(Point(205, 186), "X", fontsize=12, fontname="Cour")
+            case 2:
+                back.insert_text(Point(241, 186), "X", fontsize=12, fontname="Cour")
+            case 3:
+                back.insert_text(Point(377, 186), "X", fontsize=12, fontname="Cour")
+            case 4:
+                back.insert_text(Point(414, 186), "X", fontsize=12, fontname="Cour")
+            case 5:
+                back.insert_text(Point(551, 186), "X", fontsize=12, fontname="Cour")
+        match self.trait7:
+            case 0:
+                back.insert_text(Point(76, 282), "X", fontsize=12, fontname="Cour")
+            case 1:
+                back.insert_text(Point(205, 282), "X", fontsize=12, fontname="Cour")
+            case 2:
+                back.insert_text(Point(241, 282), "X", fontsize=12, fontname="Cour")
+            case 3:
+                back.insert_text(Point(377, 282), "X", fontsize=12, fontname="Cour")
+            case 4:
+                back.insert_text(Point(414, 282), "X", fontsize=12, fontname="Cour")
+            case 5:
+                back.insert_text(Point(551, 282), "X", fontsize=12, fontname="Cour")
+
+        back.insert_text(
+            Point(34, 354),
+            self.wrap_text(self.comments, 92),
+            fontsize=9.2,
+            fontname="Cour",
+        )
+
+        match self.indiv_promo_rec:
+            case PromotionRecommendation.NOB.value:
+                # return Point(101, 606)
+                back.insert_text(Point(101, 606), "X", fontsize=12, fontname="Cour")
+            case PromotionRecommendation.SIGNIFICANT_PROBLEMS.value:
+                # return Point(151, 606)
+                back.insert_text(Point(151, 606), "X", fontsize=12, fontname="Cour")
+            case PromotionRecommendation.PROGRESSING.value:
+                # return Point(202, 606)
+                back.insert_text(Point(202, 606), "X", fontsize=12, fontname="Cour")
+            case PromotionRecommendation.PROMOTABLE.value:
+                # return Point(253, 606)
+                back.insert_text(Point(253, 606), "X", fontsize=12, fontname="Cour")
+            case PromotionRecommendation.MUST_PROMOTE.value:
+                # return Point(304, 606)
+                back.insert_text(Point(304, 606), "X", fontsize=12, fontname="Cour")
+            case PromotionRecommendation.EARLY_PROMOTE.value:
+                # return Point(355, 606)
+                back.insert_text(Point(355, 606), "X", fontsize=12, fontname="Cour")
+
+        back.insert_text(Point(388, 586), self.senior_address, fontsize=9, fontname="Cour", lineheight=1.1)
+        back.insert_text(Point(105, 694), self.member_trait_avg(), fontsize=12, fontname="Cour")
+        back.insert_text(Point(240, 694), self.summary_group_avg(), fontsize=12, fontname="Cour")
+        back.insert_text(Point(370, 300), textwrap.fill(self.career_rec_1, 13), fontsize=10, fontname="Cour")
+        back.insert_text(Point(467, 300), textwrap.fill(self.career_rec_2, 13), fontsize=10, fontname="Cour")
+        doc.save(str(path))
+        doc.close()

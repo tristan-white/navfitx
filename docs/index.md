@@ -2,7 +2,7 @@
 
 NAVFITX is a drop-in replacement for NAVFIT98A.
 
-| Feature | NAVFIT98 v33 | NAVFITX | 
+<!-- | Feature | NAVFIT98 v33 | NAVFITX | 
 |---------|---------------|---------|
 | Triggers Anti-Virus Warnings | ✅ | ❌ |
 | Runs on Windows | ✅ | ✅ |
@@ -12,14 +12,11 @@ NAVFITX is a drop-in replacement for NAVFIT98A.
 | Import/export reports in a sqlite database | ❌ | ✅ |
 | Install & Use w/out Admin Privileges | ❌ | ✅ |
 | Easy to install | ❌ | ✅ |
-| CLI tool | ❌ | ✅ |
+| CLI tool | ❌ | ✅ | -->
 
-<!-- | Import/export reports as JSON files | ❌ | ✅ |
-| Import/export reports as [TOML](https://toml.io/) files | ❌ | ✅ | -->
+## Installation
 
-## Quickstart
-
-!!! note
+!!! warning
     NAVFITX is in pre-release. Until version 0.1.0, new versions may introduce changes that are not backward compatible.
 
 You can install and run NAVFITX with one command.
@@ -39,6 +36,16 @@ You can install and run NAVFITX with one command.
     ```
     curl -LsSf uvx.sh/navfitx/install.sh | sh
     ```
+
+Once installation is complete, type `navfitx` and press ++enter++ to run the program.
+
+## Upgrading
+
+To upgrade NAVFITX to the most recent version, run the following command in Powershell/Terminal:
+
+```
+uv tool install -U navfitx
+```
 
 ## Help NAVFITX Succeed
 

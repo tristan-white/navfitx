@@ -1,8 +1,8 @@
 # Why?
 
-**We need a modern, secure, offline-capable replacement for NAVFIT98 to eliminate manual mailing, reduce errors, and help service members easily create reports that help their career.**
+We need a modern, secure, offline-capable replacement for NAVFIT98 to eliminate manual mailing, reduce errors, and help service members easily create reports that help their career.
 
----
+## Context
 
 Since 1998, the Navy has been using a Visual Basic app called NAVFIT98 to create performance evaluation reports for all its service members. NAVFIT98 was a great step forward and made creating the performance evaluation reporting process more efficient.
 
