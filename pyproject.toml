@@ -1,9 +1,9 @@
 [project]
 name = "navfitx"
-version = "0.0.6"
 description = "it's like NAVFIT98 but better"
 readme = "README.md"
 requires-python = ">=3.13"
+dynamic = ["version"]
 dependencies = [
     "platformdirs>=4.4.0", # <2.12 because of this issue: https://github.com/fastapi/sqlmodel/issues/1623
     "pydantic>=2.11.10",
@@ -37,14 +37,16 @@ line-length = 120
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F", "I"]
 
-[tool.ty.src]
-exclude = [
-    "src/navfitx/fitrep_layout.py",
-]
-
 [tool.setuptools.package-data]
 "navfitx" = ["data/*.pdf"]
 
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
+
+[tool.uv-dynamic-versioning]
+style = "pep440"        # also "semver" or "pvp"
+pattern = "default"     # "default" requires a "v" prefix; "default-unprefixed" drops it
+
 [build-system]
-requires = ["uv_build>=0.10.10,<0.11.0"]
-build-backend = "uv_build"
+requires = ["hatchling", "uv-dynamic-versioning"]
+build-backend = "hatchling.build"

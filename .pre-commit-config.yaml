@@ -16,3 +16,11 @@ repos:
         language: system
         types: [python]
         verbose: true
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        entry: uv run pytest
+        language: system
+        pass_filenames: false
+        types: [python]

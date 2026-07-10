@@ -23,9 +23,9 @@ def callback(
     version: Annotated[
         bool,
         typer.Option(
-            "--version",
             "-v",
-            help="Show the version information and exit.",
+            "--version",
+            help="Print the current version and exit.",
             is_eager=True,
             show_default=False,
             callback=version_callback,
@@ -33,7 +33,7 @@ def callback(
     ] = False,
 ):
     """
-    NAVFITX
+    A modern tool for creating Navy Performance Evaluations.
     """
     # If no CLI options/args are given, this callback will launch the GUI.
     if ctx.invoked_subcommand is None:
