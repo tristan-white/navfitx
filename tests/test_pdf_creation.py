@@ -20,11 +20,16 @@ def test_blank_eval_pdf_creation(tmp_path: Path):
     Test that the PDF creation process for evals completes without errors.
     """
     eval = Eval()
-    eval.create_pdf(tmp_path / "eval.pdf")
+    pdf_path = tmp_path / "eval.pdf"
+    eval.create_pdf(pdf_path)
 
 
 def test_mock_eval_pdf_creation(eval: Eval, tmp_path: Path):
-    eval.create_pdf(tmp_path / "eval.pdf")
+    pdf_path = tmp_path / "eval.pdf"
+    eval.create_pdf(pdf_path)
+    # downloads_path = Path.home() / "Downloads" / "eval.pdf"
+    # shutil.copy(pdf_path, downloads_path)
+    # webbrowser.open(downloads_path.as_uri())
 
 
 def test_blank_chiefeval_pdf_creation(tmp_path: Path):
@@ -36,4 +41,8 @@ def test_blank_chiefeval_pdf_creation(tmp_path: Path):
 
 
 def test_mock_chiefeval_pdf_creation(chiefeval: ChiefEval, tmp_path: Path):
-    chiefeval.create_pdf(tmp_path / "chiefeval.pdf")
+    pdf_path = tmp_path / "chiefeval.pdf"
+    chiefeval.create_pdf(pdf_path)
+    # downloads_path = Path.home() / "Downloads" / "chiefeval.pdf"
+    # shutil.copy(pdf_path, Path.home() / "Downloads" / "chiefeval.pdf")
+    # webbrowser.open(downloads_path.as_uri())

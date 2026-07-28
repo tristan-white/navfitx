@@ -3,17 +3,28 @@ from typing import Callable
 
 from pydantic import ValidationError
 from PySide6.QtCore import Slot
+from PySide6.QtGui import QFont, QTextOption
 from PySide6.QtWidgets import (
+    QCheckBox,
+    QHBoxLayout,
+    QLabel,
     QMainWindow,
     QMessageBox,
+    QTextEdit,
 )
 
-from navfitx.models import Eval
+from navfitx.models import Eval, RetentionRecommendation
 
 from .report import BaseReportForm
 
 
 class EvalForm(BaseReportForm[Eval]):
+    retention_recs = {
+        "": None,
+        "Recommended": RetentionRecommendation.RECOMMENDED.value,
+        "Not Recommended": RetentionRecommendation.NOT_RECOMMENDED.value,
+    }
+
     def build_fields(self):
         super().build_fields()
         # TODO: move field definitions from __init__ to here
@@ -27,6 +38,12 @@ class EvalForm(BaseReportForm[Eval]):
     ):
         super().__init__(main=main, on_accept=on_accept, on_reject=on_reject, report=report)
 
+        self.prom_frock = QCheckBox("Promotion/Frocking")
+        self.prom_frock.setChecked(self.report.prom_frock)
+        hboxlayout = self.occasion_box.layout()
+        assert isinstance(hboxlayout, QHBoxLayout)
+        hboxlayout.insertWidget(2, self.prom_frock)
+
         self.add_label("Professional Knowledge", 16, 0)
         self.add_label("Quality of Work", 16, 2)
         self.add_label("Command or Organizational Climate", 17, 0)
@@ -34,6 +51,51 @@ class EvalForm(BaseReportForm[Eval]):
         self.add_label("Personal Job Accomplishment/Initiative", 18, 0)
         self.add_label("Teamwork", 18, 2)
         self.add_label("Leadership", 19, 0)
+
+        self.achievements = QTextEdit(tabChangesFocus=True, lineWrapMode=QTextEdit.LineWrapMode.FixedColumnWidth)
+        self.achievements.setFont(QFont("Courier"))
+        self.achievements.setPlaceholderText("Maximum of 2 lines. Excess lines will be trimmed.")
+        self.achievements.setWordWrapMode(QTextOption.WrapMode.WordWrap)
+        self.achievements.setLineWrapColumnOrWidth(91)
+        self.achievements.setText(self.report.achievements)
+        line_height = self.achievements.fontMetrics().lineSpacing()
+        self.achievements.setFixedHeight(int(line_height * 3))
+        self.achievements.setFixedWidth(900)
+        self.achievements_label = QLabel(
+            f"Qualifications/Achievements\n"
+            f"(Line Count: {len(self.report_type.wrap_text(self.achievements.toPlainText(), 91).split(chr(10)))}/2)"
+        )
+        self.achievements.textChanged.connect(
+            lambda: self.achievements_label.setText(
+                f"Qualifications/Achievements\n"
+                f"(Line Count: {len(self.report_type.wrap_text(self.achievements.toPlainText(), 91).split(chr(10)))}/2)"
+            )
+        )
+        self.form.addWidget(self.achievements_label, 23, 0)
+        self.form.addWidget(self.achievements, 23, 1, 1, 3)
+
+        # Move shared senior address widgets down one row for Eval to place retain between
+        # Promotion Recommendation and Reporting Senior Address.
+        senior_address_label_item = self.form.itemAtPosition(25, 0)
+        senior_address_label = None
+        if senior_address_label_item is not None:
+            senior_address_label = senior_address_label_item.widget()
+        if senior_address_label is not None:
+            self.form.addWidget(senior_address_label, 26, 0)
+        self.form.addWidget(self.senior_address, 26, 1, 1, 3)
+
+        self.retain = self.add_value_combo(
+            row=25,
+            col=0,
+            label="Retention Reccomended?",
+            values=self.retention_recs,
+            value=self.report.retain,
+        )
+        retain_label_item = self.form.itemAtPosition(25, 0)
+        if retain_label_item is not None:
+            retain_label = retain_label_item.widget()
+            if isinstance(retain_label, QLabel):
+                retain_label.setToolTip("Select Recommended or Not Recommended")
 
         # self.setWindowTitle("EVAL Data Entry")
 
@@ -117,4 +179,8 @@ class EvalForm(BaseReportForm[Eval]):
         Create a Eval class from the data input in the GUI Form.
         """
         super().save_form()
-        # self.report.prom_frock = self.prom_frock.isChecked()
+
+        # Save the data unique to Eval form defined in its init method
+        self.report.prom_frock = self.prom_frock.isChecked()
+        self.report.achievements = self.report_type.validate_achievements(self.achievements.toPlainText())
+        self.report.retain = self.retain.currentData()

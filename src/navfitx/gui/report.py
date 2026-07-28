@@ -403,8 +403,8 @@ class BaseReportForm(QWidget, Generic[TReport]):
         if p := self.report.indiv_promo_rec is not None:
             combo.setCurrentIndex(p + 1)
         self.indiv_promo_rec = combo
-        self.form.addWidget(QLabel("Promotion Recommendation"), 23, 0)
-        self.form.addWidget(self.indiv_promo_rec, 23, 1)
+        self.form.addWidget(QLabel("Promotion Recommendation"), 24, 0)
+        self.form.addWidget(self.indiv_promo_rec, 24, 1)
 
         self.senior_address = QTextEdit()
         self.senior_address.setText(self.report.senior_address)
@@ -415,8 +415,8 @@ class BaseReportForm(QWidget, Generic[TReport]):
         line_height = QLineEdit().fontMetrics().lineSpacing()
         self.senior_address.setFixedHeight(line_height * 5)
         self.senior_address.setFixedWidth(500)
-        self.form.addWidget(QLabel("Reporting Senior Address"), 24, 0)
-        self.form.addWidget(self.senior_address, 24, 1, 1, 3)
+        self.form.addWidget(QLabel("Reporting Senior Address"), 25, 0)
+        self.form.addWidget(self.senior_address, 25, 1, 1, 3)
 
     def create_trait_combo(self, trait: int | None) -> NoScrollComboBox:
         combo = NoScrollComboBox()
@@ -481,8 +481,12 @@ class BaseReportForm(QWidget, Generic[TReport]):
         errors = json.loads(err.json())
         lines = []
         for error in errors:
-            field_name = error["loc"][0]
-            title = self.field_title(field_name)
+            loc = error.get("loc", [])
+            if loc:
+                field_name = loc[0]
+                title = self.field_title(field_name)
+            else:
+                title = "Report"
             lines.append(f"{title}: {error['msg']}")
         QMessageBox.warning(self, "Validation", "\n".join(lines))
 

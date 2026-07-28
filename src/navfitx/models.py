@@ -357,6 +357,11 @@ class PromotionRecommendation(Enum):
     EARLY_PROMOTE = 5
 
 
+class RetentionRecommendation(Enum):
+    NOT_RECOMMENDED = 0
+    RECOMMENDED = 1
+
+
 class Report(SQLModel):
     """
     A class that encapsulates the fields common to every type of report (FitRep, Eval, and ChiefEval).
@@ -1131,8 +1136,25 @@ class Eval(Report, table=True):
 
     # 182 char constraint from NAVFIT98 user manual
     # TODO: confirm NAVFIT98 actually only allows 182 chars
-    achievements: Annotated[str, StringConstraints(min_length=1, max_length=182)] = Field("")
-    retain: bool | None = Field(None)
+    achievements: Annotated[str, StringConstraints(min_length=1, max_length=182)] = Field(
+        title="Qualifications/Achievements", default=""
+    )
+    retain: int | None = Field(None)
+
+    @field_validator("achievements")
+    @classmethod
+    def validate_achievements(cls, achievements: str) -> str:
+        wrapped = cls.wrap_text(achievements, 91)
+        if len(wrapped.split("\n")) > 2:
+            lines = wrapped.split("\n")
+            achievements = "\n".join(lines[:2])
+        return achievements
+
+    @model_validator(mode="after")
+    def validate_occasion_for_report(self):
+        if not (self.periodic or self.det_indiv or self.special or self.prom_frock):
+            raise ValueError("Occasion for Report must be marked.")
+        return self
 
     def get_group_point(self) -> Point | None:
         if self.group == DutyStatus.ACT:
@@ -1146,8 +1168,8 @@ class Eval(Report, table=True):
         return None
 
     def create_pdf(self, path: Path) -> None:
-        blank_fitrep = get_blank_report_path("fitrep")
-        doc = pymupdf.open(str(blank_fitrep))
+        blank_eval = get_blank_report_path("eval")
+        doc = pymupdf.open(str(blank_eval))
         if isinstance(doc.metadata, dict):
             meta = doc.metadata
             meta["title"] = f"{self.doc_type.upper()} for {self.name}"
@@ -1306,10 +1328,7 @@ class Eval(Report, table=True):
                 back.insert_text(Point(551, 282), "X", fontsize=12, fontname="Cour")
 
         back.insert_text(
-            Point(34, 354),
-            self.wrap_text(self.comments, 92),
-            fontsize=9.2,
-            fontname="Cour",
+            Point(34, 338), self.wrap_text(self.comments, 92), fontsize=9.2, fontname="Cour", lineheight=1.11
         )
 
         match self.indiv_promo_rec:
@@ -1331,6 +1350,12 @@ class Eval(Report, table=True):
             case PromotionRecommendation.EARLY_PROMOTE.value:
                 # return Point(355, 606)
                 back.insert_text(Point(355, 606), "X", fontsize=12, fontname="Cour")
+
+        match self.retain:
+            case RetentionRecommendation.RECOMMENDED:
+                back.insert_text(Point(101, 626), "X", fontsize=12, fontname="Cour")
+            case RetentionRecommendation.NOT_RECOMMENDED:
+                back.insert_text(Point(151, 626), "X", fontsize=12, fontname="Cour")
 
         back.insert_text(Point(388, 586), self.senior_address, fontsize=9, fontname="Cour", lineheight=1.1)
         back.insert_text(Point(105, 694), self.member_trait_avg(), fontsize=12, fontname="Cour")
@@ -1371,8 +1396,8 @@ class ChiefEval(Report, table=True):
         return None
 
     def create_pdf(self, path: Path) -> None:
-        blank_fitrep = get_blank_report_path("fitrep")
-        doc = pymupdf.open(str(blank_fitrep))
+        blank_chief = get_blank_report_path("chief")
+        doc = pymupdf.open(str(blank_chief))
         if isinstance(doc.metadata, dict):
             meta = doc.metadata
             meta["title"] = f"{self.doc_type.upper()} for {self.name}"
@@ -1415,6 +1440,8 @@ class ChiefEval(Report, table=True):
             front.insert_text(Point(156, 112), "X", fontsize=12, fontname="Cour")
         if self.concurrent:
             front.insert_text(Point(250, 112), "X", fontsize=12, fontname="Cour")
+        if self.ops_cdr:
+            front.insert_text(Point(329, 112), "X", fontsize=12, fontname="Cour")
 
         front.insert_text(Point(361, 115), str(self.physical_readiness), fontsize=12, fontname="Cour")
         front.insert_text(Point(460, 115), str(self.billet_subcategory), fontsize=12, fontname="Cour")
