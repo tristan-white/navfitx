@@ -1352,14 +1352,14 @@ class Eval(Report, table=True):
                 back.insert_text(Point(355, 606), "X", fontsize=12, fontname="Cour")
 
         match self.retain:
-            case RetentionRecommendation.RECOMMENDED:
-                back.insert_text(Point(101, 626), "X", fontsize=12, fontname="Cour")
-            case RetentionRecommendation.NOT_RECOMMENDED:
-                back.insert_text(Point(151, 626), "X", fontsize=12, fontname="Cour")
+            case RetentionRecommendation.RECOMMENDED.value:
+                back.insert_text(Point(540, 583), "X", fontsize=12, fontname="Cour")
+            case RetentionRecommendation.NOT_RECOMMENDED.value:
+                back.insert_text(Point(460, 583), "X", fontsize=12, fontname="Cour")
 
         back.insert_text(Point(388, 586), self.senior_address, fontsize=9, fontname="Cour", lineheight=1.1)
-        back.insert_text(Point(105, 694), self.member_trait_avg(), fontsize=12, fontname="Cour")
-        back.insert_text(Point(240, 694), self.summary_group_avg(), fontsize=12, fontname="Cour")
+        # back.insert_text(Point(105, 694), self.member_trait_avg(), fontsize=12, fontname="Cour")
+        # back.insert_text(Point(240, 694), self.summary_group_avg(), fontsize=12, fontname="Cour")
         back.insert_text(Point(370, 300), textwrap.fill(self.career_rec_1, 13), fontsize=10, fontname="Cour")
         back.insert_text(Point(467, 300), textwrap.fill(self.career_rec_2, 13), fontsize=10, fontname="Cour")
         doc.save(str(path))
