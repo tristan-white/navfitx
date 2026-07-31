@@ -370,42 +370,6 @@ class Report(SQLModel):
     Note:
         I haven't dug into why, but the @field_validator decorator *must* come before the @classmethod decorator
         on validator methods for them to trigger when calling `Fitrep.model_validate(some_fitrep.model_dump())`.
-
-    Args:
-        id (int): Primary key for the report record.
-        doc_type (str): Type of report ('fitrep', 'eval', or 'chiefeval').
-        name (str): Full name of the subject.
-        rate (str): Rate (or grade/rank).
-        desig (str): Designator code.
-        ssn (str): Social Security Number (format: XXX-XX-XXXX).
-        group (DutyStatus): Summary group category.
-        uic (str): Unit Identification Code.
-        station (str): Ship or station name.
-        promotion_status (PromotionStatus): Promotion status category.
-        date_reported (date): Date sailor reported to the command.
-        periodic (bool): 'Periodic' checkbox.
-        det_indiv (bool): 'Detachment of Individual' checkbox.
-        special (bool): Special occasion report checkbox.
-        period_start (date): Start date of reporting period.
-        period_end (date): End date of reporting period.
-        not_observed (bool): 'Not Observed' checkbox.
-        regular (bool): 'Regular' report checkbox.
-        concurrent (bool): 'Concurrent' checkbox.
-        billet_subcategory (BilletSubcategory): Billet subcategory code.
-        senior_name (str): Reporting senior full name.
-        senior_grade (str): Reporting senior grade.
-        senior_desig (str): Reporting senior designator code.
-        senior_title (str): Reporting senior title.
-        senior_uic (str): Reporting senior UIC.
-        senior_ssn (str): Reporting senior SSN (format: XXX-XX-XXXX).
-        job (str): Job title or description.
-        duties_abbreviation (str): Abbreviated duties description.
-        duties_description (str): Full duties description text.
-        date_counseled (date): Date counseled by reporting senior.
-        counselor (str): Counselor full name.
-        career_rec_1 (str): First career recommendation text field.
-        career_rec_2 (str): Second career recommendation text field.
-        comments (str): Comments text field with a minimum length of 1 character and no maximum length constraint. This field is required and cannot be blank. It is used to provide detailed comments about the subject's performance, achievements, or any other relevant information that the reporting senior wishes to include in the report. The comments should be comprehensive and informative, offering insights into the subject's strengths, areas for improvement, and overall contributions during the reporting period. The content of this field can vary widely based on the specific circumstances and performance of the subject being evaluated, but it must always contain meaningful information that adds value to the report and assists in
     """
 
     id: int | None = Field(primary_key=True, default=None)

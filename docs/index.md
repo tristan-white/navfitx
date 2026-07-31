@@ -37,7 +37,9 @@ You can install and run NAVFITX with one command.
     curl -LsSf uvx.sh/navfitx/install.sh | sh
     ```
 
-Once installation is complete, type `navfitx` and press ++enter++ to run the program.
+Installation may take up to a few minutes depending on your internet connection.
+
+Once complete, type `navfitx` and press ++enter++ to run the program.
 
 ## Upgrading
 
