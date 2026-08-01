@@ -62,11 +62,7 @@ body:
       description: |
         What NAVFITX version are you using?
 
-        You can find the NAVFITX version with:
-
-        ```bash
-        uvx navfitx --version
-        ```
+        You can find the NAVFITX version with: `navfitx --version`.
     validations:
       required: true
   - type: input

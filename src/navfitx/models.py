@@ -1321,11 +1321,11 @@ class Eval(Report, table=True):
             case RetentionRecommendation.NOT_RECOMMENDED.value:
                 back.insert_text(Point(460, 583), "X", fontsize=12, fontname="Cour")
 
-        back.insert_text(Point(388, 586), self.senior_address, fontsize=9, fontname="Cour", lineheight=1.1)
-        # back.insert_text(Point(105, 694), self.member_trait_avg(), fontsize=12, fontname="Cour")
+        back.insert_text(Point(47, 304), self.member_trait_avg(), fontsize=12, fontname="Cour")
         # back.insert_text(Point(240, 694), self.summary_group_avg(), fontsize=12, fontname="Cour")
         back.insert_text(Point(370, 300), textwrap.fill(self.career_rec_1, 13), fontsize=10, fontname="Cour")
         back.insert_text(Point(467, 300), textwrap.fill(self.career_rec_2, 13), fontsize=10, fontname="Cour")
+        back.insert_text(Point(388, 586), self.senior_address, fontsize=9, fontname="Cour", lineheight=1.1)
         doc.save(str(path))
         doc.close()
 

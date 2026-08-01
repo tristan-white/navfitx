@@ -1,5 +1,3 @@
-from importlib.metadata import version
-
 import typer
 from typing_extensions import Annotated
 
@@ -8,12 +6,14 @@ from navfitx.gui import app as gui_app
 # from navfitx.json import app as json_app
 from navfitx.toml import app as toml_app
 
+from . import __version__
+
 app = typer.Typer(add_completion=False)
 
 
 def version_callback(value: bool):
     if value:
-        print(f"{version('navfitx')}")
+        print(__version__)
         raise typer.Exit()
 
 

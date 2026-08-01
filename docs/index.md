@@ -2,22 +2,10 @@
 
 NAVFITX is a drop-in replacement for NAVFIT98A.
 
-<!-- | Feature | NAVFIT98 v33 | NAVFITX | 
-|---------|---------------|---------|
-| Triggers Anti-Virus Warnings | ✅ | ❌ |
-| Runs on Windows | ✅ | ✅ |
-| Runs on MacOS | ❌ | ✅ |
-| Runs on Linux | ❌ | ✅ |
-| Export Reports as PDF | ✅ | ✅ |
-| Import/export reports in a sqlite database | ❌ | ✅ |
-| Install & Use w/out Admin Privileges | ❌ | ✅ |
-| Easy to install | ❌ | ✅ |
-| CLI tool | ❌ | ✅ | -->
-
 ## Installation
 
 !!! warning
-    NAVFITX is in pre-release. Until version 0.1.0, new versions may introduce changes that are not backward compatible.
+    NAVFITX is still in pre-release. Until the first minor version release (v0.1.0), updates may introduce changes that are not backward compatible.
 
 You can install and run NAVFITX with one command.
 
@@ -25,7 +13,7 @@ You can install and run NAVFITX with one command.
 
     Open Powershell[^1], copy/paste the following command, and hit ++enter++.
 
-    ```
+    ```powershell
     powershell -ExecutionPolicy ByPass -c "irm https://uvx.sh/navfitx/install.ps1 | iex"
     ```
 
@@ -33,7 +21,7 @@ You can install and run NAVFITX with one command.
 
     Open Terminal[^2], copy/paste the following command, and hit ++enter++.
 
-    ```
+    ```sh
     curl -LsSf uvx.sh/navfitx/install.sh | sh
     ```
 
@@ -45,21 +33,17 @@ Once complete, type `navfitx` and press ++enter++ to run the program.
 
 To upgrade NAVFITX to the most recent version, run the following command in Powershell/Terminal:
 
-```
+```sh
 uv tool install -U navfitx
 ```
 
-## Help NAVFITX Succeed
+## Help NAVFITX
 
-### Feedback/Suggestions
+#### Feedback/Suggestions
+
 If you find a bug, have a question, or have feedback/a request for an enhancement, please create a [new issue](https://github.com/tristan-white/navfitx/issues) to track it.
 
-I'd like to see NAVFITX replace NAFIT98A in the fleet. I'm looking for user testimonials from anyone that's used NAVFIT98A or eNavFit in order to answer the "why is this important" when I make the pitch to current NAVFIT98 stakeholders within the Navy. If you have feedback on these programs, please provide it here:
-
-- [Provide feedback on NAVFIT98A](https://github.com/tristan-white/navfitx/discussions/1)
-- [Provide feedback on eNavFit](https://github.com/tristan-white/navfitx/discussions/2) (if you had the chance to use it before it was shut down)
-
-### Star NAVFITX in Github
+#### Star NAVFITX in Github
 
 You can "star" [NAVFITX in GitHub](https://github.com/tristan-white/navfitx) (clicking the star button at the top right).
 
