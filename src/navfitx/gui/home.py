@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (
 )
 from sqlmodel import Session, SQLModel, create_engine, select
 
+from navfitx import __version__
 from navfitx.constants import APP_AUTHOR, APP_NAME, BUPERSINST_URL, FEEDBACK_URL, SITE_URL
 from navfitx.db import add_fitrep_to_db
 from navfitx.models import Eval, Fitrep, Report
@@ -119,7 +120,7 @@ class Home(QMainWindow):
 
         self.reports_table.cellDoubleClicked.connect(self.edit_report_from_table)
 
-        self.setWindowTitle("NAVFITX")
+        self.setWindowTitle(f"NAVFITX v{__version__}")
 
         # Central widget container
         self.stack = QStackedWidget()
@@ -209,7 +210,7 @@ class Home(QMainWindow):
         """Handle stack index changes: restore home menu on index 0, set form title on index 1."""
         if index == 0:
             # self.statusBar().show()
-            self.setWindowTitle("NAVFITX")
+            self.setWindowTitle(f"NAVFITX v{__version__}")
             self.build_home_menu()
         elif index == 1:
             # FitrepForm constructs its own menu when created.
