@@ -1,5 +1,8 @@
 from pathlib import Path
 
+import pymupdf
+import pytest
+
 from navfitx.models import ChiefEval, Eval, Fitrep
 
 
@@ -46,3 +49,22 @@ def test_mock_chiefeval_pdf_creation(chiefeval: ChiefEval, tmp_path: Path):
     # downloads_path = Path.home() / "Downloads" / "chiefeval.pdf"
     # shutil.copy(pdf_path, Path.home() / "Downloads" / "chiefeval.pdf")
     # webbrowser.open(downloads_path.as_uri())
+
+
+@pytest.mark.parametrize(
+    ("report_cls", "doc_type", "filename"),
+    [
+        (Fitrep, "FITREP", "fitrep.pdf"),
+        (Eval, "EVAL", "eval.pdf"),
+        (ChiefEval, "CHIEFEVAL", "chiefeval.pdf"),
+    ],
+)
+def test_pdf_metadata_title(report_cls, doc_type: str, filename: str, tmp_path: Path):
+    report = report_cls(name="TEST")
+    pdf_path = tmp_path / filename
+    report.create_pdf(pdf_path)
+    doc = pymupdf.open(str(pdf_path))
+    try:
+        assert doc.metadata.get("title") == f"{doc_type} for TEST"
+    finally:
+        doc.close()
