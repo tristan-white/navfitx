@@ -452,7 +452,7 @@ class Report(SQLModel):
     )
     comments: Annotated[str, StringConstraints(min_length=1)] = Field(title="Comments", default="")
     indiv_promo_rec: int | None = Field(title="Individual Promotion Recommendation", default=None, ge=0, le=5)
-    senior_address: Annotated[str, StringConstraints(min_length=1, max_length=40)] = Field(
+    senior_address: Annotated[str, StringConstraints(min_length=1)] = Field(
         title="Reporting Senior Address", default=""
     )
 
@@ -1217,34 +1217,30 @@ class Eval(Report, table=True):
 
         match self.trait6:
             case 0:
-                back.insert_text(Point(76, 186), "X", fontsize=12, fontname="Cour")
+                back.insert_text(Point(76, 124), "X", fontsize=12, fontname="Cour")
             case 1:
-                back.insert_text(Point(205, 186), "X", fontsize=12, fontname="Cour")
+                back.insert_text(Point(205, 124), "X", fontsize=12, fontname="Cour")
             case 2:
-                back.insert_text(Point(241, 186), "X", fontsize=12, fontname="Cour")
+                back.insert_text(Point(241, 124), "X", fontsize=12, fontname="Cour")
             case 3:
-                back.insert_text(Point(377, 186), "X", fontsize=12, fontname="Cour")
+                back.insert_text(Point(377, 124), "X", fontsize=12, fontname="Cour")
             case 4:
-                back.insert_text(Point(414, 186), "X", fontsize=12, fontname="Cour")
+                back.insert_text(Point(414, 124), "X", fontsize=12, fontname="Cour")
             case 5:
-                back.insert_text(Point(551, 186), "X", fontsize=12, fontname="Cour")
+                back.insert_text(Point(551, 124), "X", fontsize=12, fontname="Cour")
         match self.trait7:
             case 0:
-                back.insert_text(Point(76, 282), "X", fontsize=12, fontname="Cour")
+                back.insert_text(Point(76, 246), "X", fontsize=12, fontname="Cour")
             case 1:
-                back.insert_text(Point(205, 282), "X", fontsize=12, fontname="Cour")
+                back.insert_text(Point(205, 246), "X", fontsize=12, fontname="Cour")
             case 2:
-                back.insert_text(Point(241, 282), "X", fontsize=12, fontname="Cour")
+                back.insert_text(Point(241, 246), "X", fontsize=12, fontname="Cour")
             case 3:
-                back.insert_text(Point(377, 282), "X", fontsize=12, fontname="Cour")
+                back.insert_text(Point(377, 246), "X", fontsize=12, fontname="Cour")
             case 4:
-                back.insert_text(Point(414, 282), "X", fontsize=12, fontname="Cour")
+                back.insert_text(Point(414, 246), "X", fontsize=12, fontname="Cour")
             case 5:
-                back.insert_text(Point(551, 282), "X", fontsize=12, fontname="Cour")
-
-        back.insert_text(
-            Point(34, 338), self.wrap_text(self.comments, 92), fontsize=9.2, fontname="Cour", lineheight=1.11
-        )
+                back.insert_text(Point(551, 246), "X", fontsize=12, fontname="Cour")
 
         match self.indiv_promo_rec:
             case PromotionRecommendation.NOB.value:
@@ -1274,9 +1270,12 @@ class Eval(Report, table=True):
 
         back.insert_text(Point(47, 304), self.member_trait_avg(), fontsize=12, fontname="Cour")
         # back.insert_text(Point(240, 694), self.summary_group_avg(), fontsize=12, fontname="Cour")
-        back.insert_text(Point(370, 300), textwrap.fill(self.career_rec_1, 13), fontsize=10, fontname="Cour")
-        back.insert_text(Point(467, 300), textwrap.fill(self.career_rec_2, 13), fontsize=10, fontname="Cour")
-        back.insert_text(Point(388, 586), self.senior_address, fontsize=9, fontname="Cour", lineheight=1.1)
+        back.insert_text(Point(121, 292), textwrap.fill(self.career_rec_1, 13), fontsize=10, fontname="Cour")
+        back.insert_text(Point(227, 292), textwrap.fill(self.career_rec_2, 13), fontsize=10, fontname="Cour")
+        back.insert_text(
+            Point(34, 338), self.wrap_text(self.comments, 92), fontsize=9.2, fontname="Cour", lineheight=1.11
+        )
+        back.insert_text(Point(389, 609), self.senior_address, fontsize=9, fontname="Cour", lineheight=1.0)
         doc.save(str(path))
         doc.close()
 
@@ -1439,7 +1438,7 @@ class ChiefEval(Report, table=True):
                 # return Point(355, 606)
                 back.insert_text(Point(355, 606), "X", fontsize=12, fontname="Cour")
 
-        back.insert_text(Point(388, 586), self.senior_address, fontsize=9, fontname="Cour", lineheight=1.1)
+        back.insert_text(Point(388, 585), self.senior_address, fontsize=9, fontname="Cour", lineheight=1.0)
         back.insert_text(Point(105, 694), self.member_trait_avg(), fontsize=12, fontname="Cour")
         back.insert_text(Point(240, 694), self.summary_group_avg(), fontsize=12, fontname="Cour")
         back.insert_text(Point(370, 300), textwrap.fill(self.career_rec_1, 13), fontsize=10, fontname="Cour")
