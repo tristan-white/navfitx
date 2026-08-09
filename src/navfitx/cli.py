@@ -2,6 +2,7 @@ import typer
 from typing_extensions import Annotated
 
 from navfitx.gui import app as gui_app
+from navfitx.importer import import_command
 
 # from navfitx.json import app as json_app
 from navfitx.toml import app as toml_app
@@ -42,4 +43,5 @@ def callback(
 
 app.add_typer(gui_app)
 app.add_typer(toml_app, name="toml")
+app.command(name="import")(import_command)
 # app.add_typer(json_app, name="json")

@@ -5,6 +5,7 @@ from typing import Annotated
 import typer
 from rich import print
 
+from navfitx.importer import ImportSchemaError, build_fitrep_template_toml
 from navfitx.models import Fitrep
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
@@ -71,7 +72,12 @@ def pdf(
         print(f"Error details: {e}")
         raise typer.Exit(code=1)
 
-    fitrep = Fitrep.from_toml(toml_str)
+    try:
+        fitrep = Fitrep.from_toml(toml_str)
+    except ImportSchemaError as e:
+        print(f"Error parsing TOML file; are you sure {input} is a valid report TOML file?")
+        print(f"Error details: {e}")
+        raise typer.Exit(code=1)
 
     if validate:
         Fitrep.model_validate(fitrep)
@@ -111,9 +117,6 @@ def template(
         case "eval" | "chiefeval":
             print("Not yet implemented.")
         case "fitrep":
-            fitrep = Fitrep()
-            with outfile.open("w") as f:
-                for field in fitrep.model_dump(exclude={"id"}):
-                    f.write(f"[{field}]\n\n")
+            outfile.write_text(build_fitrep_template_toml(), encoding="utf-8")
         case _:
             raise typer.BadParameter("Invalid type of report. Must be one of: eval, chiefeval, fitrep")

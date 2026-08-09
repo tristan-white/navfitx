@@ -4,14 +4,14 @@ SQLModels for each type of report.
 
 import re
 import textwrap
-import tomllib
 from abc import abstractmethod
-from datetime import date, datetime
+from datetime import date
 from enum import Enum, StrEnum
 from pathlib import Path
 from typing import Annotated
 
 import pymupdf
+import tomlkit
 from pydantic import StringConstraints, field_validator, model_validator
 from pymupdf import Point
 from sqlmodel import Field, SQLModel
@@ -655,25 +655,23 @@ class Report(SQLModel):
 
     def model_dump_toml(self) -> str:
         """
-        Dump the model to a TOML string.
+        Dump the model to a canonical report TOML string.
         """
-        report_dict = self.model_dump()
-        ret = ""
-        for k, v in report_dict.items():
-            if k == "id":
-                continue
-            if isinstance(v, Enum):
-                v = v.value
-            if v is None:
-                v = ""
-            elif v is True:
-                v = "true"
-            elif v is False:
-                v = "false"
-            elif isinstance(k, int | None) and v is None:
-                v = 0
-            ret += f'{k} = "{v}"\n'
-        return ret
+        from navfitx.importer import SUPPORTED_SCHEMA_VERSION
+
+        report_dict = self.model_dump(exclude={"id"})
+        report_dict = {k: v for k, v in report_dict.items() if v is not None and v != ""}
+        for key, value in report_dict.items():
+            if isinstance(value, Enum):
+                report_dict[key] = value.value
+
+        document = tomlkit.document()
+        document.add("schema_version", SUPPORTED_SCHEMA_VERSION)
+        if "doc_type" in report_dict:
+            document.add("doc_type", report_dict.pop("doc_type"))
+        for key, value in report_dict.items():
+            document.add(key, value)
+        return tomlkit.dumps(document)
 
     @abstractmethod
     def get_group_point(self) -> Point | None:
@@ -931,12 +929,9 @@ class Fitrep(Report, table=True):
         """
         Create a Fitrep model from a TOML string.
         """
-        data = tomllib.loads(toml_str)
-        data["date_reported"] = datetime.strptime(data["date_reported"], "%Y-%m-%d").date()
-        data["period_start"] = datetime.strptime(data["period_start"], "%Y-%m-%d").date()
-        data["period_end"] = datetime.strptime(data["period_end"], "%Y-%m-%d").date()
-        data["date_counseled"] = datetime.strptime(data["date_counseled"], "%Y-%m-%d").date()
-        return Fitrep(**data)
+        from navfitx.importer import parse_report_toml
+
+        return parse_report_toml(toml_str, require_header=False)
 
     def create_pdf(self, path: Path):
         """
