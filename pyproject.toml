@@ -1,6 +1,6 @@
 [project]
 name = "navfitx"
-description = "it's like NAVFIT98 but better"
+description = "Next-generation NAVFIT98A."
 readme = "README.md"
 requires-python = ">=3.13"
 dynamic = ["version"]

@@ -2,6 +2,7 @@ import json
 import shutil
 import tomllib
 import webbrowser
+from datetime import date
 from pathlib import Path
 
 from platformdirs import user_config_dir
@@ -86,6 +87,9 @@ class Home(QMainWindow):
         super().__init__()
 
         self.db: Path | None = None
+        self.sort_column = 4
+        self.sort_ascending = False
+        self._reports_cache: list[Report] = []
 
         # Load last-used database path from previous session (if any)
         self.load_last_db()
@@ -112,11 +116,16 @@ class Home(QMainWindow):
         self.setup_reports_table_context_menu()
         # self.reports_table.setToolTip("Double click a Report to edit it.")
         self.reports_table.setToolTip("Right click a Report to see options.")
-        headers = ["Rank/Rate", "Full Name", "SSN", "Report", "To Date", "Report ID"]
+        headers = ["Rank/Rate", "Full Name", "SSN", "Report", "Period End", "Report ID"]
         self.reports_table.setRowCount(0)
         self.reports_table.setColumnCount(len(headers))
         self.reports_table.setHorizontalHeaderLabels(headers)
         self.reports_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        header = self.reports_table.horizontalHeader()
+        header.setSectionsClickable(True)
+        header.setSortIndicatorShown(True)
+        header.sectionClicked.connect(self.sort_reports_by_column)
+        self.update_sort_indicator()
 
         self.reports_table.cellDoubleClicked.connect(self.edit_report_from_table)
 
@@ -455,9 +464,96 @@ class Home(QMainWindow):
                     print("unknown report type")
                     return
 
+    @Slot(int)
+    def sort_reports_by_column(self, column: int) -> None:
+        if self.sort_column == column:
+            self.sort_ascending = not self.sort_ascending
+        else:
+            self.sort_column = column
+            self.sort_ascending = True
+        self.render_reports_table()
+
+    def update_sort_indicator(self) -> None:
+        sort_order = Qt.SortOrder.AscendingOrder if self.sort_ascending else Qt.SortOrder.DescendingOrder
+        self.reports_table.horizontalHeader().setSortIndicator(self.sort_column, sort_order)
+
+    def get_report_id_for_sort(self, report: Report) -> int:
+        if report.id is None:
+            return -1
+        return report.id
+
+    def get_period_end_for_sort(self, report: Report) -> date | None:
+        period_end = report.period_end
+        if isinstance(period_end, date):
+            return period_end
+        if isinstance(period_end, str):
+            try:
+                return date.fromisoformat(period_end)
+            except ValueError:
+                return None
+        return None
+
+    def get_sorted_reports(self) -> list[Report]:
+        reports = list(self._reports_cache)
+        if self.sort_column == 4:
+
+            def period_end_key(report: Report) -> tuple[bool, date | int, int]:
+                period_end = self.get_period_end_for_sort(report)
+                report_id = self.get_report_id_for_sort(report)
+                if self.sort_ascending:
+                    return (period_end is None, period_end or date.min, -report_id)
+                return (period_end is None, -(period_end or date.min).toordinal(), -report_id)
+
+            return sorted(reports, key=period_end_key)
+
+        if self.sort_column == 5:
+            return sorted(
+                reports,
+                key=lambda report: self.get_report_id_for_sort(report),
+                reverse=not self.sort_ascending,
+            )
+        if self.sort_column == 3:
+            return sorted(
+                reports,
+                key=lambda report: report.doc_type.casefold(),
+                reverse=not self.sort_ascending,
+            )
+        if self.sort_column == 2:
+            return sorted(
+                reports,
+                key=lambda report: report.ssn.casefold(),
+                reverse=not self.sort_ascending,
+            )
+        if self.sort_column == 1:
+            return sorted(
+                reports,
+                key=lambda report: report.name.casefold(),
+                reverse=not self.sort_ascending,
+            )
+        return sorted(
+            reports,
+            key=lambda report: report.rate.casefold(),
+            reverse=not self.sort_ascending,
+        )
+
+    def render_reports_table(self) -> None:
+        self.reports_table.clearContents()
+        sorted_reports = self.get_sorted_reports()
+        self.reports_table.setRowCount(len(sorted_reports))
+        for i, report in enumerate(sorted_reports):
+            self.reports_table.setItem(i, 0, QTableWidgetItem(report.rate))
+            self.reports_table.setItem(i, 1, QTableWidgetItem(report.name))
+            self.reports_table.setItem(i, 2, QTableWidgetItem(report.ssn))
+            self.reports_table.setItem(i, 3, QTableWidgetItem(report.doc_type.upper()))
+            period_end = self.get_period_end_for_sort(report)
+            self.reports_table.setItem(i, 4, QTableWidgetItem(str(period_end) if period_end else ""))
+            self.reports_table.setItem(i, 5, QTableWidgetItem(str(report.id) if report.id is not None else ""))
+        self.update_sort_indicator()
+
     def refresh_reports_table(self):
         self.reports_table.clearContents()
         self.reports_table.setRowCount(0)
+        self._reports_cache = []
         if not self.db:
             return
 
@@ -467,15 +563,8 @@ class Home(QMainWindow):
             results: list[Report] = list(session.exec(stmt))
             stmt = select(Eval)
             results.extend(list(session.exec(stmt)))
-            self.reports_table.setRowCount(len(results))
-            for i, report in enumerate(results):
-                self.reports_table.setItem(i, 0, QTableWidgetItem(report.rate))
-                self.reports_table.setItem(i, 1, QTableWidgetItem(report.name))
-                self.reports_table.setItem(i, 2, QTableWidgetItem(report.ssn))
-                self.reports_table.setItem(i, 3, QTableWidgetItem(report.doc_type.upper()))
-                self.reports_table.setItem(i, 4, QTableWidgetItem(str(report.period_start)))
-                self.reports_table.setItem(i, 5, QTableWidgetItem(str(report.id)))
-                # self.reports_table.setItem(i, 6, QTableWidgetItem("no"))
+            self._reports_cache = results
+            self.render_reports_table()
 
     def create_buttons_groupbox(self) -> QGroupBox:
         group_box = QGroupBox()
