@@ -59,3 +59,7 @@ _Avoid_: Alias key, display label key
 **Compatibility Coercion**:
 Import-time conversion of legacy TOML values into canonical typed values in draft mode.
 _Avoid_: Silent rewrite, strict parsing
+
+**Validated Example FITREP**:
+A canonical sample FITREP record intended for demonstrations that satisfies strict import schema checks and complete report validation.
+_Avoid_: Example report, sample fitrep, demo fitrep

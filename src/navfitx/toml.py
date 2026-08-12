@@ -5,6 +5,7 @@ from typing import Annotated
 import typer
 from rich import print
 
+from navfitx.examples import build_validated_example_fitrep
 from navfitx.importer import ImportSchemaError, build_fitrep_template_toml
 from navfitx.models import Fitrep
 
@@ -31,6 +32,41 @@ def callback():
     pass
 
 
+@app.command()
+def example(
+    output: Annotated[
+        Path,
+        typer.Option(
+            "--output",
+            "-o",
+            help="The name or path for the output PDF file.",
+            writable=True,
+            dir_okay=False,
+        ),
+    ] = Path("example.toml"),
+    type_of_report: Annotated[
+        str,
+        typer.Option(
+            "--type",
+            "-t",
+            help="The template type, either 'eval', 'chiefeval', or 'fitrep'.",
+            case_sensitive=False,
+        ),
+    ] = "fitrep",
+):
+    """
+    Print an example of a valid NAVFITX .toml file to stdout.
+    """
+    with output.open("w", encoding="utf-8") as f:
+        match type_of_report.lower():
+            case "eval" | "chiefeval":
+                print("Not yet implemented.")
+            case "fitrep":
+                f.write(build_validated_example_fitrep().model_dump_toml())
+            case _:
+                raise typer.BadParameter("Invalid type of report. Must be one of: eval, chiefeval, fitrep")
+
+
 @app.command(no_args_is_help=True)
 def pdf(
     input: Annotated[
@@ -42,6 +78,7 @@ def pdf(
             exists=True,
             dir_okay=False,
             readable=True,
+            callback=validate_toml_file,
         ),
     ],
     output: Annotated[

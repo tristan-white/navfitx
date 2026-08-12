@@ -736,7 +736,7 @@ class Report(SQLModel):
         front.insert_text(Point(405, 140), self.senior_uic, fontsize=12, fontname="Cour")
         front.insert_text(Point(461, 140), self.senior_ssn, fontsize=12, fontname="Cour")
 
-        front.insert_text(Point(24, 164), self.format_job(self.job), fontsize=10, fontname="Cour", lineheight=1.0)
+        front.insert_text(Point(19, 164), self.format_job(self.job), fontsize=10, fontname="Cour", lineheight=1.0)
         front.insert_text(Point(28, 212), self.duties_abbreviation, fontsize=12, fontname="Cour")
 
         duties_desc = wrap_duty_desc(self.duties_description)
