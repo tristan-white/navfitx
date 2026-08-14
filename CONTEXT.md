@@ -44,6 +44,22 @@ _Avoid_: Metadata blob, preamble
 The explicit field in a Report TOML File that declares which report type the file represents.
 _Avoid_: Type hint, implicit type
 
+**Report Type Display Name**:
+The human-readable label shown in the UI for a report type, which may differ from the Report Type Discriminator.
+_Avoid_: Raw doc type, internal type code
+
+**Report Type Sort Key**:
+The internal report-type value used for sorting report rows, even when the UI shows a different Report Type Display Name.
+_Avoid_: Visible label sort key, inferred row sort
+
+**Chief Evaluation**:
+The report type used for chief performance assessments in NAVFITX. Its Report Type Discriminator value is `chiefeval`.
+_Avoid_: Chief Eval report, CHIEFEVAL report
+
+**Chief Eval**:
+Accepted shorthand for Chief Evaluation in space-constrained UI labels.
+_Avoid_: CHIEFEVAL (as user-facing label), chief report
+
 **Import Strict Mode**:
 An import mode that requires the report data to be complete and fully valid before accepting it.
 _Avoid_: Hard import, safe mode

@@ -5,6 +5,7 @@ import pytest
 from pydantic import ValidationError
 
 from navfitx.models import (
+    ChiefEval,
     Fitrep,
 )
 
@@ -167,3 +168,64 @@ def test_career_rec_1_validation(fitrep: Fitrep):
         Fitrep.model_validate(fitrep)
 
     # TODO: validate the formatted career rec is not more than 2 lines
+
+
+def test_valid_chief_eval(validated_chiefeval: ChiefEval):
+    ChiefEval.model_validate(validated_chiefeval)
+
+
+def test_chief_eval_traits_are_required(validated_chiefeval: ChiefEval):
+    validated_chiefeval.trait1 = None
+    with pytest.raises(ValidationError, match="Trait value must be set or marked NOB"):
+        ChiefEval.model_validate(validated_chiefeval)
+
+
+def test_chief_eval_not_observed_requires_nob_traits(validated_chiefeval: ChiefEval):
+    validated_chiefeval.not_observed = True
+    validated_chiefeval.trait1 = 1
+    validated_chiefeval.trait2 = 0
+    validated_chiefeval.trait3 = 0
+    validated_chiefeval.trait4 = 0
+    validated_chiefeval.trait5 = 0
+    validated_chiefeval.trait6 = 0
+    validated_chiefeval.trait7 = 0
+    with pytest.raises(ValidationError, match="If 'Not Observed' is checked, all traits must be marked as NOB"):
+        ChiefEval.model_validate(validated_chiefeval)
+
+
+def test_chief_eval_promo_required_with_more_than_three_observed_traits(validated_chiefeval: ChiefEval):
+    validated_chiefeval.indiv_promo_rec = None
+    with pytest.raises(ValidationError, match="Promotion recommendation must be set"):
+        ChiefEval.model_validate(validated_chiefeval)
+
+
+def test_chief_eval_promo_must_be_blank_with_three_or_fewer_observed_traits(validated_chiefeval: ChiefEval):
+    validated_chiefeval.trait4 = 0
+    validated_chiefeval.trait5 = 0
+    validated_chiefeval.trait6 = 0
+    validated_chiefeval.trait7 = 0
+    validated_chiefeval.indiv_promo_rec = 3
+    with pytest.raises(ValidationError, match="Promotion recommendation should not be set"):
+        ChiefEval.model_validate(validated_chiefeval)
+
+
+def test_chief_eval_special_is_exclusive_occasion(validated_chiefeval: ChiefEval):
+    validated_chiefeval.special = True
+    validated_chiefeval.periodic = True
+    with pytest.raises(ValidationError, match="occasion"):
+        ChiefEval.model_validate(validated_chiefeval)
+
+
+def test_chief_eval_ops_cdr_is_exclusive_type(validated_chiefeval: ChiefEval):
+    validated_chiefeval.ops_cdr = True
+    validated_chiefeval.regular = True
+    with pytest.raises(ValidationError, match="OpsCdr"):
+        ChiefEval.model_validate(validated_chiefeval)
+
+
+def test_chief_eval_requires_type_selection(validated_chiefeval: ChiefEval):
+    validated_chiefeval.ops_cdr = False
+    validated_chiefeval.regular = False
+    validated_chiefeval.concurrent = False
+    with pytest.raises(ValidationError, match="Type of Report must be marked"):
+        ChiefEval.model_validate(validated_chiefeval)
