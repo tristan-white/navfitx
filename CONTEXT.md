@@ -4,9 +4,21 @@ This context defines the canonical language used for NAVFITX report workflows an
 
 ## Language
 
+**Home Page**:
+The default GUI page shown after launch that hosts the Report List and top-level navigation actions.
+_Avoid_: Home screen, landing screen
+
 **Report List**:
 The table on the home page that displays saved reports and allows users to browse and manage them.
 _Avoid_: Reports table, home table, report grid
+
+**Report List Fill Behavior**:
+The Home Page layout behavior where the Report List occupies all remaining space below the title row and resizes with the window.
+_Avoid_: Full-screen table, stretched table mode
+
+**Report List Column Fill Mode**:
+A display mode where the Report List uses available width, with high-value columns allowed to take more space while ID-style columns stay compact.
+_Avoid_: Equal-stretch columns, fixed-width-only layout
 
 **Period End**:
 The ending date of a report period.

@@ -7,14 +7,17 @@ from pathlib import Path
 
 from platformdirs import user_config_dir
 from PySide6.QtCore import QPoint, Qt, Slot
+from PySide6.QtGui import QResizeEvent, QShowEvent
 from PySide6.QtWidgets import (
     QFileDialog,
     QGroupBox,
     QHBoxLayout,
+    QHeaderView,
     QLabel,
     QMainWindow,
     QMenu,
     QPushButton,
+    QSizePolicy,
     QStackedWidget,
     QTableWidget,
     QTableWidgetItem,
@@ -40,9 +43,73 @@ class Home(QMainWindow):
     The main window for the NAVFITX GUI app (ie what is seen when the app is opened).
     """
 
+    REPORT_LIST_NAME_COLUMN = 1
+    REPORT_LIST_MIN_NAME_COLUMN_WIDTH = 180
+    REPORT_LIST_DEFAULT_COLUMN_WIDTHS = {
+        0: 120,  # Rank/Rate
+        1: 280,  # Full Name (adjusted dynamically)
+        2: 130,  # SSN
+        3: 100,  # Report
+        4: 140,  # Period End
+        5: 90,  # Report ID
+    }
+
     def setup_reports_table_context_menu(self):
         self.reports_table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.reports_table.customContextMenuRequested.connect(self.show_reports_table_context_menu)
+
+    @Slot(int, int, int)
+    def on_report_list_column_resized(self, column: int, old_size: int, new_size: int) -> None:
+        if self._is_updating_report_list_columns:
+            return
+        if old_size == new_size:
+            return
+
+        if column != self.REPORT_LIST_NAME_COLUMN:
+            return
+        if new_size >= self.REPORT_LIST_MIN_NAME_COLUMN_WIDTH:
+            return
+
+        self._is_updating_report_list_columns = True
+        try:
+            self.reports_table.setColumnWidth(self.REPORT_LIST_NAME_COLUMN, self.REPORT_LIST_MIN_NAME_COLUMN_WIDTH)
+        finally:
+            self._is_updating_report_list_columns = False
+
+    def configure_report_list_column_fill_mode(self) -> None:
+        header = self.reports_table.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
+        header.sectionResized.connect(self.on_report_list_column_resized)
+
+        self._is_updating_report_list_columns = True
+        try:
+            for column, width in self.REPORT_LIST_DEFAULT_COLUMN_WIDTHS.items():
+                self.reports_table.setColumnWidth(column, width)
+        finally:
+            self._is_updating_report_list_columns = False
+
+        self.update_report_list_name_column_width()
+
+    def update_report_list_name_column_width(self) -> None:
+        if self.reports_table.columnCount() <= self.REPORT_LIST_NAME_COLUMN:
+            return
+
+        viewport_width = self.reports_table.viewport().width()
+        if viewport_width <= 0:
+            return
+
+        other_columns_width = 0
+        for i in range(self.reports_table.columnCount()):
+            if i == self.REPORT_LIST_NAME_COLUMN:
+                continue
+            other_columns_width += self.reports_table.columnWidth(i)
+
+        name_column_width = max(self.REPORT_LIST_MIN_NAME_COLUMN_WIDTH, viewport_width - other_columns_width)
+        self._is_updating_report_list_columns = True
+        try:
+            self.reports_table.setColumnWidth(self.REPORT_LIST_NAME_COLUMN, name_column_width)
+        finally:
+            self._is_updating_report_list_columns = False
 
     @Slot(QPoint)
     def show_reports_table_context_menu(self, pos):
@@ -90,6 +157,7 @@ class Home(QMainWindow):
         self.sort_column = 4
         self.sort_ascending = False
         self._reports_cache: list[Report] = []
+        self._is_updating_report_list_columns = False
 
         # Load last-used database path from previous session (if any)
         self.load_last_db()
@@ -121,10 +189,12 @@ class Home(QMainWindow):
         self.reports_table.setColumnCount(len(headers))
         self.reports_table.setHorizontalHeaderLabels(headers)
         self.reports_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.reports_table.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         header = self.reports_table.horizontalHeader()
         header.setSectionsClickable(True)
         header.setSortIndicatorShown(True)
         header.sectionClicked.connect(self.sort_reports_by_column)
+        self.configure_report_list_column_fill_mode()
         self.update_sort_indicator()
 
         self.reports_table.cellDoubleClicked.connect(self.edit_report_from_table)
@@ -138,6 +208,14 @@ class Home(QMainWindow):
         # Create home widget via method (moved from former HomeWidget class)
         self.stack.addWidget(self.create_home_widget())
         self.setCentralWidget(self.stack)
+
+    def showEvent(self, event: QShowEvent) -> None:
+        super().showEvent(event)
+        self.update_report_list_name_column_width()
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        super().resizeEvent(event)
+        self.update_report_list_name_column_width()
 
     def build_home_menu(self):
         self.menuBar().clear()
@@ -410,7 +488,7 @@ class Home(QMainWindow):
         self.reports_table_label = QLabel(f"Reports ({db_path_str})")
         layout.addWidget(self.reports_table_label)
 
-        layout.addWidget(self.reports_table)
+        layout.addWidget(self.reports_table, 1)
 
         # Uncomment to add buttons below the table
         # buttons_groupbox = self.create_buttons_groupbox()
