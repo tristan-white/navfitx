@@ -5,9 +5,13 @@ from typing import Annotated
 import typer
 from rich import print
 
-from navfitx.examples import build_validated_example_fitrep
-from navfitx.importer import ImportSchemaError, build_fitrep_template_toml
-from navfitx.models import Fitrep
+from navfitx.examples import build_validated_example_chiefeval, build_validated_example_fitrep
+from navfitx.importer import (
+    ImportSchemaError,
+    build_chiefeval_template_toml,
+    build_fitrep_template_toml,
+    parse_report_toml,
+)
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
@@ -59,8 +63,11 @@ def example(
     """
     with output.open("w", encoding="utf-8") as f:
         match type_of_report.lower():
-            case "eval" | "chiefeval":
-                print("Not yet implemented.")
+            case "eval":
+                print("EVAL CLI support is not implemented yet.")
+                raise typer.Exit(code=1)
+            case "chiefeval":
+                f.write(build_validated_example_chiefeval().model_dump_toml())
             case "fitrep":
                 f.write(build_validated_example_fitrep().model_dump_toml())
             case _:
@@ -110,17 +117,17 @@ def pdf(
         raise typer.Exit(code=1)
 
     try:
-        fitrep = Fitrep.from_toml(toml_str)
+        report = parse_report_toml(toml_str)
     except ImportSchemaError as e:
         print(f"Error parsing TOML file; are you sure {input} is a valid report TOML file?")
         print(f"Error details: {e}")
         raise typer.Exit(code=1)
 
     if validate:
-        Fitrep.model_validate(fitrep)
+        type(report).model_validate(report)
 
     # TODO: ensure data is printable; ie that fields don't have text that is too long
-    fitrep.create_pdf(output)
+    report.create_pdf(output)
     print(f"PDF generated successfully at {output}")
 
 
@@ -151,8 +158,11 @@ def template(
     or directly converted to PDF using the NAVFITX CLI.
     """
     match type_of_report.lower():
-        case "eval" | "chiefeval":
-            print("Not yet implemented.")
+        case "eval":
+            print("EVAL CLI support is not implemented yet.")
+            raise typer.Exit(code=1)
+        case "chiefeval":
+            outfile.write_text(build_chiefeval_template_toml(), encoding="utf-8")
         case "fitrep":
             outfile.write_text(build_fitrep_template_toml(), encoding="utf-8")
         case _:

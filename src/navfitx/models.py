@@ -931,7 +931,10 @@ class Fitrep(Report, table=True):
         """
         from navfitx.importer import parse_report_toml
 
-        return parse_report_toml(toml_str, require_header=False)
+        report = parse_report_toml(toml_str, require_header=False)
+        if not isinstance(report, cls):
+            raise ValueError(f"Expected TOML for {cls.__name__} but got {type(report).__name__}.")
+        return report
 
     def create_pdf(self, path: Path):
         """
