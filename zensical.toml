@@ -341,6 +341,12 @@ link = "https://pypi.org/project/navfitx/"
 [project.markdown_extensions.pymdownx.snippets]
 auto_append = ["includes/abbreviations.md"]
 
+[project.markdown_extensions]
+pymdownx.superfences.custom_fences = [
+  { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },
+]
+zensical.extensions.glightbox = {}
+
 [project.markdown_extensions.abbr]
 [project.markdown_extensions.admonition]
 [project.markdown_extensions.attr_list]
@@ -348,7 +354,7 @@ auto_append = ["includes/abbreviations.md"]
 [project.markdown_extensions.footnotes]
 [project.markdown_extensions.pymdownx.keys]
 [project.markdown_extensions.pymdownx.details]
-[project.markdown_extensions.pymdownx.superfences]
+# [project.markdown_extensions.pymdownx.superfences]
 
 [project.markdown_extensions.pymdownx.tabbed]
 alternate_style = true

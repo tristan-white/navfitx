@@ -105,3 +105,96 @@ Convert block 3 entry into competitive designator categories as detailed below. 
     | 21 | Billet | Group by entry in this block. |
     | 22 | Reporting Senior | Group by reporting senior. |
     | 45EV<br>48CE | Promotion Recommendation | Must have Observed promotion recommendation. Do not include NOB promotion recommendations in a summary group. |
+
+
+
+
+## Summary Group Flowchart
+
+```mermaid
+flowchart TD
+    A["Are both reports Observed (not NOB)?"]
+    B["Are both reports in the same personnel class (both Officer/Warrant or both Enlisted)?"]
+    C["Are both reports in the same report family (Regular vs Concurrent family vs Operational Commander)?"]
+    D["If civilian/foreign activity rules apply, are both tied to the same civilian/foreign activity?"]
+
+    O0["Are these Officer/Warrant reports?"]
+    O1["Do both reports have the same Block 2 grade/rate?"]
+    O2["Do both reports map to the same Block 3 competitive designator category?"]
+    O3["Do both reports have the same Block 5 duty/competitive status?"]
+    O4["Do both reports have the same Block 8 promotion status?"]
+    O5["Do both reports have the same Block 15 ending date?"]
+    O6["Do both reports have the same Block 17-19 type of report?"]
+    O7["Do both reports have the same Block 21 billet subcategory?"]
+    O8["Do both reports have the same Block 22 reporting senior?"]
+    O9["If dual-hatted command grouping is used, do required command/UIC rules match?"]
+
+    E1["Do both reports have the same Block 2 paygrade (ignore enlisted rating)?"]
+    E2["Do both reports fall in the same Block 5 enlisted status bucket (ACT+TAR, INACT, or AT/ADOS)?"]
+    E3["Is UIC being used as a splitter for this enlisted batch?"]
+    E4["If UIC is a splitter, do both reports have the same Block 6 UIC?"]
+    E5["Do both reports have the same Block 8 promotion status?"]
+    E6["Do both reports have the same Block 15 ending date?"]
+    E7["Do both reports have the same Block 17-18 type of report?"]
+    E8["Do both reports have the same Block 21 billet subcategory?"]
+    E9["If SCREENED/override logic applies, do effective billet subcategories still match?"]
+    E10["Do both reports have the same Block 22 reporting senior?"]
+
+    Y["Should these two reports go in the same PRSG? (Yes)"]
+    N["Should these two reports go in the same PRSG? (No)"]
+
+    A -- "Yes" --> B
+    A -- "No" --> N
+
+    B -- "Yes" --> C
+    B -- "No" --> N
+
+    C -- "Yes" --> D
+    C -- "No" --> N
+
+    D -- "Yes" --> O0
+    D -- "No" --> N
+
+    O0 -- "Yes (Officer/Warrant)" --> O1
+    O0 -- "No (Enlisted)" --> E1
+
+    O1 -- "Yes" --> O2
+    O1 -- "No" --> N
+    O2 -- "Yes" --> O3
+    O2 -- "No" --> N
+    O3 -- "Yes" --> O4
+    O3 -- "No" --> N
+    O4 -- "Yes" --> O5
+    O4 -- "No" --> N
+    O5 -- "Yes" --> O6
+    O5 -- "No" --> N
+    O6 -- "Yes" --> O7
+    O6 -- "No" --> N
+    O7 -- "Yes" --> O8
+    O7 -- "No" --> N
+    O8 -- "Yes" --> O9
+    O8 -- "No" --> N
+    O9 -- "Yes or N/A" --> Y
+    O9 -- "No" --> N
+
+    E1 -- "Yes" --> E2
+    E1 -- "No" --> N
+    E2 -- "Yes" --> E3
+    E2 -- "No" --> N
+    E3 -- "Yes" --> E4
+    E3 -- "No" --> E5
+    E4 -- "Yes" --> E5
+    E4 -- "No" --> N
+    E5 -- "Yes" --> E6
+    E5 -- "No" --> N
+    E6 -- "Yes" --> E7
+    E6 -- "No" --> N
+    E7 -- "Yes" --> E8
+    E7 -- "No" --> N
+    E8 -- "Yes" --> E9
+    E8 -- "No" --> N
+    E9 -- "Yes or N/A" --> E10
+    E9 -- "No" --> N
+    E10 -- "Yes" --> Y
+    E10 -- "No" --> N
+```
