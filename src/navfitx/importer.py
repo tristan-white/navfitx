@@ -11,12 +11,13 @@ from rich import print
 from sqlmodel import Session, SQLModel, create_engine
 from typing_extensions import Annotated
 
-from navfitx.models import BilletSubcategory, ChiefEval, DutyStatus, Fitrep, PromotionStatus
+from navfitx.models import BilletSubcategory, ChiefEval, DutyStatus, Eval, Fitrep, PromotionStatus
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
 
 SUPPORTED_SCHEMA_VERSION = 1
 SUPPORTED_DOC_TYPES = {
+    "eval",
     "fitrep",
     "chiefeval",
 }
@@ -39,6 +40,7 @@ INT_FIELDS = {
     "trait6",
     "trait7",
     "indiv_promo_rec",
+    "retain",
 }
 DATE_FIELDS = {
     "date_reported",
@@ -62,13 +64,13 @@ class ImportSchemaError(ValueError):
     pass
 
 
-def _allowed_keys(model_type: type[Fitrep] | type[ChiefEval]) -> set[str]:
+def _allowed_keys(model_type: type[Fitrep] | type[ChiefEval] | type[Eval]) -> set[str]:
     return (set(model_type.model_fields) - {"id"}) | {"schema_version"}
 
 
-def _resolve_model_type(doc_type: str) -> type[Fitrep] | type[ChiefEval]:
-    if doc_type.casefold() == "eval":
-        raise ImportSchemaError("EVAL CLI support is not implemented yet.")
+def _resolve_model_type(doc_type: str) -> type[Fitrep] | type[ChiefEval] | type[Eval]:
+    if doc_type == "eval":
+        return Eval
     if doc_type == "fitrep":
         return Fitrep
     if doc_type == "chiefeval":
@@ -77,7 +79,7 @@ def _resolve_model_type(doc_type: str) -> type[Fitrep] | type[ChiefEval]:
     raise ImportSchemaError(f"Unsupported doc_type: {doc_type!r}. Expected one of: {allowed}.")
 
 
-def _build_report_template_toml(model_type: type[Fitrep] | type[ChiefEval], doc_type: str) -> str:
+def _build_report_template_toml(model_type: type[Fitrep] | type[ChiefEval] | type[Eval], doc_type: str) -> str:
     data = model_type().model_dump(exclude={"id"})
     template_dates = {
         "date_reported": date.today(),
@@ -99,6 +101,7 @@ def _build_report_template_toml(model_type: type[Fitrep] | type[ChiefEval], doc_
         "trait6": 0,
         "trait7": 0,
         "indiv_promo_rec": 0,
+        "retain": 0,
     }
 
     data.update(template_dates)
@@ -121,6 +124,10 @@ def build_fitrep_template_toml() -> str:
 
 def build_chiefeval_template_toml() -> str:
     return _build_report_template_toml(ChiefEval, "chiefeval")
+
+
+def build_eval_template_toml() -> str:
+    return _build_report_template_toml(Eval, "eval")
 
 
 def _parse_bool(value: str) -> bool:
@@ -225,7 +232,7 @@ def _validate_header_keys(data: dict[str, Any]) -> None:
         raise ImportSchemaError("Missing required import header key: doc_type")
 
 
-def _validate_header_values(data: dict[str, Any]) -> type[Fitrep] | type[ChiefEval]:
+def _validate_header_values(data: dict[str, Any]) -> type[Fitrep] | type[ChiefEval] | type[Eval]:
     _validate_header_keys(data)
 
     if data["schema_version"] != SUPPORTED_SCHEMA_VERSION:
@@ -237,7 +244,7 @@ def _validate_header_values(data: dict[str, Any]) -> type[Fitrep] | type[ChiefEv
     return _resolve_model_type(data["doc_type"])
 
 
-def parse_report_toml(toml_str: str, *, strict: bool = False, require_header: bool = True) -> Fitrep | ChiefEval:
+def parse_report_toml(toml_str: str, *, strict: bool = False, require_header: bool = True) -> Fitrep | ChiefEval | Eval:
     try:
         data = tomllib.loads(toml_str)
     except tomllib.TOMLDecodeError as exc:
@@ -276,7 +283,7 @@ def parse_report_toml(toml_str: str, *, strict: bool = False, require_header: bo
     return model_type(**data)
 
 
-def import_report_toml(input_path: Path, db_path: Path, *, strict: bool = False) -> Fitrep | ChiefEval:
+def import_report_toml(input_path: Path, db_path: Path, *, strict: bool = False) -> Fitrep | ChiefEval | Eval:
     try:
         toml_str = input_path.read_text(encoding="utf-8")
     except Exception as exc:

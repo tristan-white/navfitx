@@ -8,10 +8,11 @@ from navfitx.cli import app
 from navfitx.importer import (
     ImportSchemaError,
     build_chiefeval_template_toml,
+    build_eval_template_toml,
     build_fitrep_template_toml,
     parse_report_toml,
 )
-from navfitx.models import ChiefEval, Fitrep
+from navfitx.models import ChiefEval, Eval, Fitrep
 
 runner = CliRunner()
 
@@ -28,6 +29,13 @@ def test_parse_report_toml_accepts_chiefeval_header_only_draft() -> None:
 
     assert isinstance(report, ChiefEval)
     assert report.doc_type == "chiefeval"
+
+
+def test_parse_report_toml_accepts_eval_header_only_draft() -> None:
+    report = parse_report_toml('schema_version = 1\ndoc_type = "eval"\n')
+
+    assert isinstance(report, Eval)
+    assert report.doc_type == "eval"
 
 
 def test_parse_report_toml_rejects_unknown_keys() -> None:
@@ -50,13 +58,15 @@ def test_parse_report_toml_rejects_missing_doc_type_header() -> None:
         parse_report_toml("schema_version = 1\n")
 
 
-def test_parse_report_toml_rejects_eval_doc_type() -> None:
-    with pytest.raises(ImportSchemaError, match="EVAL CLI support is not implemented yet"):
-        parse_report_toml('schema_version = 1\ndoc_type = "eval"\n')
+def test_parse_report_toml_coerces_uppercase_eval_doc_type_in_draft_mode() -> None:
+    report = parse_report_toml('schema_version = 1\ndoc_type = "EVAL"\n')
+
+    assert isinstance(report, Eval)
+    assert report.doc_type == "eval"
 
 
 def test_parse_report_toml_strict_rejects_uppercase_eval_doc_type() -> None:
-    with pytest.raises(ImportSchemaError, match="EVAL CLI support is not implemented yet"):
+    with pytest.raises(ImportSchemaError, match="Unsupported doc_type"):
         parse_report_toml('schema_version = 1\ndoc_type = "EVAL"\n', strict=True)
 
 
@@ -186,6 +196,31 @@ def test_cli_import_adds_chiefeval_to_database(tmp_path) -> None:
     assert report_count == 1
 
 
+def test_cli_import_adds_eval_to_database(tmp_path) -> None:
+    db_path = tmp_path / "navfitx.db"
+    input_path = tmp_path / "report.toml"
+    input_path.write_text('schema_version = 1\ndoc_type = "eval"\n', encoding="utf-8")
+
+    result = runner.invoke(
+        app,
+        [
+            "import",
+            "--input",
+            str(input_path),
+            "--db",
+            str(db_path),
+        ],
+    )
+
+    assert result.exit_code == 0
+
+    report_count = 0
+    with Session(create_engine(f"sqlite:///{db_path}")) as session:
+        report_count = len(session.exec(select(Eval)).all())
+
+    assert report_count == 1
+
+
 def test_cli_import_strict_rejects_incomplete_report(tmp_path) -> None:
     db_path = tmp_path / "navfitx.db"
     input_path = tmp_path / "report.toml"
@@ -228,7 +263,7 @@ def test_cli_import_strict_rejects_incomplete_chiefeval(tmp_path) -> None:
     assert "Report date must be set" in result.stdout
 
 
-def test_cli_import_rejects_eval_doc_type(tmp_path) -> None:
+def test_cli_import_strict_rejects_incomplete_eval(tmp_path) -> None:
     db_path = tmp_path / "navfitx.db"
     input_path = tmp_path / "report.toml"
     input_path.write_text('schema_version = 1\ndoc_type = "eval"\n', encoding="utf-8")
@@ -241,11 +276,12 @@ def test_cli_import_rejects_eval_doc_type(tmp_path) -> None:
             str(input_path),
             "--db",
             str(db_path),
+            "--strict",
         ],
     )
 
     assert result.exit_code == 1
-    assert "EVAL CLI support is not implemented yet" in result.stdout
+    assert "Report date must be set" in result.stdout
 
 
 def test_build_fitrep_template_toml_has_import_header_and_all_keys() -> None:
@@ -270,6 +306,20 @@ def test_build_chiefeval_template_toml_has_import_header_and_all_keys() -> None:
     assert "schema_version = 1" in template
 
     for key in ChiefEval.model_fields:
+        if key in {"id", "doc_type"}:
+            continue
+        assert f"{key} = " in template
+
+
+def test_build_eval_template_toml_has_import_header_and_all_keys() -> None:
+    template = build_eval_template_toml()
+    parsed = parse_report_toml(template)
+
+    assert isinstance(parsed, Eval)
+    assert parsed.doc_type == "eval"
+    assert "schema_version = 1" in template
+
+    for key in Eval.model_fields:
         if key in {"id", "doc_type"}:
             continue
         assert f"{key} = " in template

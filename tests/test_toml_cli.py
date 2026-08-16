@@ -1,9 +1,9 @@
 from typer.testing import CliRunner
 
 from navfitx.cli import app
-from navfitx.examples import build_validated_example_chiefeval
+from navfitx.examples import build_validated_example_chiefeval, build_validated_example_eval
 from navfitx.importer import parse_report_toml
-from navfitx.models import ChiefEval
+from navfitx.models import ChiefEval, Eval
 
 runner = CliRunner()
 
@@ -32,22 +32,28 @@ def test_toml_example_chiefeval_writes_file(tmp_path) -> None:
     ChiefEval.model_validate(parsed)
 
 
-def test_toml_template_eval_exits_with_error(tmp_path) -> None:
+def test_toml_template_eval_writes_file(tmp_path) -> None:
     output = tmp_path / "eval_template.toml"
 
     result = runner.invoke(app, ["toml", "template", "--type", "eval", "--output", str(output)])
 
-    assert result.exit_code == 1
-    assert "EVAL CLI support is not implemented yet" in result.stdout
+    assert result.exit_code == 0
+    assert output.exists()
+    parsed = parse_report_toml(output.read_text(encoding="utf-8"))
+    assert isinstance(parsed, Eval)
+    assert parsed.doc_type == "eval"
 
 
-def test_toml_example_eval_exits_with_error(tmp_path) -> None:
+def test_toml_example_eval_writes_file(tmp_path) -> None:
     output = tmp_path / "eval_example.toml"
 
     result = runner.invoke(app, ["toml", "example", "--type", "eval", "--output", str(output)])
 
-    assert result.exit_code == 1
-    assert "EVAL CLI support is not implemented yet" in result.stdout
+    assert result.exit_code == 0
+    assert output.exists()
+    parsed = parse_report_toml(output.read_text(encoding="utf-8"))
+    assert isinstance(parsed, Eval)
+    Eval.model_validate(parsed)
 
 
 def test_toml_pdf_requires_doc_type_header(tmp_path) -> None:
@@ -61,15 +67,17 @@ def test_toml_pdf_requires_doc_type_header(tmp_path) -> None:
     assert "Missing required import header key: doc_type" in result.stdout
 
 
-def test_toml_pdf_rejects_eval_doc_type(tmp_path) -> None:
+def test_toml_pdf_generates_eval_pdf(tmp_path) -> None:
     input_path = tmp_path / "report.toml"
     output_path = tmp_path / "report.pdf"
-    input_path.write_text('schema_version = 1\ndoc_type = "eval"\n', encoding="utf-8")
+
+    report = build_validated_example_eval()
+    input_path.write_text(report.model_dump_toml(), encoding="utf-8")
 
     result = runner.invoke(app, ["toml", "pdf", "--input", str(input_path), "--output", str(output_path)])
 
-    assert result.exit_code == 1
-    assert "EVAL CLI support is not implemented yet" in result.stdout
+    assert result.exit_code == 0
+    assert output_path.exists()
 
 
 def test_toml_pdf_generates_chiefeval_pdf(tmp_path) -> None:

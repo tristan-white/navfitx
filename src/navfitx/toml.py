@@ -5,10 +5,15 @@ from typing import Annotated
 import typer
 from rich import print
 
-from navfitx.examples import build_validated_example_chiefeval, build_validated_example_fitrep
+from navfitx.examples import (
+    build_validated_example_chiefeval,
+    build_validated_example_eval,
+    build_validated_example_fitrep,
+)
 from navfitx.importer import (
     ImportSchemaError,
     build_chiefeval_template_toml,
+    build_eval_template_toml,
     build_fitrep_template_toml,
     parse_report_toml,
 )
@@ -64,8 +69,7 @@ def example(
     with output.open("w", encoding="utf-8") as f:
         match type_of_report.lower():
             case "eval":
-                print("EVAL CLI support is not implemented yet.")
-                raise typer.Exit(code=1)
+                f.write(build_validated_example_eval().model_dump_toml())
             case "chiefeval":
                 f.write(build_validated_example_chiefeval().model_dump_toml())
             case "fitrep":
@@ -159,8 +163,7 @@ def template(
     """
     match type_of_report.lower():
         case "eval":
-            print("EVAL CLI support is not implemented yet.")
-            raise typer.Exit(code=1)
+            outfile.write_text(build_eval_template_toml(), encoding="utf-8")
         case "chiefeval":
             outfile.write_text(build_chiefeval_template_toml(), encoding="utf-8")
         case "fitrep":

@@ -1,6 +1,14 @@
 from datetime import date
 
-from navfitx.models import BilletSubcategory, ChiefEval, DutyStatus, Fitrep, PromotionStatus
+from navfitx.models import (
+    BilletSubcategory,
+    ChiefEval,
+    DutyStatus,
+    Eval,
+    Fitrep,
+    PromotionStatus,
+    RetentionRecommendation,
+)
 
 
 def build_validated_example_fitrep() -> Fitrep:
@@ -94,4 +102,55 @@ def build_validated_example_chiefeval() -> ChiefEval:
         comments="Strong chief with sustained impact on readiness and team performance.",
         indiv_promo_rec=3,
         senior_address="123 Fleet St, Norfolk VA",
+    )
+
+
+def build_validated_example_eval() -> Eval:
+    return Eval(
+        id=1,
+        name="SMITH, ALEX R",
+        rate="YN1",
+        desig="YN",
+        ssn="111-22-3333",
+        group=DutyStatus.ACT,
+        uic="54321",
+        station="NAVPERSCOM",
+        promotion_status=PromotionStatus.REGULAR,
+        date_reported=date(2024, 7, 1),
+        periodic=True,
+        det_indiv=False,
+        special=False,
+        prom_frock=False,
+        period_start=date(2024, 7, 1),
+        period_end=date(2024, 12, 31),
+        not_observed=False,
+        regular=True,
+        concurrent=False,
+        physical_readiness="P",
+        billet_subcategory=BilletSubcategory.BASIC,
+        senior_name="JOHNSON, C",
+        senior_grade="LCDR",
+        senior_desig="6410",
+        senior_title="ADMIN O",
+        senior_uic="54321",
+        senior_ssn="999-88-7777",
+        job="Led departmental admin transformation and improved processing quality across command workflows.",
+        duties_abbreviation="ADMIN",
+        duties_description="Managed personnel administration, training records, and readiness reporting across the department.",
+        date_counseled=date(2024, 8, 1),
+        counselor="JOHNSON, C",
+        trait1=4,
+        trait2=4,
+        trait3=4,
+        trait4=4,
+        trait5=4,
+        trait6=4,
+        trait7=4,
+        achievements="Delivered high-quality admin support and mentorship with measurable command impact.",
+        career_rec_1="ASSIGN TO FLAG STA",
+        career_rec_2="ADVANCE ASAP",
+        comments="Strong performer with sustained leadership impact and outstanding mission support.",
+        indiv_promo_rec=4,
+        retain=RetentionRecommendation.RECOMMENDED.value,
+        senior_address="456 Fleet Ave, Norfolk VA",
     )
