@@ -30,10 +30,11 @@ from sqlmodel import Session, SQLModel, create_engine, select
 
 from navfitx import __version__
 from navfitx.constants import APP_AUTHOR, APP_NAME, BUPERSINST_URL, FEEDBACK_URL, SITE_URL
-from navfitx.db import add_fitrep_to_db
-from navfitx.models import Eval, Fitrep, Report
+from navfitx.db import add_report_to_db
+from navfitx.models import ChiefEval, Eval, Fitrep, Report
 from navfitx.utils import get_blank_report_path
 
+from .chiefeval import ChiefEvalForm
 from .eval import EvalForm
 from .fitrep import FitrepForm
 
@@ -44,6 +45,8 @@ class Home(QMainWindow):
     """
 
     REPORT_LIST_NAME_COLUMN = 1
+    REPORT_LIST_TYPE_COLUMN = 3
+    REPORT_LIST_TYPE_ROLE = Qt.ItemDataRole.UserRole
     REPORT_LIST_MIN_NAME_COLUMN_WIDTH = 180
     REPORT_LIST_DEFAULT_COLUMN_WIDTHS = {
         0: 120,  # Rank/Rate
@@ -125,12 +128,52 @@ class Home(QMainWindow):
             self.edit_report_from_table(selected_row, 0)
         elif action == delete_action:
             report_id_item = self.reports_table.item(selected_row, 5)
-            report_type_item = self.reports_table.item(selected_row, 3)
+            report_type_item = self.reports_table.item(selected_row, self.REPORT_LIST_TYPE_COLUMN)
             if report_id_item and report_type_item:
                 report_id = int(report_id_item.text())
-                report_type = report_type_item.text()
+                report_type = self.get_report_type_from_row(selected_row)
+                if report_type is None:
+                    return
                 self.delete_report_by_id(report_id, report_type)
                 self.refresh_reports_table()
+
+    def get_report_type_display_name(self, report_type: str) -> str:
+        match report_type:
+            case "fitrep":
+                return "Fitness Report"
+            case "eval":
+                return "Evaluation"
+            case "chiefeval":
+                return "Chief Evaluation"
+            case _:
+                return report_type.upper()
+
+    def get_report_type_from_display_name(self, display_name: str) -> str | None:
+        normalized_name = display_name.strip().casefold()
+        if normalized_name == "fitness report":
+            return "fitrep"
+        if normalized_name == "evaluation":
+            return "eval"
+        if normalized_name == "chief evaluation":
+            return "chiefeval"
+        if normalized_name in {"fitrep", "eval", "chiefeval"}:
+            return normalized_name
+        return None
+
+    def get_report_type_from_row(self, row: int) -> str | None:
+        item = self.reports_table.item(row, self.REPORT_LIST_TYPE_COLUMN)
+        if item is None:
+            return None
+        report_type = item.data(self.REPORT_LIST_TYPE_ROLE)
+        if isinstance(report_type, str):
+            return report_type
+        return self.get_report_type_from_display_name(item.text())
+
+    def ensure_db_schema(self) -> None:
+        if not self.db:
+            return
+        engine = create_engine(f"sqlite:///{self.db}")
+        SQLModel.metadata.create_all(engine)
 
     def delete_report_by_id(self, report_id: int, report_type: str):
         if not self.db:
@@ -149,6 +192,12 @@ class Home(QMainWindow):
                     session.delete(eval)
                     session.commit()
                     return
+            elif report_type.lower() == "chiefeval":
+                chiefeval = session.exec(select(ChiefEval).where(ChiefEval.id == report_id)).first()
+                if chiefeval:
+                    session.delete(chiefeval)
+                    session.commit()
+                    return
 
     def __init__(self) -> None:
         super().__init__()
@@ -164,6 +213,7 @@ class Home(QMainWindow):
         if self.db:
             # refresh table and enable create button if DB was restored
             try:
+                self.ensure_db_schema()
                 self.refresh_reports_table()
             except Exception:
                 # Avoid crashing the UI if the restored DB is invalid/missing
@@ -235,7 +285,8 @@ class Home(QMainWindow):
         new_eval_action.triggered.connect(lambda: self.open_eval_dialog(Eval()))
 
         new_chief_action = self.new_submenu.addAction("Chief Evaluation")
-        new_chief_action.setDisabled(True)  # not implemented yet
+        new_chief_action.setDisabled(False)
+        new_chief_action.triggered.connect(lambda: self.open_chiefeval_dialog(ChiefEval()))
 
         fitness_report_action = self.new_submenu.addAction("Fitness Report")
         fitness_report_action.triggered.connect(lambda: self.open_fitrep_dialog(Fitrep()))
@@ -292,6 +343,12 @@ class Home(QMainWindow):
         idx = self.stack.addWidget(self.fitrep_form)
         self.stack.setCurrentIndex(idx)
 
+    def open_chiefeval_dialog(self, chiefeval: ChiefEval):
+        self.chiefeval_form = ChiefEvalForm(self, self.submit_form, self.cancel_form, chiefeval)
+        idx = self.stack.addWidget(self.chiefeval_form)
+        self.stack.setCurrentIndex(idx)
+        self.setWindowTitle("Chief Evaluation")
+
     @Slot(int)
     def on_stack_index_changed(self, index: int):
         """Handle stack index changes: restore home menu on index 0, set form title on index 1."""
@@ -325,6 +382,7 @@ class Home(QMainWindow):
         # TODO: validate that selected file is a valid navfitx database
         if filename:
             self.db = Path(filename)
+            self.ensure_db_schema()
 
             # persist selection for next session
             try:
@@ -444,7 +502,7 @@ class Home(QMainWindow):
 
     def submit_form(self, report: Report):
         assert self.db is not None
-        add_fitrep_to_db(self.db, report)
+        add_report_to_db(self.db, report)
         self.refresh_reports_table()
         i = self.stack.currentIndex()
         self.stack.setCurrentIndex(0)
@@ -519,11 +577,12 @@ class Home(QMainWindow):
         record_id_item = self.reports_table.item(row, 5)
         assert record_id_item is not None
 
-        report_type_item = self.reports_table.item(row, 3)
+        report_type_item = self.reports_table.item(row, self.REPORT_LIST_TYPE_COLUMN)
         assert report_type_item is not None
 
         record_id = int(record_id_item.text())
-        report_type = report_type_item.text()
+        report_type = self.get_report_type_from_row(row)
+        assert report_type is not None
 
         engine = create_engine(f"sqlite:///{self.db}")
         with Session(engine) as session:
@@ -538,6 +597,11 @@ class Home(QMainWindow):
                     report = session.exec(stmt).first()
                     assert report is not None
                     self.open_eval_dialog(report)
+                case "chiefeval":
+                    stmt = select(ChiefEval).where(ChiefEval.id == record_id)
+                    report = session.exec(stmt).first()
+                    assert report is not None
+                    self.open_chiefeval_dialog(report)
                 case _:
                     print("unknown report type")
                     return
@@ -622,7 +686,9 @@ class Home(QMainWindow):
             self.reports_table.setItem(i, 0, QTableWidgetItem(report.rate))
             self.reports_table.setItem(i, 1, QTableWidgetItem(report.name))
             self.reports_table.setItem(i, 2, QTableWidgetItem(report.ssn))
-            self.reports_table.setItem(i, 3, QTableWidgetItem(report.doc_type.upper()))
+            report_type_item = QTableWidgetItem(self.get_report_type_display_name(report.doc_type))
+            report_type_item.setData(self.REPORT_LIST_TYPE_ROLE, report.doc_type)
+            self.reports_table.setItem(i, self.REPORT_LIST_TYPE_COLUMN, report_type_item)
             period_end = self.get_period_end_for_sort(report)
             self.reports_table.setItem(i, 4, QTableWidgetItem(str(period_end) if period_end else ""))
             self.reports_table.setItem(i, 5, QTableWidgetItem(str(report.id) if report.id is not None else ""))
@@ -640,6 +706,8 @@ class Home(QMainWindow):
             stmt = select(Fitrep)
             results: list[Report] = list(session.exec(stmt))
             stmt = select(Eval)
+            results.extend(list(session.exec(stmt)))
+            stmt = select(ChiefEval)
             results.extend(list(session.exec(stmt)))
             self._reports_cache = results
             self.render_reports_table()

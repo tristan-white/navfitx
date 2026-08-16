@@ -888,7 +888,7 @@ class Fitrep(Report, table=True):
     @model_validator(mode="after")
     def validate_type_of_report(self):
         if self.ops_cdr and (self.regular or self.concurrent):
-            raise ValueError("Report cannot be marked both as 'OpsCdr' and 'Concurrent'")
+            raise ValueError("Report cannot be marked both as 'OpsCdr' and another Type of Report selection")
         if not self.ops_cdr and not self.regular and not self.concurrent:
             raise ValueError("Type of Report must be marked.")
         return self
@@ -931,7 +931,10 @@ class Fitrep(Report, table=True):
         """
         from navfitx.importer import parse_report_toml
 
-        return parse_report_toml(toml_str, require_header=False)
+        report = parse_report_toml(toml_str, require_header=False)
+        if not isinstance(report, cls):
+            raise ValueError(f"Expected TOML for {cls.__name__} but got {type(report).__name__}.")
+        return report
 
     def create_pdf(self, path: Path):
         """
@@ -1292,6 +1295,66 @@ class ChiefEval(Report, table=True):
     trait5: int | None = Field(None, ge=0, le=5, title="Accountability")
     trait6: int | None = Field(None, ge=0, le=5, title="Leadership")
     trait7: int | None = Field(None, ge=0, le=5, title="Teamwork")
+
+    def trait_values(self) -> list[int | None]:
+        return [
+            self.trait1,
+            self.trait2,
+            self.trait3,
+            self.trait4,
+            self.trait5,
+            self.trait6,
+            self.trait7,
+        ]
+
+    @field_validator(
+        "trait1",
+        "trait2",
+        "trait3",
+        "trait4",
+        "trait5",
+        "trait6",
+        "trait7",
+    )
+    @classmethod
+    def validate_traits(cls, value: int | None) -> int | None:
+        if value is None:
+            raise ValueError("Trait value must be set or marked NOB.")
+        return value
+
+    @model_validator(mode="after")
+    def validate_nob(self):
+        if self.not_observed:
+            for trait in self.trait_values():
+                if trait != 0:
+                    raise ValueError("If 'Not Observed' is checked, all traits must be marked as NOB (0).")
+        return self
+
+    @model_validator(mode="after")
+    def validate_indiv_promo_rec(self):
+        observed = 0
+        for trait in self.trait_values():
+            if trait is not None and trait > 0:
+                observed += 1
+        if observed <= 3 and self.indiv_promo_rec is not None:
+            raise ValueError("Promotion recommendation should not be set if 3 or fewer traits are observed.")
+        if observed > 3 and self.indiv_promo_rec is None:
+            raise ValueError("Promotion recommendation must be set if more than 3 traits are observed.")
+        return self
+
+    @model_validator(mode="after")
+    def validate_special(self):
+        if self.special and (self.periodic or self.det_indiv or self.det_rs):
+            raise ValueError("The occasion for report cannot have 'Special' checked if any other occasion is selected.")
+        return self
+
+    @model_validator(mode="after")
+    def validate_type_of_report(self):
+        if self.ops_cdr and (self.regular or self.concurrent):
+            raise ValueError("Report cannot be marked both as 'OpsCdr' and another Type of Report selection")
+        if not self.ops_cdr and not self.regular and not self.concurrent:
+            raise ValueError("Type of Report must be marked.")
+        return self
 
     def get_group_point(self) -> Point | None:
         if self.group == DutyStatus.ACT:

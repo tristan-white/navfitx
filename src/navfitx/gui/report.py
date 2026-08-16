@@ -481,12 +481,7 @@ class BaseReportForm(QWidget, Generic[TReport]):
         errors = json.loads(err.json())
         lines = []
         for error in errors:
-            loc = error.get("loc", [])
-            if loc:
-                field_name = loc[0]
-                title = self.field_title(field_name)
-            else:
-                title = "Report"
+            title = self.validation_error_title(error)
             lines.append(f"{title}: {error['msg']}")
         QMessageBox.warning(self, "Validation", "\n".join(lines))
 
@@ -498,8 +493,7 @@ class BaseReportForm(QWidget, Generic[TReport]):
             errors = json.loads(err.json())
             lines = []
             for error in errors:
-                field_name = error["loc"][0]
-                title = self.field_title(field_name)
+                title = self.validation_error_title(error)
                 lines.append(f"{title}: {error['msg']}")
 
             msg_box = QMessageBox(self)
@@ -517,6 +511,24 @@ class BaseReportForm(QWidget, Generic[TReport]):
             if no_btn is not None:
                 no_btn.setText("Cancel")
             return msg_box.exec() == QMessageBox.StandardButton.Yes
+
+    def validation_error_title(self, error: dict[str, Any]) -> str:
+        loc = error.get("loc", [])
+        if loc:
+            field_name = loc[0]
+            if isinstance(field_name, str):
+                return self.field_title(field_name)
+
+        msg = str(error.get("msg", "")).casefold()
+        if "occasion for report" in msg or "occasion" in msg:
+            return "Occasion for Report"
+        if "type of report" in msg or "opscdr" in msg:
+            return "Type of Report"
+        if "promotion recommendation" in msg:
+            return "Promotion Recommendation"
+        if "not observed" in msg or "trait" in msg:
+            return "Traits"
+        return "Report"
 
     def field_title(self, field_name: str) -> str:
         field = self.report_type.model_fields.get(field_name)
