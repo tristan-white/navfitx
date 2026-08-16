@@ -60,6 +60,14 @@ _Avoid_: Chief Eval report, CHIEFEVAL report
 Accepted shorthand for Chief Evaluation in space-constrained UI labels.
 _Avoid_: CHIEFEVAL (as user-facing label), chief report
 
+**Evaluation**:
+The report type used for sailor performance evaluations in NAVFITX. Its Report Type Discriminator value is `eval`.
+_Avoid_: Eval report, EVAL report
+
+**EVAL**:
+Accepted shorthand for Evaluation in space-constrained UI labels.
+_Avoid_: eval (as user-facing label), performance eval report
+
 **Import Strict Mode**:
 An import mode that requires the report data to be complete and fully valid before accepting it.
 _Avoid_: Hard import, safe mode
