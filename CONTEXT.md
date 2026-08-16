@@ -60,6 +60,10 @@ _Avoid_: Chief Eval report, CHIEFEVAL report
 Accepted shorthand for Chief Evaluation in space-constrained UI labels.
 _Avoid_: CHIEFEVAL (as user-facing label), chief report
 
+**Duties Classification**:
+The report field group that captures primary, watch-standing, and collateral duties content for the member being evaluated.
+_Avoid_: Primary/watch-standing/duties collateral, duties block
+
 **Evaluation**:
 The report type used for sailor performance evaluations in NAVFITX. Its Report Type Discriminator value is `eval`.
 _Avoid_: Eval report, EVAL report
