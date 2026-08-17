@@ -12,7 +12,7 @@ from typing import Annotated
 
 import pymupdf
 import tomlkit
-from pydantic import StringConstraints, field_validator, model_validator
+from pydantic import BaseModel, StringConstraints, field_validator, model_validator
 from pymupdf import Point
 from sqlmodel import Field, SQLModel
 
@@ -1317,6 +1317,21 @@ class Eval(Report, table=True):
         back.insert_text(Point(389, 609), self.senior_address, fontsize=9, fontname="Cour", lineheight=1.0)
         doc.save(str(path))
         doc.close()
+
+
+class ChiefEvalTrait(BaseModel):
+    """
+    Chief Evaluation trait model.
+
+    Attributes:
+        order (int): The order of the trait as it appears on the form, starting from 1.
+        name: (str): The name of the trait, all lowercase.
+        grade_descriptions (dict[int, str]): A dictionary mapping trait scores (0-5) to their corresponding descriptions.
+    """
+
+    order: int
+    name: str
+    grade_descriptions: dict[int, str]
 
 
 class ChiefEval(Report, table=True):
