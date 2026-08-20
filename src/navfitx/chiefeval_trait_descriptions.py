@@ -1,4 +1,4 @@
-foo = {
+traits = {
     "technical_mastery": {
         1: """-Lacks basic rating knowledge
     -Unaware and unwilling to learn details of technical rating proficiencies
@@ -35,7 +35,7 @@ foo = {
         2: """-Limited Navy knowledge
     -Learning Navy programs and policies
     -Only applies basic skills
-    -Does not regularly engage when required to ensure mission 
+    -Does not regularly engage when required to ensure mission
     success
     -Lacks full understanding and knowledge of naval customs and traditions
     """,
@@ -64,7 +64,7 @@ foo = {
     -Fails to uphold, and enforce standards
     """,
         2: """-Infrequently upholds and enforces standards
-    -Learning to effectively utilize the Chief's Mess to plan and solve 
+    -Learning to effectively utilize the Chief's Mess to plan and solve
     challenges
     -Improvement of peers, subordinates, and self is a low priority
     -Struggled to meet one or more physical readiness standards

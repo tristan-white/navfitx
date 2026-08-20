@@ -64,7 +64,7 @@ nav = [
 #
 # Read more: https://zensical.org/docs/customization/#additional-css
 #
-#extra_css = ["stylesheets/extra.css"]
+extra_css = ["stylesheets/extra.css"]
 
 # With the `extra_javascript` option you can add your own JavaScript to your
 # project to customize the behavior according to your needs.
@@ -342,15 +342,19 @@ link = "https://pypi.org/project/navfitx/"
 auto_append = ["includes/abbreviations.md"]
 
 [project.markdown_extensions]
+pymdownx.emoji.emoji_generator = "zensical.extensions.emoji.to_svg"
+pymdownx.emoji.emoji_index = "zensical.extensions.emoji.twemoji"
 pymdownx.superfences.custom_fences = [
   { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },
 ]
 zensical.extensions.glightbox = {}
+attr_list = {}
+md_in_html = {}
 
 [project.markdown_extensions.abbr]
 [project.markdown_extensions.admonition]
-[project.markdown_extensions.attr_list]
-[project.markdown_extensions.md_in_html]
+# [project.markdown_extensions.attr_list]
+# [project.markdown_extensions.md_in_html]
 [project.markdown_extensions.footnotes]
 [project.markdown_extensions.pymdownx.keys]
 [project.markdown_extensions.pymdownx.details]
@@ -359,7 +363,7 @@ zensical.extensions.glightbox = {}
 [project.markdown_extensions.pymdownx.tabbed]
 alternate_style = true
 
-[project.markdown_extensions.pymdownx.emoji]
+# [project.markdown_extensions.pymdownx.emoji]
 
 [project.markdown_extensions.toc]
 permalink = "⚓︎"
