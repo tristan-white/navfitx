@@ -13,7 +13,8 @@ from PySide6.QtWidgets import (
     QTextEdit,
 )
 
-from navfitx.models import Eval, RetentionRecommendation
+from navfitx.models.enums import RetentionRecommendation
+from navfitx.models.eval import Eval
 
 from .report import BaseReportForm
 

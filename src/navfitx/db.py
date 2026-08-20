@@ -1,5 +1,5 @@
 """
-Functinos for interacting with the NAVFITX database.
+Functions for interacting with the NAVFITX database.
 """
 
 # import pyodbc
@@ -8,7 +8,7 @@ from pathlib import Path
 
 from sqlmodel import Session, create_engine
 
-from .models import Report
+from navfitx.models.models import Report
 
 
 def add_report_to_db(db_path: Path, report: Report):
